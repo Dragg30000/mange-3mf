@@ -63,7 +63,7 @@ Mange-3MF ajoute un **onglet « Mange-3MF »** à OrcaSlicer. Il lit le 3MF d'or
 - **profils de filament** : chaque couleur prend un de tes profils, de la même matière, celui dont la couleur est la plus proche, avec ses réglages Haut débit et Standard. Tu peux en choisir un autre dans l'onglet ;
 - **ordre des filaments** : les couleurs qui ressemblent le plus à tes bobines actuelles prennent leurs cases (1 à 4), les autres suivent.
 
-![Ouvert tel quel dans Orca : 4 × Generic ABS. Converti par Mange-3MF : 7 couleurs, 7 filaments](docs/visuals/01_cover.jpg)
+![Ouvert tel quel dans Orca : 4 × Generic ABS. Converti par Mange-3MF : 7 couleurs, 7 filaments](docs/visuals/before_after.jpg)
 
 Le fichier converti est écrit à côté de l'original, par exemple `Mon modèle - U1.3mf`. Tu l'ouvres ensuite avec **Fichier › Ouvrir un projet (Ctrl+O)** : un plugin Orca ne peut pas ouvrir un projet lui-même.
 

@@ -15,7 +15,7 @@
 
 ---
 
-![Opened as is in Orca: 4 × Generic ABS. Converted by Mange-3MF: 7 colors, 7 filaments](docs/visuals/01_cover.jpg)
+![Opened as is in Orca: 4 × Generic ABS. Converted by Mange-3MF: 7 colors, 7 filaments](docs/visuals/before_after.jpg)
 
 ## 😩 The problem
 

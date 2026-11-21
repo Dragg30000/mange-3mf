@@ -187,13 +187,14 @@ ${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in English and French</
   const browser = await chromium.launch({ executablePath: process.argv[2] || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
   const jobs = [
     ['01_cover', cover(), 1920, 1080, 'jpeg'],
+    ['before_after', cover(), 1920, 1080, 'jpeg', { x: 0, y: 420, width: 1920, height: 510 }],   // pour le README
     ['02_colors', colorsPage(), 1920, 1080, 'jpeg'],
     ['03_settings', settingsPage(), 1920, 1080, 'jpeg'],
     ['04_ready', readyPage(), 1920, 1080, 'jpeg'],
     ['github_banner', banner(1760, 520), 1760, 520, 'png'],
     ['github_social_preview', banner(1280, 640), 1280, 640, 'png'],
   ];
-  for (const [name, html, w, h, type] of jobs) {
+  for (const [name, html, w, h, type, clip] of jobs) {
     const file = path.join(HERE, '_' + name + '.html');
     fs.writeFileSync(file, html);
     const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
@@ -203,7 +204,7 @@ ${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in English and French</
     await page.waitForTimeout(150);
     const fam = await page.evaluate(() => document.fonts.check('800 100px "Bricolage"'));
     const out = path.join(OUT, name + (type === 'jpeg' ? '.jpg' : '.png'));
-    await page.screenshot({ path: out, type, quality: type === 'jpeg' ? 92 : undefined, clip: { x: 0, y: 0, width: w, height: h } });
+    await page.screenshot({ path: out, type, quality: type === 'jpeg' ? 92 : undefined, clip: clip || { x: 0, y: 0, width: w, height: h } });
     console.log(name, fam ? 'police ok' : 'POLICE ABSENTE', errors.length ? errors : '');
     await page.close();
   }
