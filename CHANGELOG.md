@@ -1,5 +1,11 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.4.2 — 22/11/2026
+
+- **Numéro de version corrigé** : la 0.4.1 annonçait encore « 0.4.0 » à Orca (fenêtre Plugins, mises à jour d'Orca Cloud) alors que l'onglet affichait 0.4.1. L'en-tête du plugin et l'onglet disent maintenant tous les deux 0.4.2, et un test vérifie qu'ils restent pareils.
+- **Nouveau logo** : la U1 en petit monstre gourmand qui croque un fichier 3MF, avec ses 4 têtes de couleur sur le dessus. Il remplace le cube croqué dans l'onglet d'Orca (version d'une seule couleur, au trait comme les icônes d'Orca) et sur les visuels du dépôt et d'Orca Cloud. Fichiers du logo dans `docs/visuals/logo/`.
+- Tests : 329 vérifications.
+
 ## 0.4.1 — 21/11/2026
 
 - **La U1 a faim** : dans « Le 3MF à manger », une U1 dessinée (sa vraie silhouette : haut ouvert, 4 têtes garées, porte vitrée, écran) attend ton 3MF. Glisse un fichier sur l'onglet : elle ouvre la bouche, l'avale, le mâche pendant l'analyse, puis rote les couleurs du modèle. Pas un 3MF : elle le recrache. Un clic sur elle ouvre le choix d'un fichier, un clic pendant le spectacle le coupe. Animations coupées si Windows est réglé pour réduire les animations. Dessin fait dans la page : le plugin reste un seul fichier.

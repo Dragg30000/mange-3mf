@@ -29,16 +29,18 @@ function speckle() {   // plateau PEI texture : petits points clairs et sombres
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">${dots.join('')}</svg>`);
 }
 
-function cube(size) {   // l'icone : cube trois couleurs croque
-  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true">
-  <defs><mask id="bite${size}"><rect width="100" height="100" fill="#fff"/><circle cx="84" cy="27" r="13" fill="#000"/></mask></defs>
-  <g mask="url(#bite${size})" stroke="#fff" stroke-width="3.2" stroke-linejoin="round">
-    <polygon points="50,12 86,32 50,52 14,32" fill="#1E88E5"/>
-    <polygon points="14,32 50,52 50,93 14,73" fill="#E53935"/>
-    <polygon points="50,52 86,32 86,73 50,93" fill="#FFC107"/>
-  </g>
-  <circle cx="69" cy="10" r="2.6" fill="#fff"/><circle cx="97" cy="16" r="2" fill="#fff"/><circle cx="94" cy="44" r="2.4" fill="#fff"/>
-</svg>`;
+// l'icone : la U1 gourmande qui croque un 3MF (fichiers dans docs/visuals/logo)
+const LOGO_DIR = path.join(ROOT, 'docs', 'visuals', 'logo');
+const ICON = fs.readFileSync(path.join(LOGO_DIR, 'mange3mf_icon.svg'), 'utf8').replace(/<title>[^<]*<\/title>\s*/, '');
+const TAB_ICON = fs.readFileSync(path.join(LOGO_DIR, 'mange3mf_tab_icon.svg'), 'utf8');
+let nIcon = 0;
+function logo(size) {   // icone en couleur, tuile turquoise
+  const id = 'u1mouth' + (++nIcon);
+  return ICON.replace('width="512" height="512"', `width="${size}" height="${size}" aria-hidden="true"`)
+    .replace(/id="m"/g, `id="${id}"`).replace(/url\(#m\)/g, `url(#${id})`);
+}
+function tabIcon(size) {   // icone de l'onglet dans Orca (une couleur), comme ICON_SVG du plugin
+  return TAB_ICON.replace('viewBox="0 0 24 24"', `viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"`);
 }
 
 function spool(color, size, dark) {   // bobine vue de face
@@ -67,7 +69,7 @@ h1,h2,p{margin:0}
 
 function frame(inner, tab) {   // la page dans un onglet d'Orca
   return `<div class="frame"><div class="bar"><span>Prepare</span><span>Preview</span><span>Device</span>
-    <span class="on">${cube(26)}${tab || 'Mange-3MF'}</span></div>${inner}</div>`;
+    <span class="on">${tabIcon(26)}${tab || 'Mange-3MF'}</span></div>${inner}</div>`;
 }
 const FRAME_CSS = `
 .frame{border-radius:16px;overflow:hidden;border:1px solid #2c3747;background:#262629;box-shadow:0 36px 90px rgba(0,0,0,.55)}
@@ -104,7 +106,7 @@ figcaption{margin-top:8px;font-size:24px;font-weight:600;color:#7f8a9a}
 footer{position:absolute;left:120px;right:120px;bottom:70px;display:flex;justify-content:space-between;align-items:baseline;font-size:30px;color:#8f9aab}
 footer b{font-weight:700;color:#22b3a5}
 </style></head><body><div class="canvas">
-<header>${cube(210)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></header>
+<header>${logo(210)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></header>
 <div class="duel">
   <div class="side before"><h2>Opened as is in Orca</h2><p>4 × Generic ABS, colors 5 to 7 lost</p><div class="spools">${gray}</div></div>
   <div class="side after"><h2>Converted by Mange-3MF</h2><p>7 colors, 7 filaments, your own settings</p><div class="spools">${col}</div></div>
@@ -125,7 +127,7 @@ h1{font-size:92px;line-height:.98;font-weight:800;font-stretch:92%;letter-spacin
 .right{position:absolute;left:720px;right:80px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;gap:34px}
 ${extraCss || ''}
 </style></head><body><div class="canvas">
-<div class="mark">${cube(46)}Mange-3MF</div>
+<div class="mark">${logo(46)}Mange-3MF</div>
 <div class="text"><h1>${title}</h1><p class="sub">${sub}</p></div>
 <div class="right">${right}</div>
 </div></body></html>`;
@@ -177,7 +179,7 @@ h1{font-size:${big ? 124 : 112}px;line-height:.9;font-weight:800;font-stretch:92
 .gray{opacity:.75;display:flex;gap:${big ? 14 : 12}px}
 .foot{font-size:${big ? 27 : 24}px;color:#8f9aab}
 </style></head><body><div class="canvas"><div class="in">
-<div class="top">${cube(big ? 170 : 150)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></div>
+<div class="top">${logo(big ? 170 : 150)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></div>
 <div class="row"><div class="gray">${gray}</div><span class="arrow">→</span>${col}</div>
 ${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in English and French</p>' : ''}
 </div></div></body></html>`;

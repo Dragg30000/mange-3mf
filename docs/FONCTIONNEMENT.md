@@ -1,6 +1,6 @@
 # Fonctionnement de Mange-3MF
 
-Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.4.1). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
+Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.4.2). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
 
 ## 1. Organisation du fichier
 
@@ -18,10 +18,12 @@ Un seul fichier Python, sans dépendance hors bibliothèque standard, en section
 | plan | `make_plan` : une case par couleur, ordre des cases, profil proposé pour chaque couleur |
 | construction | `build_project_config` (réglages du projet pour N filaments) et `build_output` (3MF converti) |
 | API | `analyze`, `check_plan`, `convert` (utilisées par l'onglet et les tests) |
-| onglet | page HTML (`PAGE` : analyse et fichiers prêts en haut, puis réglages et choix du 3MF ; `page_html` y met `TEXTS` et la langue), icône (`ICON_SVG`) et `Converter` |
+| onglet | page HTML (`PAGE` : analyse et fichiers prêts en haut, puis réglages et choix du 3MF ; `page_html` y met `TEXTS` et la langue), icône de l'onglet (`ICON_SVG` : la U1 au trait, 24 × 24, une seule couleur `#FEFEFE` ; même dessin que `docs/visuals/logo/mange3mf_tab_icon.svg`) et `Converter` |
 | enregistrement | capacité « onglet » (`orca.pages.PagesPluginCapabilityBase`) et déclaration des droits |
 
 Le cœur (jusqu'à l'API) n'utilise pas `orca` : il tourne et se teste hors d'OrcaSlicer.
+
+**Numéro de version** : il est écrit deux fois. L'en-tête du fichier (bloc `[tool.orcaslicer.plugin]`, ligne `# version = …`) est ce qu'Orca lit, sans lancer le code, pour la fenêtre Plugins et les mises à jour d'Orca Cloud ; `VERSION` est ce qu'affiche l'onglet. Les deux doivent être identiques : `test_plugin.py` le vérifie (la 0.4.1 avait oublié l'en-tête).
 
 ## 2. Fils d'exécution et droits
 

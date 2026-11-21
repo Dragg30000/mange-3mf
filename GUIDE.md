@@ -7,7 +7,7 @@
 **Eats any 3MF and spits out an OrcaSlicer project ready for your Snapmaker U1.**
 MakerWorld / Bambu Studio projects, Snapmaker Orca, OrcaSlicer and its forks: exactly the model's colors (one filament per color), the painting and the plates are kept, and **your** settings are used.
 
-- Version: **0.4.1** (2026-11-21) — see [CHANGELOG.md](CHANGELOG.md) (in French)
+- Version: **0.4.2** (2026-11-22) — see [CHANGELOG.md](CHANGELOG.md) (in French)
 - For: OrcaSlicer 2.5 (Python plugins), Snapmaker U1 (4-head profile)
 - Languages: English or French (Orca's language by default, selectable in the tab)
 - Author: Dragg with his friend Claude — GPL-3.0 license ([LICENSE](LICENSE))
@@ -156,7 +156,7 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 
 ## 7. Known limits
 
-- **Version 0.4.1**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); conversion with more than 4 filaments is still to be tried.
+- **Version 0.4.2**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); conversion with more than 4 filaments is still to be tried.
 - **PrusaSlicer** files (Printables): not supported yet. Orca already opens them and keeps the shape and the painting.
 - **Already sliced** files (`.gcode.3mf`): refused, they don't contain the model.
 - **Materials**: if none of your profiles has the model's material (PETG, TPU…), the plugin warns you but doesn't create a profile.
@@ -189,7 +189,8 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 | `CHANGELOG.md` | Version history (in French). |
 | `docs/FONCTIONNEMENT.md` | Technical notes (3MF formats, painting, plates, color plan, project settings) to work on the code (in French). |
 | `docs/captures/` | Screenshots of the tab (English ones in `docs/captures/en/`). |
-| `docs/visuals/` | Visuals for Orca Cloud and GitHub (banner, before / after, staged screenshots). |
+| `docs/visuals/` | Visuals for Orca Cloud and GitHub (banner, before / after, staged screenshots, the hungry U1 GIF). |
+| `docs/visuals/logo/` | The logo: icon (SVG, 512 px PNG), mascot without background, wide logo for dark or light backgrounds, tab icon. |
 | `tests/` | Automated tests (without Orca): `python tests/run_all.py`. See [tests/README.md](tests/README.md) (in French). |
 | `LICENSE` | GPL-3.0 license. |
 

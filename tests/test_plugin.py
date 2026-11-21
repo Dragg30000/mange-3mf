@@ -1,5 +1,6 @@
 """Test du plugin dans un faux OrcaSlicer : onglet, messages, ecriture des fichiers, notifications."""
-import importlib, json, os, shutil, sys, tempfile, time
+import importlib, json, os, re, shutil, sys, tempfile, time
+import xml.etree.ElementTree as ET
 from common import ok, done, sample, fake_template
 import fake_orca, make_samples
 
@@ -28,6 +29,12 @@ ok(isinstance(tab, orca.pages.PagesPluginCapabilityBase), "c'est un onglet")
 ok(tab.get_name() == "Mange-3MF", "nom de l'onglet : %s" % tab.get_name())
 icon = tab.get_icon()
 ok(icon.endswith(".svg") and os.path.isfile(icon) and "<svg" in open(icon, encoding="utf-8").read(), "icone : %s" % icon)
+svg = ET.fromstring(open(icon, encoding="utf-8").read())
+ok(svg.get("viewBox") == "0 0 24 24" and svg.get("stroke") == "#FEFEFE" and len(svg) >= 5,
+   "icone de l'onglet : la U1, 24 x 24, une couleur (%d elements)" % len(svg))
+head = re.search(r'^# version = "([^"]+)"', open(m.__file__, encoding="utf-8").read(), re.M)
+ok(head is not None and head.group(1) == m.VERSION,
+   "version de l'en-tete lue par Orca (%s) = version de l'onglet (%s)" % (head and head.group(1), m.VERSION))
 html = tab.get_ui()
 ok("<html" in html and "orca.postMessage" in html and "dragover" in html, "page HTML (avec glisser-deposer)")
 w = st["page"]

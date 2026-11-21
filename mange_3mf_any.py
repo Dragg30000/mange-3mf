@@ -5,7 +5,7 @@
 # name = "Mange-3MF (Snapmaker U1)"
 # description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
 # author = "Dragg avec son ami Claude"
-# version = "0.4.0"
+# version = "0.4.2"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -49,7 +49,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.4.1"
+VERSION = "0.4.2"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -3261,8 +3261,12 @@ def page_html(lang=None):
 
 
 ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FEFEFE" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
-<path d="M12 3 L15.6 5.05 A3.2 3.2 0 0 0 20 9.9 L20 16.5 L12 21 L4 16.5 L4 7.5 Z"/>
-<path d="M4 7.5 L12 12 L15.4 10.1 M12 12 L12 21"/></svg>"""
+<path d="M5.4 6V4.1h2.2V6M9 6V4.1h2.2V6M12.6 6V4.1h2.2V6M16.2 6V4.1h2.2V6"/>
+<rect x="3.5" y="6" width="17" height="15" rx="3.5"/>
+<circle cx="9" cy="10.4" r="2"/><circle cx="15" cy="10.4" r="2"/>
+<rect x="6.5" y="13.6" width="11" height="4.9" rx="1.5"/>
+<path d="M8.2 13.6l.8 1.5.8-1.5M14.2 13.6l.8 1.5.8-1.5"/>
+<circle cx="9.5" cy="10.8" r=".55" fill="#FEFEFE" stroke="none"/><circle cx="14.5" cy="10.8" r=".55" fill="#FEFEFE" stroke="none"/></svg>"""
 
 
 class Converter:

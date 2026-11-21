@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Mange-3MF</title>
+  <rect width="512" height="512" rx="112" fill="#1FA89B"/>
+  <ellipse cx="256" cy="452" rx="168" ry="20" fill="#178A7F"/>
+  <g stroke="#141920" stroke-width="12" stroke-linejoin="round">
+    <rect x="124" y="84" width="56" height="58" rx="14" fill="#1b1d21"/>
+    <rect x="190" y="84" width="56" height="58" rx="14" fill="#FFC83A"/>
+    <rect x="266" y="84" width="56" height="58" rx="14" fill="#E5483F"/>
+    <rect x="332" y="84" width="56" height="58" rx="14" fill="#F4F4F4"/>
+    <rect x="80" y="124" width="352" height="324" rx="64" fill="#E3E7EC" stroke-width="16"/>
+  </g>
+  <g stroke="#141920" stroke-width="12">
+    <circle cx="198" cy="196" r="42" fill="#fff"/>
+    <circle cx="314" cy="196" r="42" fill="#fff"/>
+  </g>
+  <circle cx="207" cy="208" r="19" fill="#141920"/><circle cx="305" cy="208" r="19" fill="#141920"/>
+  <circle cx="214" cy="199" r="7" fill="#fff"/><circle cx="312" cy="199" r="7" fill="#fff"/>
+  <ellipse cx="130" cy="248" rx="22" ry="12" fill="#F29AA8"/><ellipse cx="382" cy="248" rx="22" ry="12" fill="#F29AA8"/>
+  <rect x="116" y="266" width="280" height="150" rx="34" fill="#2B1D22" stroke="#141920" stroke-width="12"/>
+  <clipPath id="m"><rect x="122" y="272" width="268" height="138" rx="28"/></clipPath>
+  <g clip-path="url(#m)">
+    <ellipse cx="256" cy="414" rx="96" ry="32" fill="#F07A8E"/>
+    <path d="M136 272l14 34 14-34zM348 272l14 34 14-34z" fill="#fff"/>
+  </g>
+  <g transform="rotate(-12 256 300)">
+    <path d="M206 236h66l34 34v96a10 10 0 0 1-10 10h-90a10 10 0 0 1-10-10V246a10 10 0 0 1 10-10z" fill="#fff" stroke="#141920" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M272 236v34h34" fill="none" stroke="#141920" stroke-width="10" stroke-linejoin="round"/>
+    <rect x="196" y="318" width="110" height="30" fill="#22B3A5"/>
+    <path d="M232.38 341.34Q230.77 341.34 229.58 341.02Q228.39 340.71 227.6 340.12Q226.8 339.53 226.37 338.66Q225.93 337.78 225.83 336.68L229.34 335.65Q229.37 336.28 229.59 336.79Q229.81 337.29 230.21 337.65Q230.61 338.01 231.18 338.19Q231.76 338.37 232.48 338.37Q233.31 338.37 233.94 338.12Q234.57 337.87 234.93 337.37Q235.28 336.86 235.28 336.1Q235.28 335.14 234.6 334.51Q233.91 333.88 232.51 333.64Q231.1 333.41 228.91 333.65V331.49L234.1 328.39V328.19L226.67 328.25V325.14H238.09V328.6L233.12 331.76V331.99Q235.39 331.83 236.7 332.41Q238.01 332.99 238.58 334.03Q239.15 335.07 239.15 336.27Q239.15 337.84 238.41 338.97Q237.68 340.09 236.18 340.72Q234.68 341.34 232.38 341.34ZM241.5 341V325.16H247.29L251.31 336.54H251.42L255.35 325.16H260.87V341H257.21L257.42 329.09H257.16L252.7 341H249.52L245.15 329.09H244.9L245.1 341H241.5ZM264.04 341V325.16H267.9V341H264.04ZM265.94 335.36V332.21H275.07V335.36H265.94ZM265.94 328.44V325.16H275.93V328.44H265.94Z" fill="#fff"/>
+    <polygon points="251,256 274,269 251,282 228,269" fill="#1E88E5"/>
+    <polygon points="228,269 251,282 251,306 228,293" fill="#E53935"/>
+    <polygon points="251,282 274,269 274,293 251,306" fill="#FFC107"/>
+  </g>
+  <path d="M184 266l10 24 10-24zM308 266l10 24 10-24z" fill="#fff" stroke="#141920" stroke-width="6" stroke-linejoin="round"/>
+</svg>
