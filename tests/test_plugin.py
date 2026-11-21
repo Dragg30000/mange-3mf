@@ -133,7 +133,7 @@ n_res = count("result")
 tab.on_message({"command": "convert", "token": an_en["token"], "template": "saved", "files": plan(an_en)})
 b3 = w.wait("built", 3); tab.on_message({"command": "write", "token": b3["token"]})
 res3 = w.wait("result", n_res + 1)
-ok(res3["files"][0]["name"].startswith("cute baby dragon - U1"), "converti : %s" % res3["files"][0]["name"])
+ok(res3["files"][0]["name"] == "cute baby dragon - U1-by-Dragg.3mf", "converti : %s" % res3["files"][0]["name"])
 n_state, n_an, n_res = count("state"), count("analysis"), count("result")
 st["language"] = "de_DE"
 tab.on_message({"command": "lang", "lang": "auto"})

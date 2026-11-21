@@ -25,7 +25,7 @@ Fichiers d'aide :
 - `make_samples.py` : fabrique des projets de test (plusieurs plaques, 7 couleurs, peinture) à partir de l'exemple Pokéballs ;
 - `fake_orca.py` : faux module `orca` (onglet, notifications, profils, préréglages de filament écrits comme Orca, export de projet, langue d'Orca) ;
 - `samples/` : 3MF d'exemple (voir `samples/PROVENANCE.md`) ;
-- `ui/` : rendu de l'onglet dans Chrome pour refaire les captures de `docs/captures/` (français) et `docs/captures/en/` (anglais) : `python tests/ui/make_captures.py`, nécessite Node, `npm install` dans `tests/ui`, Chrome et Pillow. Vérifie aussi le changement de langue dans la page et le bouton Ko-fi. Les visuels de `docs/visuals/` (Orca Cloud, GitHub) se refont ensuite avec `node tests/ui/make_visuals.js`.
+- `ui/` : rendu de l'onglet dans Chrome pour refaire les captures de `docs/captures/` (français) et `docs/captures/en/` (anglais) : `python tests/ui/make_captures.py`, nécessite Node, `npm install` dans `tests/ui`, Chrome et Pillow. Vérifie aussi le changement de langue dans la page, le bouton Ko-fi et la U1 gourmande (bouche ouverte, avale, mâche, rote les couleurs, recrache), et capture la U1 qui a faim (`4_glouton.png`). Les visuels de `docs/visuals/` (Orca Cloud, GitHub) se refont ensuite avec `node tests/ui/make_visuals.js`.
 
 Les tests lisent les messages en français (`common.py` règle `LANGUAGE=fr_FR`) ; l'anglais est vérifié par `test_lang.py` et `test_plugin.py`.
 

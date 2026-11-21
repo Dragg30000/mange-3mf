@@ -16,7 +16,7 @@
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
-- Version : **0.4.0** (21/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
+- Version : **0.4.1** (21/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), Snapmaker U1 (profil à 4 têtes)
 - Langues : français ou anglais (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
@@ -66,7 +66,7 @@ Mange-3MF ajoute un **onglet « Mange-3MF »** à OrcaSlicer. Il lit le 3MF d'or
 
 ![Ouvert tel quel dans Orca : 4 × Generic ABS. Converti par Mange-3MF : 7 couleurs, 7 filaments](docs/visuals/before_after.jpg)
 
-Le fichier converti est écrit à côté de l'original (ou dans le dossier de ton choix), par exemple `Mon modèle - U1.3mf`. Tu l'ouvres ensuite avec **Fichier › Ouvrir un projet (Ctrl+O)** : un plugin Orca ne peut pas ouvrir un projet lui-même.
+Le fichier converti est écrit à côté de l'original (ou dans le dossier de ton choix), par exemple `Mon modèle - U1-by-Dragg.3mf`. Tu l'ouvres ensuite avec **Fichier › Ouvrir un projet (Ctrl+O)** : un plugin Orca ne peut pas ouvrir un projet lui-même.
 
 ## 3. Installation et mise à jour
 
@@ -101,10 +101,12 @@ Dans la même partie, **« Fichiers convertis »** choisit où les écrire : **�
 ### 4.2 Choisir le 3MF
 
 - l'onglet liste les **derniers 3MF de tes Téléchargements**, avec leur origine (Bambu Studio, Snapmaker Orca, OrcaSlicer…), leur imprimante et leur nombre de couleurs (« à convertir » ou « déjà pour la U1 ») : clique **Analyser** sur la ligne ;
-- ou **glisse un 3MF** dans l'onglet ;
+- ou **glisse un 3MF** sur l'onglet : la U1 dessinée dans « Le 3MF à manger » ouvre la bouche, l'avale, le mâche pendant l'analyse, puis rote les couleurs du modèle (un fichier qui n'est pas un 3MF, elle le recrache). Un clic sur elle ouvre le choix d'un fichier. Un clic pendant le spectacle le coupe ; les animations s'arrêtent si Windows est réglé pour réduire les animations ;
 - ou colle le chemin d'un 3MF (dans l'Explorateur : clic droit sur le fichier › « Copier en tant que chemin d'accès ») ;
 - ou **Parcourir…** (glisser-déposer et Parcourir : fichiers jusqu'à 80 Mo) ;
 - si tu ouvres directement dans Orca un 3MF venu d'ailleurs, une **notification** propose « Préparer la conversion dans l'onglet Mange-3MF ». Un clic lance l'analyse, et une deuxième notification te dit quand elle est prête : il ne reste qu'à ouvrir l'onglet (un plugin ne peut pas l'afficher tout seul).
+
+![La U1 a faim : « Miam ! Lâche-le… »](docs/captures/4_glouton.png)
 
 ### 4.3 Analyser
 
@@ -136,7 +138,7 @@ Avant d'imprimer, vérifie dans Orca :
 
 ### 4.5 Langue de l'onglet
 
-L'onglet suit la langue d'Orca : en français si Orca est en français, en anglais sinon. La liste en haut à droite (**Auto / Français / English**) permet d'en choisir une autre ; le choix est gardé. Tout passe dans la nouvelle langue tout de suite, même l'analyse affichée (les profils que tu as choisis à la main sont gardés). Les notifications d'Orca et les noms des fichiers par plaque (`… - U1 - plaque 2.3mf`, `… - U1 - plate 2.3mf`) suivent aussi.
+L'onglet suit la langue d'Orca : en français si Orca est en français, en anglais sinon. La liste en haut à droite (**Auto / Français / English**) permet d'en choisir une autre ; le choix est gardé. Tout passe dans la nouvelle langue tout de suite, même l'analyse affichée (les profils que tu as choisis à la main sont gardés). Les notifications d'Orca et les noms des fichiers par plaque (`… - U1-by-Dragg - plaque 2.3mf`, `… - U1-by-Dragg - plate 2.3mf`) suivent aussi.
 
 ## 5. Plus de 4 couleurs
 
@@ -163,7 +165,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.4.0** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). La 0.3.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, langues) ; la conversion à plus de 4 filaments reste à essayer.
+- **Version 0.4.1** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la conversion à plus de 4 filaments reste à essayer.
 - Fichiers **PrusaSlicer** (Printables) : pas encore gérés. Orca les ouvre déjà en gardant la forme et la peinture.
 - Fichiers **déjà tranchés** (`.gcode.3mf`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si aucun de tes profils n'a la matière du modèle (PETG, TPU…), le plugin te prévient mais ne crée pas de profil.

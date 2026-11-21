@@ -49,20 +49,56 @@ const [pageFile, dataDir, outDir, chrome] = process.argv.slice(2);
   await recv({ command: 'built', token: conv.token });
   await recv(load('result.json'));
   await page.locator('#s4').screenshot({ path: path.join(outDir, '3_resultat.png') });
-  // glisser-deposer d'un 3MF dans l'onglet : lu par la page et envoye a l'analyse
+  // la U1 gourmande : dans la liste des 3MF, et en grand quand on glisse un fichier sur l'onglet
+  const html = fs.readFileSync(pageFile, 'utf-8');
+  const L = JSON.parse(html.slice(html.indexOf('var L=') + 6, html.indexOf(';\nvar nav')));
+  const T = L[load('state.json').lang];
+  if (!(await page.locator('#u1small svg.u1').count())) { console.error('U1 absente de la liste des 3MF'); process.exit(1); }
+  const chooser = await Promise.all([page.waitForEvent('filechooser', { timeout: 3000 }), page.click('#u1zone')]).then(() => true, () => false);
+  if (!chooser) { console.error('clic sur la U1 : pas de choix de fichier'); process.exit(1); }
+  await page.evaluate(() => { const dt = new DataTransfer(); dt.items.add(new File(['x'], 'faim.3mf')); document.dispatchEvent(new DragEvent('dragenter', { dataTransfer: dt, bubbles: true })); });
+  await page.waitForTimeout(450);
+  await page.screenshot({ path: path.join(outDir, '4_glouton.png') });
+  await page.evaluate(() => document.dispatchEvent(new DragEvent('dragleave', { bubbles: true })));
+  if (!(await page.evaluate(() => document.getElementById('eat').classList.contains('hidden')))) { console.error('grande U1 pas cachee apres dragleave'); process.exit(1); }
+  // 3MF lache : lu par la page et envoye a l'analyse ; la U1 avale puis mache
   await page.evaluate(() => { window.__sent.length = 0; });
   const dropped = await page.evaluate(async () => {
     const dt = new DataTransfer();
     dt.items.add(new File([new Uint8Array([80, 75, 3, 4, 1, 2, 3])], 'glisse.3mf'));
+    const big = () => document.querySelector('#eatU svg').getAttribute('class');
     document.dispatchEvent(new DragEvent('dragenter', { dataTransfer: dt, bubbles: true }));
-    const shown = document.body.classList.contains('dropping');
+    const hungry = { shown: !document.getElementById('eat').classList.contains('hidden'), cls: big(), cap: document.getElementById('eatCap').textContent };
     document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
-    await new Promise(r => setTimeout(r, 300));
-    return { shown, gone: !document.body.classList.contains('dropping'), sent: window.__sent.slice(-1)[0] };
+    const chomp = big();
+    await new Promise(r => setTimeout(r, 1200));
+    return { hungry, chomp, chew: big(), cap: document.getElementById('eatCap').textContent, sent: window.__sent.slice(-1)[0] };
   });
-  if (!dropped.shown || !dropped.gone || !dropped.sent || dropped.sent.command !== 'analyze' || dropped.sent.name !== 'glisse.3mf' || !dropped.sent.upload) {
-    console.error('glisser-deposer incorrect', JSON.stringify(dropped).slice(0, 300)); process.exit(1);
+  if (!dropped.hungry.shown || !/hungry/.test(dropped.hungry.cls) || dropped.hungry.cap !== T.drop || !/chomp/.test(dropped.chomp)
+      || !/chew/.test(dropped.chew) || dropped.cap !== T.u1_chew
+      || !dropped.sent || dropped.sent.command !== 'analyze' || dropped.sent.name !== 'glisse.3mf' || !dropped.sent.upload) {
+    console.error('glisser-deposer incorrect', JSON.stringify(dropped).slice(0, 400)); process.exit(1);
   }
+  // analyse recue : la U1 rote les couleurs du modele, puis le grand cadre se ferme
+  const an = load('analysis.json');
+  const nCols = new Set(an.filaments.map(f => String(f.color).slice(0, 7))).size;
+  await recv(an);
+  await page.waitForTimeout(150);
+  const burp = await page.evaluate(() => ({ cls: document.querySelector('#eatU svg').getAttribute('class'), dots: document.querySelectorAll('#eatU .u-dots circle').length, cap: document.getElementById('eatCap').textContent }));
+  if (!/burp/.test(burp.cls) || burp.dots !== Math.min(nCols, 8) || !burp.cap.startsWith('Burp')) { console.error('rot incorrect', JSON.stringify(burp), nCols); process.exit(1); }
+  await page.waitForTimeout(2000);
+  if (!(await page.evaluate(() => document.getElementById('eat').classList.contains('hidden')))) { console.error('grande U1 pas fermee apres le rot'); process.exit(1); }
+  // pas un 3MF : recrache, avec le message d'erreur
+  const spit = await page.evaluate(async () => {
+    const dt = new DataTransfer(); dt.items.add(new File(['x'], 'photo.png'));
+    document.dispatchEvent(new DragEvent('dragenter', { dataTransfer: dt, bubbles: true }));
+    document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    const r = { cls: document.querySelector('#eatU svg').getAttribute('class'), cap: document.getElementById('eatCap').textContent, err: !!document.querySelector('#status .msg.err') };
+    await new Promise(res => setTimeout(res, 1900));
+    r.hidden = document.getElementById('eat').classList.contains('hidden');
+    return r;
+  });
+  if (!/spit/.test(spit.cls) || spit.cap !== T.u1_spit || !spit.err || !spit.hidden) { console.error('fichier refuse incorrect', JSON.stringify(spit)); process.exit(1); }
   // langue : changee dans l'en-tete, textes de la page refaits tout de suite et choix envoye au plugin
   const lang = load('state.json').lang;
   const other = lang === 'fr' ? 'en' : 'fr';

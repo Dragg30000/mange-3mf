@@ -1,5 +1,11 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.4.1 — 21/11/2026
+
+- **La U1 a faim** : dans « Le 3MF à manger », une U1 dessinée (sa vraie silhouette : haut ouvert, 4 têtes garées, porte vitrée, écran) attend ton 3MF. Glisse un fichier sur l'onglet : elle ouvre la bouche, l'avale, le mâche pendant l'analyse, puis rote les couleurs du modèle. Pas un 3MF : elle le recrache. Un clic sur elle ouvre le choix d'un fichier, un clic pendant le spectacle le coupe. Animations coupées si Windows est réglé pour réduire les animations. Dessin fait dans la page : le plugin reste un seul fichier.
+- **Fichiers signés** : le fichier converti s'appelle « modèle - U1-by-Dragg.3mf » (par plaque : « modèle - U1-by-Dragg - plaque 2.3mf »). Un ancien suffixe « - U1 » ou « - U1-by-Dragg » est retiré du nom d'origine : il n'est jamais doublé.
+- Tests : 327 vérifications, et la page rendue dans Chrome vérifie la U1 (bouche ouverte au survol d'un fichier, avale, mâche, rote les couleurs de l'analyse, recrache ce qui n'est pas un 3MF, clic = choix d'un fichier).
+
 ## 0.4.0 — 21/11/2026
 
 - **Tes préréglages de filament** : la liste des profils propose aussi tous tes préréglages utilisateur d'Orca (groupe « Tes préréglages », ceux prévus pour une autre imprimante à part), avec leur « couleur par défaut » quand ils en ont une. Le choix automatique en tient compte : même matière d'abord, puis couleur la plus proche.

@@ -98,16 +98,19 @@ english = {m.TEXTS["en"][k] for k in m.TEXTS["en"] if k.startswith("col_")}
 ok(names and names <= english, "couleurs en anglais : %s" % sorted(names))
 ok(all(p["cname"] in english for p in ana["profiles"]), "profils en anglais : %s" % [p["cname"] for p in ana["profiles"]])
 multi = [f["name"] for f in ana["files"] if len(f["plate_ids"]) == 1]
-ok(multi and all(re.search(r" - U1 - plate \d+\.3mf$", n) for n in multi), "noms des fichiers : %s" % multi[:2])
+ok(multi and all(re.search(r" - U1-by-Dragg - plate \d+\.3mf$", n) for n in multi), "noms des fichiers : %s" % multi[:2])
 plan = plan_of(ana)
 j = next(i for i, s in enumerate(ana["files"][0]["slots"]) if not s["pad"] and s["ftype"] == "PLA")
 plan[0]["slots"][j]["base"] = 2                      # profil PETG pour une couleur en PLA
 res = m.convert(src, tpl, plan)
 warns = [w for r in res for w in r["report"]["warnings"]]
 ok(any("the model wants PLA" in w and "PETG" in w for w in warns), "alerte de matiere en anglais : %s" % warns[:1])
-ok(m.output_name(src, [src.plates[0], src.plates[1]], True).endswith(" - U1 - plates 1-2.3mf"), "nom pour 2 plaques")
+ok(m.output_name(src, [src.plates[0], src.plates[1]], True).endswith(" - U1-by-Dragg - plates 1-2.3mf"), "nom pour 2 plaques")
 src2 = m.Source3MF(open(path, "rb").read(), "Pokeballs - U1 - plaques 1-2.3mf")
-ok(m.output_name(src2, [src2.plates[0]], False) == "Pokeballs - U1.3mf", "ancien suffixe francais retire")
+ok(m.output_name(src2, [src2.plates[0]], False) == "Pokeballs - U1-by-Dragg.3mf", "ancien suffixe francais retire")
+src3 = m.Source3MF(open(path, "rb").read(), "Pokeballs - U1-by-Dragg - plate 2.3mf")
+ok(m.output_name(src3, [src3.plates[0]], False) == "Pokeballs - U1-by-Dragg.3mf", "suffixe U1-by-Dragg pas double")
+ok(m.output_name(src3, [src3.plates[1]], True) == "Pokeballs - U1-by-Dragg - plate 2.3mf", "suffixe U1-by-Dragg pas double (plaque)")
 try:
     m.Source3MF(b"hello", "x.3mf"); ok(False, "archive refusee")
 except m.ConvertError as e:

@@ -35,6 +35,7 @@ It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real O
 - 🧵 **Your filament presets**: each color gets the closest of your profiles in the same material, or any of your Orca filament presets, with its color. Orca recognizes them when it opens the project: no more "…(project.3mf)" copies.
 - 🎯 **Your call**: change a filament's color in a click, and choose where the converted files go.
 - 🌍 **English or French**: the tab follows Orca's language, or pick one at the top right.
+- 😋 **A hungry U1**: drop a 3MF on the tab and the U1 swallows it, chews during the analysis, then burps the model's colors. Converted files are signed `… - U1-by-Dragg.3mf`.
 
 ![Exactly the model's colors](docs/visuals/02_colors.jpg)
 
@@ -66,7 +67,7 @@ Orca keeps at least 4 filaments on the U1 (one per head) and can paint 16 filame
 
 ## 🧪 Status
 
-Beta **0.4.0**. 324 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab and the analysis have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
+Beta **0.4.1**. 327 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab and the analysis have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
 
 ## 🌍 Translations
 

@@ -14,7 +14,7 @@ print("  ", f0["name"], [(s["n"], s.get("name"), s["src"], s["base"]) for s in f
 ok(len(ana["files"]) == 1, "1 seul fichier")
 ok(len(f0["slots"]) == 7 and f0["colors"] == 7 and not any(s["pad"] for s in f0["slots"]), "7 couleurs -> 7 filaments")
 ok(sorted(i for s in f0["slots"] for i in s["src"]) == [1, 2, 3, 4, 5, 6, 7], "chaque filament d'origine a sa case")
-ok(f0["name"] == "Pokeballs X1C - U1.3mf", "nom du fichier : %s" % f0["name"])
+ok(f0["name"] == "Pokeballs X1C - U1-by-Dragg.3mf", "nom du fichier : %s" % f0["name"])
 ok(all(p["thumb"].startswith("data:image/png") for p in ana["plates"]), "vignettes des plaques")
 # les couleurs qui ressemblent aux bobines prennent leurs cases
 tcols = tpl.slot_colors

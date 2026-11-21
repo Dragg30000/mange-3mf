@@ -49,7 +49,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -223,8 +223,15 @@ TEXTS = {
         "path_ph": "Ou colle le chemin d'un 3MF (clic droit sur le fichier › Copier en tant que chemin d'accès)",
         "analyse": "Analyser",
         "browse": "Parcourir…",
-        "drop_hint": "Tu peux aussi glisser un 3MF dans cet onglet.",
-        "drop": "Lâche le 3MF ici",
+        "drop_hint": "Glisse un 3MF sur la U1 : elle a faim.",
+        "drop": "Miam ! Lâche-le…",
+        "u1_click": "ou clique dessus pour choisir un fichier",
+        "u1_title": "Glisse un 3MF ici, ou clique pour en choisir un",
+        "u1_chomp": "Crounch !",
+        "u1_chew": "Ça mâche…",
+        "u1_burp": "Burp ! {0}",
+        "u1_spit": "Pouah ! Ce n'est pas un 3MF.",
+        "u1_sick": "Pouah ! Celui-là ne passe pas.",
         "tpl_saved": "Réglages mémorisés",
         "tpl_current": "Réglages actuels d'Orca",
         "badge_not_u1": "pas une U1",
@@ -307,8 +314,8 @@ TEXTS = {
         "err_out_dir": "Dossier introuvable : {0}",
         "dest_in": "dans {0}",
         "downloads": "Téléchargements",
-        "out_plate1": "{0} - U1 - plaque {1}.3mf",
-        "out_plateN": "{0} - U1 - plaques {1}.3mf",
+        "out_plate1": "{0} - {2} - plaque {1}.3mf",
+        "out_plateN": "{0} - {2} - plaques {1}.3mf",
         "unknown_app": "logiciel inconnu",
         "another_slicer": "un autre logiciel",
         "unknown": "inconnu",
@@ -394,8 +401,15 @@ TEXTS = {
         "path_ph": "Or paste the path of a 3MF (right-click the file › Copy as path)",
         "analyse": "Analyze",
         "browse": "Browse…",
-        "drop_hint": "You can also drop a 3MF onto this tab.",
-        "drop": "Drop the 3MF here",
+        "drop_hint": "Drop a 3MF on the U1: it's hungry.",
+        "drop": "Yum! Drop it…",
+        "u1_click": "or click it to pick a file",
+        "u1_title": "Drop a 3MF here, or click to pick one",
+        "u1_chomp": "Crunch!",
+        "u1_chew": "Chewing…",
+        "u1_burp": "Burp! {0}",
+        "u1_spit": "Yuck! That's not a 3MF.",
+        "u1_sick": "Yuck! That one won't go down.",
         "tpl_saved": "Saved settings",
         "tpl_current": "Orca's current settings",
         "badge_not_u1": "not a U1",
@@ -478,8 +492,8 @@ TEXTS = {
         "err_out_dir": "Folder not found: {0}",
         "dest_in": "in {0}",
         "downloads": "Downloads",
-        "out_plate1": "{0} - U1 - plate {1}.3mf",
-        "out_plateN": "{0} - U1 - plates {1}.3mf",
+        "out_plate1": "{0} - {2} - plate {1}.3mf",
+        "out_plateN": "{0} - {2} - plates {1}.3mf",
         "unknown_app": "unknown software",
         "another_slicer": "another slicer",
         "unknown": "unknown",
@@ -2520,13 +2534,16 @@ def _filter_pkg_rels(data, keep):
 
 # --------------------------------------------------------------------------- analyse et conversion (API)
 
+OUT_TAG = "U1-by-Dragg"   # signe les fichiers convertis : « modele - U1-by-Dragg.3mf »
+
+
 def output_name(src, plates, multiple):
     base = os.path.splitext(os.path.basename(src.name or "projet.3mf"))[0]
-    base = re.sub(r"\s*-\s*U1(\s*-\s*(?:plaques?|plates?) [\d\-]+)?$", "", base).strip() or "projet"
+    base = re.sub(r"\s*-\s*U1(?:-by-Dragg)?(\s*-\s*(?:plaques?|plates?) [\d\-]+)?$", "", base).strip() or "projet"
     if not multiple:
-        return base + " - U1.3mf"
+        return "%s - %s.3mf" % (base, OUT_TAG)
     ids = "-".join(str(p.id) for p in plates)
-    return tr("out_plateN" if len(plates) > 1 else "out_plate1", base, ids)
+    return tr("out_plateN" if len(plates) > 1 else "out_plate1", base, ids, OUT_TAG)
 
 
 def describe_source(src):
@@ -2980,7 +2997,41 @@ ul.w{margin:4px 0 0 18px;padding:0}ul.w li{margin:2px 0}
 .hidden{display:none!important}code{font-size:12px;word-break:break-all}
 .wrap{max-width:1100px;margin:0 auto}td.num{width:22px;color:var(--muted);font-weight:600;text-align:right;padding-right:6px}
 tr.pad td{opacity:.75}select{max-width:100%;background:rgba(0,0,0,.25);color:inherit;border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit}
-body.dropping::after{content:attr(data-drop);position:fixed;inset:10px;border:2px dashed var(--accent2);border-radius:12px;display:grid;place-items:center;background:rgba(0,150,136,.14);font-size:17px;pointer-events:none}
+.eatrow{display:flex;gap:16px;align-items:flex-start}.eatlist{flex:1;min-width:0}
+.u1zone{flex:none;width:200px;border:2px dashed rgba(79,209,192,.4);border-radius:12px;padding:6px 8px 10px;text-align:center;cursor:pointer}
+.u1zone:hover,.u1zone:focus-visible{border-color:var(--accent2);background:rgba(0,150,136,.08);outline:none}
+.u1zone .u1{width:170px;margin:0 auto}.u1zone .small{text-wrap:balance}
+@media (max-width:640px){.eatrow{flex-direction:column}.u1zone{width:100%}}
+#eat{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(18,20,23,.8);pointer-events:none}
+#eat.click{pointer-events:auto;cursor:pointer}#eat .u1{width:300px;max-width:70vw;margin:0 auto}#eatCap{font-size:18px;text-align:center;margin-top:2px}
+.u1{display:block;height:auto}.u1 *{transform-box:fill-box}
+.u1 .u-bd{animation:u-bob 3s ease-in-out infinite}.u1 .u-ey{transform-origin:50% 50%;animation:u-blink 4.2s infinite}
+.u1 .u-ck{transform-origin:50% 50%;transition:transform .2s}.u1 .u-gl{transform-origin:50% 100%;transition:transform .18s}
+.u1 .u-fg,.u1 .u-tg{opacity:0;transition:opacity .15s}.u1 .u-fl,.u1 .u-bb,.u1 .u-dp,.u1 .u-cr,.u1 .u-sb{opacity:0}
+.u1 .u-fl{transform-origin:50% 50%}.u1 .u-pr{transform-origin:50% 100%;transform:scaleY(0)}.u1 .u-sb{transform-origin:0 50%}
+@keyframes u-bob{50%{transform:translateY(-3px)}}@keyframes u-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.u1.hungry .u-gl,.u1.spit .u-gl{transform:scaleY(0)}
+.u1.hungry .u-fg,.u1.hungry .u-tg,.u1.spit .u-fg,.u1.spit .u-tg,.u1.burp .u-tg{opacity:1}
+.u1.hungry .u-ey{animation:none;transform:scale(1.22)}.u1.hungry .u-ph{animation:u-hop .32s ease-in-out infinite alternate}
+.u1.hungry .u-dp{animation:u-drip 1s infinite}.u1.hungry .u-op{animation:u-glow .7s infinite alternate}.u1.hungry .u-bd{animation-duration:.5s}
+@keyframes u-hop{to{transform:translateY(-3px)}}@keyframes u-glow{to{fill:#17564e}}
+@keyframes u-drip{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+.u1.chomp .u-gl{animation:u-shut 1s forwards}.u1.chomp .u-fg,.u1.chomp .u-tg{animation:u-hide 1s forwards}
+.u1.chomp .u-fl{animation:u-fall 1s forwards}.u1.chomp .u-cr{animation:u-crumb 1s forwards}.u1.chomp .u-ey{animation:u-squeeze 1s forwards}
+@keyframes u-shut{0%,50%{transform:scaleY(0)}62%,100%{transform:scaleY(1)}}@keyframes u-hide{0%,52%{opacity:1}64%,100%{opacity:0}}
+@keyframes u-fall{0%{opacity:1;transform:translate(0,0)}50%{opacity:1;transform:translate(0,166px)}60%{opacity:1;transform:translate(0,168px) scale(1.15,.55)}72%,100%{opacity:0;transform:translate(0,170px) scale(.4,.2)}}
+@keyframes u-crumb{0%,60%{opacity:0;transform:translate(0,0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y))}}
+@keyframes u-squeeze{0%,50%{transform:scale(1.22)}62%,100%{transform:scaleY(.15)}}
+.u1.chew .u-gl{animation:u-chew .34s ease-in-out infinite alternate}.u1.chew .u-hd{animation:u-print .42s ease-in-out infinite alternate}
+.u1.chew .u-pr{animation:u-grow 1.8s forwards}.u1.chew .u-ey{animation:none;transform:scaleY(.4)}.u1.chew .u-ck{transform:scale(1.35)}
+.u1.chew .u-ss{opacity:0}.u1.chew .u-sb{opacity:1;animation:u-bar 1.2s linear infinite}
+@keyframes u-chew{from{transform:scaleY(1)}to{transform:scaleY(.62)}}@keyframes u-print{from{transform:translateX(-44px)}to{transform:translateX(44px)}}
+@keyframes u-grow{to{transform:scaleY(1)}}@keyframes u-bar{from{transform:scaleX(.05)}to{transform:scaleX(1)}}
+.u1.burp .u-pr{transform:scaleY(1)}.u1.burp .u-gl{transform:scaleY(.6)}.u1.burp .u-bb{animation:u-up 1.8s forwards}
+@keyframes u-up{0%{opacity:0;transform:translateY(14px)}20%,80%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
+.u1.spit .u-tg{fill:#9bd36a}.u1.spit .u-ey{animation:none;transform:scaleY(.25)}.u1.spit .u-fl{animation:u-spit 1.1s forwards}
+@keyframes u-spit{0%{opacity:1;transform:translate(0,150px)}100%{opacity:0;transform:translate(120px,-30px) rotate(80deg)}}
+@media (prefers-reduced-motion:reduce){.u1 *{animation:none!important;transition:none!important}}
 header select{font-size:11px;padding:1px 4px;margin-left:8px;color:var(--muted)}
 .pick{width:24px;height:24px;padding:0;border:1px solid rgba(0,0,0,.45);border-radius:6px;background:none;cursor:pointer;vertical-align:middle}
 .pick::-webkit-color-swatch-wrapper{padding:0}.pick::-webkit-color-swatch{border:none;border-radius:5px}
@@ -3009,13 +3060,47 @@ footer{margin:18px 0 0;text-align:center}footer button{padding:1px 8px;margin-le
 </section>
 
 <section id="s2"><h2 data-t="h_src"></h2>
-<div id="opened"></div>
+<div class="eatrow"><div class="u1zone" id="u1zone" role="button" tabindex="0" data-tt="u1_title"><div id="u1small"></div><div class="small" data-t="drop_hint"></div><div class="muted small" data-t="u1_click"></div></div>
+<div class="eatlist"><div id="opened"></div>
 <div class="muted small" style="margin:4px 0 2px"><span data-t="recent_title"></span> <button id="refresh" class="small" style="padding:1px 7px;margin-left:6px" data-t="refresh"></button></div>
 <div class="files" id="recent"><div class="muted small" data-t="searching"></div></div>
 <div class="row" style="margin-top:8px"><input type="text" id="path" data-tp="path_ph">
 <button id="go" data-t="analyse"></button><button id="browse" data-t="browse"></button><input type="file" id="file" accept=".3mf" class="hidden"></div>
-<div class="muted small" style="margin-top:6px" data-t="drop_hint"></div>
+</div></div>
 </section>
+<div id="eat" class="hidden"><div><div id="eatU"></div><div id="eatCap"></div></div></div>
+<template id="u1t"><svg class="u1 idle" viewBox="0 -80 260 316" aria-hidden="true" focusable="false">
+<ellipse cx="130" cy="227" rx="98" ry="6" fill="rgba(0,0,0,.35)"/>
+<g class="u-bd">
+<rect x="46" y="212" width="26" height="10" rx="3" fill="#3a3f46"/><rect x="188" y="212" width="26" height="10" rx="3" fill="#3a3f46"/>
+<rect x="30" y="22" width="200" height="194" rx="18" fill="#dfe3e8" stroke="#2a2e34" stroke-width="2.5"/>
+<polygon points="44,23 216,23 204,8 56,8" fill="#eef1f4" stroke="#2a2e34" stroke-width="2" stroke-linejoin="round"/>
+<polygon class="u-op" points="60,21 200,21 192,11 68,11" fill="#1c1f23"/>
+<g class="u-ph"><rect x="74" y="4" width="22" height="14" rx="3" fill="#59606a"/><rect x="74" y="4" width="22" height="5" rx="2" fill="#1b1d21"/></g>
+<g class="u-ph" style="animation-delay:-.08s"><rect x="102" y="4" width="22" height="14" rx="3" fill="#59606a"/><rect x="102" y="4" width="22" height="5" rx="2" fill="#f2c230"/></g>
+<g class="u-ph" style="animation-delay:-.16s"><rect x="136" y="4" width="22" height="14" rx="3" fill="#59606a"/><rect x="136" y="4" width="22" height="5" rx="2" fill="#e0453c"/></g>
+<g class="u-ph" style="animation-delay:-.24s"><rect x="164" y="4" width="22" height="14" rx="3" fill="#59606a"/><rect x="164" y="4" width="22" height="5" rx="2" fill="#f4f4f4"/></g>
+<rect x="44" y="66" width="172" height="106" rx="10" fill="#2b2225"/>
+<path class="u-fg" d="M50 67l6 12 6-12zM198 67l6 12 6-12z" fill="#f4f4f4"/>
+<rect x="48" y="82" width="164" height="5" rx="2" fill="#8a919a"/>
+<g class="u-pr"><rect x="112" y="124" width="36" height="5" rx="2" fill="#f4f4f4"/><rect x="112" y="129" width="36" height="6" fill="#e0302b"/><rect x="112" y="135" width="36" height="6" fill="#5cc46a"/><rect x="112" y="141" width="36" height="7" fill="#8a6a50"/></g>
+<rect x="58" y="148" width="144" height="8" rx="2" fill="#26292e"/><rect x="58" y="148" width="144" height="2" fill="#4a4f57"/>
+<ellipse class="u-tg" cx="130" cy="164" rx="40" ry="8" fill="#e86f84"/>
+<g class="u-hd"><rect x="118" y="84" width="24" height="22" rx="4" fill="#c9ced4" stroke="#2a2e34" stroke-width="1.5"/><rect x="122" y="88" width="16" height="3" rx="1.5" fill="#4fd1c0"/><path d="M126 106h8l-4 6z" fill="#c9a227"/><circle class="u-dp" cx="130" cy="116" r="2.6" fill="#4fd1c0"/></g>
+<rect class="u-cr" x="100" y="140" width="5" height="5" fill="#f2c230" style="--x:-30px;--y:-16px"/><rect class="u-cr" x="150" y="140" width="5" height="5" fill="#e0453c" style="--x:30px;--y:-20px"/><rect class="u-cr" x="126" y="136" width="5" height="5" fill="#009688" style="--x:4px;--y:-34px"/><rect class="u-cr" x="112" y="142" width="4" height="4" fill="#fff" style="--x:-18px;--y:-28px"/>
+<g class="u-fl"><g transform="translate(110 -66)"><path d="M0 4a4 4 0 0 1 4-4h22l14 14v30a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4z" fill="#fff" stroke="#2a2e34" stroke-width="2"/><path d="M26 0v14h14" fill="none" stroke="#2a2e34" stroke-width="2"/><rect x="0" y="24" width="40" height="12" fill="#009688"/><text x="20" y="33.5" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="#fff">3MF</text></g></g>
+<g class="u-gl"><rect x="44" y="66" width="172" height="106" rx="10" fill="rgba(56,64,74,.6)" stroke="#aab1b9" stroke-width="1.5"/><path d="M64 76l-12 34M78 76l-7 20" stroke="rgba(255,255,255,.28)" stroke-width="2.5" stroke-linecap="round"/><rect x="204" y="104" width="4" height="26" rx="2" fill="#8a919a"/></g>
+<path d="M48 23.3H212A16.7 16.7 0 0 1 228.7 40V64H31.3V40A16.7 16.7 0 0 1 48 23.3Z" fill="#dfe3e8"/>
+<g class="u-ey"><circle cx="100" cy="44" r="13" fill="#fff" stroke="#2a2e34" stroke-width="2.2"/><circle cx="101.5" cy="46" r="5.5" fill="#1d2025"/><circle cx="103.5" cy="43.5" r="2" fill="#fff"/><circle cx="160" cy="44" r="13" fill="#fff" stroke="#2a2e34" stroke-width="2.2"/><circle cx="161.5" cy="46" r="5.5" fill="#1d2025"/><circle cx="163.5" cy="43.5" r="2" fill="#fff"/></g>
+<ellipse class="u-ck" cx="72" cy="54" rx="9" ry="4.5" fill="#f29aa8" opacity=".55"/><ellipse class="u-ck" cx="188" cy="54" rx="9" ry="4.5" fill="#f29aa8" opacity=".55"/>
+<line x1="31.5" y1="178" x2="228.5" y2="178" stroke="#aab1b9" stroke-width="1.5"/>
+<circle cx="50" cy="197" r="2.5" fill="#4fd1c0"/>
+<rect x="150" y="185" width="64" height="24" rx="4" fill="#111417" stroke="#2a2e34" stroke-width="2"/>
+<path class="u-ss" d="M174 194q8 6 16 0" fill="none" stroke="#4fd1c0" stroke-width="2" stroke-linecap="round"/>
+<rect class="u-sb" x="158" y="195" width="48" height="4" rx="2" fill="#4fd1c0"/>
+</g>
+<g class="u-bb"><circle cx="130" cy="-26" r="26" fill="rgba(79,209,192,.16)" stroke="#4fd1c0" stroke-width="2"/><g class="u-dots"></g></g>
+</svg></template>
 <footer class="muted small"><span data-t="support"></span> <code>ko-fi.com/dragg</code><button id="kofi" data-t="copy_link"></button></footer>
 </div>
 <script>
@@ -3039,7 +3124,6 @@ function statics(){document.documentElement.lang=lang;
  each("[data-th]",function(e){e.innerHTML=t(e.getAttribute("data-th"))});
  each("[data-tp]",function(e){e.setAttribute("placeholder",t(e.getAttribute("data-tp")))});
  each("[data-tt]",function(e){e.setAttribute("title",t(e.getAttribute("data-tt")))});
- document.body.setAttribute("data-drop",t("drop"));
  var h='<option value="auto">'+esc(t("lang_auto"))+'</option>';
  Object.keys(L).forEach(function(k){h+='<option value="'+esc(k)+'">'+esc(L[k].lang_name||k)+'</option>'});
  $("lang").innerHTML=h;$("lang").value=S.langChoice}
@@ -3117,13 +3201,13 @@ orca.onMessage(function(m){if(!m||!m.command)return;
  else if(m.command=="recent"){S.rec=m;renderRecent()}
  else if(m.command=="analysis"){
   if(m.relabel){if(S.an&&S.an.token==m.token&&!hidden("s3")){keepBases(S.an,m);renderAnalysis(m,false)}return}
-  S.busy=false;status();renderAnalysis(m,true)}
+  S.busy=false;status();renderAnalysis(m,true);if(U.on)eatBurp(m)}
  else if(m.command=="built"){send({command:"write",token:m.token})}
  else if(m.command=="result"){
   if(m.relabel){if(S.res&&!hidden("s4"))renderResult(m,false);return}
   S.busy=false;status();S.conv=false;renderResult(m)}
  else if(m.command=="progress"){S.busy=true;status("info",esc(m.text),true)}
- else if(m.command=="error"){S.busy=false;status("err",esc(m.text));S.conv=false}});
+ else if(m.command=="error"){S.busy=false;status("err",esc(m.text));S.conv=false;if(U.on)eatSpit(t("u1_sick"))}});
 $("go").onclick=function(){var p=$("path").value.trim().replace(/^"|"$/g,"");if(p)analyze({path:p})};
 $("path").onkeydown=function(e){if(e.key=="Enter")$("go").click()};
 $("refresh").onclick=function(){$("recent").innerHTML='<div class="muted small">'+esc(t("searching"))+'</div>';send({command:"recent"})};
@@ -3134,15 +3218,36 @@ $("outOk").onclick=function(){if($("outDir").value.trim())sendOut("folder")};
 $("outDir").onkeydown=function(e){if(e.key=="Enter")$("outOk").click()};
 $("kofi").onclick=function(){var b=$("kofi");copy("https://ko-fi.com/dragg");b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_link")},1500)};
 $("lang").onchange=function(){var v=$("lang").value;S.langChoice=v;if(L[v]&&v!=lang){lang=v;relabel(true)}send({command:"lang",lang:v,nav:nav})};
-function readFile(f){if(!/\.3mf$/i.test(f.name||"")){status("err",esc(t("not_3mf",f.name)));return}
- if(f.size>80*1048576){status("err",esc(t("too_big",size(f.size))));return}
- var rd=new FileReader();status("info",esc(t("reading",f.name)),true);rd.onload=function(){var b=String(rd.result);analyze({upload:b.slice(b.indexOf(",")+1),name:f.name})};rd.readAsDataURL(f)}
+var U={small:null,big:null,on:false,t0:0,tm:[]},RM=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function u1New(box){var n=document.importNode($("u1t").content.firstElementChild,true);box.appendChild(n);return n}
+function u1Set(svg,st){if(!svg)return;svg.setAttribute("class","u1");void svg.getBoundingClientRect();svg.setAttribute("class","u1 "+st)}
+function eatClear(){U.tm.forEach(clearTimeout);U.tm=[]}
+function eatLater(ms,f){U.tm.push(setTimeout(f,ms))}
+function eatShow(st,cap){$("eat").classList.remove("hidden");u1Set(U.big,st);$("eatCap").textContent=cap}
+function eatHide(){eatClear();U.on=false;$("eat").classList.add("hidden");$("eat").classList.remove("click")}
+function eatStart(){eatClear();if(RM){eatHide();return}U.on=true;U.t0=Date.now();$("eat").classList.add("click");eatShow("chomp",t("u1_chomp"));
+ eatLater(1000,function(){eatShow("chew",t("u1_chew"))});eatLater(90000,eatHide)}
+function eatSpit(cap){eatClear();if(RM){eatHide();return}U.on=true;$("eat").classList.add("click");eatShow("spit",cap);eatLater(1700,eatHide)}
+function eatBurp(m){if(!U.on)return;var cols=[];(m.filaments||[]).forEach(function(x){var c=String(x.color||"").slice(0,7);if(/^#[0-9a-fA-F]{6}$/.test(c)&&cols.indexOf(c)<0)cols.push(c)});
+ eatClear();eatLater(Math.max(0,1000-(Date.now()-U.t0)),function(){var n=Math.min(cols.length,8),h="";
+  for(var i=0;i<n;i++){var a=i/n*Math.PI*2-Math.PI/2,r=n>1?12:0;h+='<circle cx="'+(130+Math.cos(a)*r).toFixed(1)+'" cy="'+(-26+Math.sin(a)*r).toFixed(1)+'" r="'+(n>6?4.5:6)+'" fill="'+cols[i]+'" stroke="#15171a"/>'}
+  U.big.querySelector(".u-dots").innerHTML=h;var ls=U.big.querySelectorAll(".u-pr rect");for(var j=0;j<ls.length&&cols.length;j++)ls[j].setAttribute("fill",cols[j%cols.length]);
+  eatShow("burp",t("u1_burp",colors(cols.length)));eatLater(1800,eatHide)})}
+function readFile(f){if(!/\.3mf$/i.test(f.name||"")){status("err",esc(t("not_3mf",f.name)));eatSpit(t("u1_spit"));return}
+ if(f.size>80*1048576){status("err",esc(t("too_big",size(f.size))));eatSpit(t("u1_sick"));return}
+ if(S.busy)return;
+ var rd=new FileReader();status("info",esc(t("reading",f.name)),true);eatStart();rd.onload=function(){var b=String(rd.result);analyze({upload:b.slice(b.indexOf(",")+1),name:f.name})};rd.onerror=function(){eatSpit(t("u1_sick"))};rd.readAsDataURL(f)}
 $("file").onchange=function(){var f=$("file").files[0];if(f)readFile(f);$("file").value=""};
+U.small=u1New($("u1small"));U.small.setAttribute("viewBox","0 0 260 232");U.big=u1New($("eatU"));
+$("u1zone").onclick=function(){$("file").click()};
+$("u1zone").onkeydown=function(e){if(e.key=="Enter"||e.key==" "){e.preventDefault();$("file").click()}};
+$("u1zone").onmouseenter=function(){u1Set(U.small,"hungry")};$("u1zone").onmouseleave=function(){u1Set(U.small,"idle")};
+$("eat").onclick=function(){if(U.on)eatHide()};
 var depth=0;
-document.addEventListener("dragenter",function(e){e.preventDefault();depth++;document.body.classList.add("dropping")});
+document.addEventListener("dragenter",function(e){e.preventDefault();depth++;if(!U.on&&!S.busy)eatShow("hungry",t("drop"))});
 document.addEventListener("dragover",function(e){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect="copy"});
-document.addEventListener("dragleave",function(){depth=Math.max(0,depth-1);if(!depth)document.body.classList.remove("dropping")});
-document.addEventListener("drop",function(e){e.preventDefault();depth=0;document.body.classList.remove("dropping");var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)readFile(f)});
+document.addEventListener("dragleave",function(){depth=Math.max(0,depth-1);if(!depth&&!U.on)eatHide()});
+document.addEventListener("drop",function(e){e.preventDefault();depth=0;if(!U.on)eatHide();var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)readFile(f)});
 statics();
 send({command:"init",nav:nav});
 })();
