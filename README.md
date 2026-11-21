@@ -11,7 +11,7 @@
 
 <p align="center"><b>Opened a MakerWorld model in OrcaSlicer for your U1 and lost the colors?<br>Mange-3MF brings them back: one filament per color, with your own settings.</b></p>
 
-<p align="center">🇫🇷 <a href="LISEZMOI.md">Mode d'emploi complet en français</a></p>
+<p align="center">📖 <a href="GUIDE.md"><b>Full user guide</b></a> &nbsp;·&nbsp; 🇫🇷 <a href="LISEZMOI.md">Mode d'emploi complet en français</a></p>
 
 ---
 
@@ -49,6 +49,8 @@ It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real O
 1. Set Orca to your usual U1 settings once, then click **Save Orca's current settings** in the tab.
 2. Drop a 3MF on the tab, or click **Analyze** next to a file of your Downloads.
 3. Check the colors and profiles, click **Convert**, then open the new project with **File › Open Project (Ctrl+O)**.
+
+Everything else (what is kept, limits, troubleshooting) is in the **[full user guide](GUIDE.md)**.
 
 <p>
   <img src="docs/visuals/03_settings.jpg" alt="Your settings, saved in one click" width="49%">

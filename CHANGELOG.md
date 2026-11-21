@@ -8,6 +8,7 @@
 - Lien **Ko-fi** en bas de l'onglet, avec « Copier le lien », pour soutenir Dragg.
 - Accents rétablis dans les messages en français.
 - Tests : 256 vérifications, dont `test_lang.py` (chaque langue complète, textes de la page, retraduction) ; captures de l'onglet en français et en anglais (`docs/captures/en`).
+- Mode d'emploi complet en anglais (`GUIDE.md`).
 - Visuels pour Orca Cloud et GitHub (`docs/visuals` : bannière, avant / après, captures mises en scène), refaits par `node tests/ui/make_visuals.js`.
 
 ## 0.2.1 — 21/11/2026

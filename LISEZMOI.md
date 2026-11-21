@@ -11,7 +11,7 @@
 
 # Mange-3MF (Snapmaker U1) — plugin OrcaSlicer
 
-> 🇬🇧 English: [README.md](README.md)
+> 🇬🇧 English: [user guide](GUIDE.md) · [overview](README.md)
 
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
@@ -186,6 +186,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | `mange_3mf_any.py` | Le plugin (le seul fichier à installer dans Orca). |
 | `LISEZMOI.md` | Ce mode d'emploi (en français). |
 | `README.md` | Présentation en anglais (page d'accueil du dépôt GitHub). |
+| `GUIDE.md` | Ce mode d'emploi en anglais. |
 | `CHANGELOG.md` | Historique des versions. |
 | `docs/FONCTIONNEMENT.md` | Fonctionnement détaillé (formats 3MF, peinture, plaques, plan des couleurs, réglages du projet) pour reprendre le code. |
 | `docs/captures/` | Captures de l'onglet (en anglais dans `docs/captures/en/`). |
