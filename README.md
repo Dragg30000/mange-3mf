@@ -15,6 +15,8 @@
 
 ---
 
+<p align="center"><img src="docs/visuals/hungry_u1.gif" alt="The hungry U1 eats 3MF files: crunch, chomp, burp, and spits out a project for your U1" width="800"></p>
+
 ![Opened as is in Orca: 4 × Generic ABS. Converted by Mange-3MF: 7 colors, 7 filaments](docs/visuals/before_after.jpg)
 
 ## 😩 The problem
