@@ -1,0 +1,28 @@
+name: Bug report / Bug
+description: Something doesn't work / Quelque chose ne marche pas
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "No personal data, please. Link the model page (MakerWorld…) rather than attaching someone else's 3MF. / Pas de donnée personnelle. Donnez le lien du modèle (MakerWorld…) plutôt que le 3MF d'un autre auteur."
+  - type: input
+    id: plugin
+    attributes: {label: "Mange-3MF version", placeholder: "0.2.1"}
+    validations: {required: true}
+  - type: input
+    id: orca
+    attributes: {label: "OrcaSlicer version", placeholder: "2.5.1"}
+    validations: {required: true}
+  - type: input
+    id: source
+    attributes: {label: "Where does the 3MF come from? / D'où vient le 3MF ?", placeholder: "MakerWorld link, Bambu Studio, Snapmaker Orca…"}
+    validations: {required: true}
+  - type: input
+    id: setup
+    attributes: {label: "U1 setup / Réglages de la U1", placeholder: "0.4 nozzles, T1 T2 T4 High Flow, T3 Standard, multiACE 1.27b"}
+  - type: textarea
+    id: what
+    attributes:
+      label: "What happened? / Que s'est-il passé ?"
+      description: "Steps, what you expected, what you got. Screenshots of the Mange-3MF tab welcome. Errors are logged in erreurs.log, in the plugin storage folder (under %APPDATA%\\OrcaSlicer\\orca_plugins\\)."
+    validations: {required: true}

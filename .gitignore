@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+tests/samples/*.3mf
+tests/ui/node_modules/
+tests/ui/package-lock.json
