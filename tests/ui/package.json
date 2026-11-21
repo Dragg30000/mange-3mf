@@ -1,6 +1,9 @@
 {
   "name": "mange3mf-captures",
   "private": true,
-  "description": "Rendu de l'onglet de Mange-3MF dans Chrome (captures pour la doc).",
-  "dependencies": { "playwright-core": "^1" }
+  "description": "Rendu de l'onglet de Mange-3MF dans Chrome (captures pour la doc) et visuels pour Orca Cloud / GitHub.",
+  "dependencies": {
+    "playwright-core": "^1",
+    "@fontsource-variable/bricolage-grotesque": "^5"
+  }
 }

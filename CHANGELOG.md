@@ -1,5 +1,15 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.3.0 — 21/11/2026
+
+- **En anglais ou en français** : l'onglet, les messages, les alertes, les notifications et les noms des couleurs. Par défaut, la langue d'Orca (français si Orca est en français, anglais sinon) ; liste **Auto / Français / English** en haut à droite de l'onglet, choix gardé. Le changement s'applique tout de suite, y compris à l'analyse et aux fichiers prêts déjà affichés (les profils choisis à la main sont gardés).
+- Tous les textes sont dans une seule table (`TEXTS`) : une autre langue s'ajoute en traduisant un bloc.
+- Fichiers par plaque nommés « … - U1 - plate 2.3mf » en anglais.
+- Lien **Ko-fi** en bas de l'onglet, avec « Copier le lien », pour soutenir Dragg.
+- Accents rétablis dans les messages en français.
+- Tests : 256 vérifications, dont `test_lang.py` (chaque langue complète, textes de la page, retraduction) ; captures de l'onglet en français et en anglais (`docs/captures/en`).
+- Visuels pour Orca Cloud et GitHub (`docs/visuals` : bannière, avant / après, captures mises en scène), refaits par `node tests/ui/make_visuals.js`.
+
 ## 0.2.1 — 21/11/2026
 
 - **Correction** : « le projet de référence doit venir d'OrcaSlicer (trouvé : BambuStudio-02.08.01.55) ». OrcaSlicer 2.5.1 signe ses propres projets « BambuStudio-02.08.01.55 » et ajoute l'étiquette « OrcaSlicer 2.5.1 » : c'est maintenant cette étiquette qui compte, pour mémoriser les réglages comme pour reconnaître un projet d'Orca.

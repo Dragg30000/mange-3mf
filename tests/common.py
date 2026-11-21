@@ -10,6 +10,9 @@ if ROOT not in sys.path:
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+# Les tests lisent les messages en francais ; test_lang.py et test_plugin.py verifient l'anglais.
+os.environ["LANGUAGE"] = "fr_FR"
+
 FAIL = []
 ORCA_APP = "BambuStudio-02.08.01.55"   # ce qu'ecrit OrcaSlicer 2.5.1, avec l'etiquette « OrcaSlicer 2.5.1 »
 

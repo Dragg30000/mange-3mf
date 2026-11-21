@@ -55,6 +55,22 @@ const [pageFile, dataDir, outDir, chrome] = process.argv.slice(2);
   if (!dropped.shown || !dropped.gone || !dropped.sent || dropped.sent.command !== 'analyze' || dropped.sent.name !== 'glisse.3mf' || !dropped.sent.upload) {
     console.error('glisser-deposer incorrect', JSON.stringify(dropped).slice(0, 300)); process.exit(1);
   }
+  // langue : changee dans l'en-tete, textes de la page refaits tout de suite et choix envoye au plugin
+  const lang = load('state.json').lang;
+  const other = lang === 'fr' ? 'en' : 'fr';
+  await page.evaluate(() => { window.__sent.length = 0; });
+  await page.selectOption('#lang', other);
+  const switched = await page.evaluate(() => ({ h2: document.querySelector('#s4 h2').textContent, html: document.documentElement.lang,
+    sent: window.__sent.slice(-1)[0], options: Array.from(document.querySelectorAll('#lang option')).map(o => o.value) }));
+  const want = { fr: 'Fichiers prêts', en: 'Files ready' }[other];
+  if (switched.h2 !== want || switched.html !== other || !switched.sent || switched.sent.command !== 'lang' || switched.sent.lang !== other
+      || switched.options.join(',') !== 'auto,fr,en') {
+    console.error('changement de langue incorrect', JSON.stringify(switched)); process.exit(1);
+  }
+  // lien Ko-fi : copie, sans quitter l'onglet
+  await page.click('#kofi');
+  const kofi = await page.evaluate(() => ({ text: document.getElementById('kofi').textContent, url: location.href }));
+  if (!kofi.text.includes('✓') || !kofi.url.startsWith('file:')) { console.error('lien Ko-fi incorrect', JSON.stringify(kofi)); process.exit(1); }
   if (errors.length) { console.error('Erreurs JS :', errors); process.exit(1); }
   console.log('captures OK');
   await browser.close();

@@ -8,7 +8,8 @@ def _origin(index, count, w, d):
     row, col = index // cols, index % cols
     return col * w * 1.2, -row * d * 1.2
 
-def bambu_multiplate(path_out, bed=256.0, part_ext=None, paint_obj8=True, plate_count=6, printer="Bambu Lab X1 Carbon"):
+def bambu_multiplate(path_out, bed=256.0, part_ext=None, paint_obj8=True, plate_count=6, printer="Bambu Lab X1 Carbon",
+                     plate_label="Plaque"):
     z = zipfile.ZipFile(os.path.join(HERE, "samples", "sample_pokeballs.3mf"))
     files = {n: z.read(n) for n in z.namelist()}
     cfg = json.loads(files["Metadata/project_settings.config"])
@@ -72,7 +73,7 @@ def bambu_multiplate(path_out, bed=256.0, part_ext=None, paint_obj8=True, plate_
     plates = []
     for k, oid in enumerate(oids):
         p = re.sub(r'(<metadata key="plater_id" value=")\d+(")', r"\g<1>%d\2" % (k + 1), plate_tpl)
-        p = re.sub(r'(<metadata key="plater_name" value=")[^"]*(")', r"\g<1>Plaque %d\2" % (k + 1), p)
+        p = re.sub(r'(<metadata key="plater_name" value=")[^"]*(")', r"\g<1>%s %d\2" % (plate_label, k + 1), p)
         p = re.sub(r"<model_instance>.*</model_instance>",
                    '<model_instance>\n      <metadata key="object_id" value="%s"/>\n      <metadata key="instance_id" value="0"/>\n      <metadata key="identify_id" value="%d"/>\n    </model_instance>' % (oid, 100 + k), p, flags=re.S)
         plates.append(p)

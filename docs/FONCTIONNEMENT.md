@@ -1,6 +1,6 @@
 # Fonctionnement de Mange-3MF
 
-Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.2.1). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
+Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.3.0). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
 
 ## 1. Organisation du fichier
 
@@ -8,6 +8,7 @@ Un seul fichier Python, sans dépendance hors bibliothèque standard, en section
 
 | Section | Contenu |
 |---|---|
+| langues | `TEXTS` (tous les textes, une table par langue : messages du plugin et textes de l'onglet), `tr`, `Msg`, `relocalize`, choix de la langue (`lang_of`, `orca_language`, `system_language`) — voir § 9 bis |
 | fichiers du 3MF | noms des fichiers internes, fichiers retirés (`_DROP`), réglages qui désignent un filament, listes des réglages de filament d'Orca 2.5.1 (`FILAMENT_PRESET_KEYS`, `FILAMENT_VARIANT_KEYS`) |
 | couleurs | `norm_color`, écart de couleur ΔE CIE76 (`color_distance`), noms de couleurs, familles de matières (`base_type`) |
 | peinture | lecture et renumérotation des chaînes `paint_color` |
@@ -17,7 +18,7 @@ Un seul fichier Python, sans dépendance hors bibliothèque standard, en section
 | plan | `make_plan` : une case par couleur, ordre des cases, profil proposé pour chaque couleur |
 | construction | `build_project_config` (réglages du projet pour N filaments) et `build_output` (3MF converti) |
 | API | `analyze`, `check_plan`, `convert` (utilisées par l'onglet et les tests) |
-| onglet | page HTML (`PAGE` : analyse et fichiers prêts en haut, puis réglages et choix du 3MF), icône (`ICON_SVG`) et `Converter` |
+| onglet | page HTML (`PAGE` : analyse et fichiers prêts en haut, puis réglages et choix du 3MF ; `page_html` y met `TEXTS` et la langue), icône (`ICON_SVG`) et `Converter` |
 | enregistrement | capacité « onglet » (`orca.pages.PagesPluginCapabilityBase`) et déclaration des droits |
 
 Le cœur (jusqu'à l'API) n'utilise pas `orca` : il tourne et se teste hors d'OrcaSlicer.
@@ -29,7 +30,7 @@ Le cœur (jusqu'à l'API) n'utilise pas `orca` : il tourne et se teste hors d'Or
 - Orca ne construit la page d'un onglet qu'**à la première ouverture** de l'onglet (`LazyPage`), et un message envoyé avant est perdu. `Converter` garde donc les derniers messages `analysis`, `result` et `progress` et les renvoie quand la page envoie `init`.
 - Écriture en deux temps : le fil de conversion envoie `built`, la page répond `write`, et l'écriture se fait dans le fil de l'interface.
 - Droits déclarés au chargement : lecture / écriture de `~/Downloads/*` et fils d'exécution. Le dossier de stockage du plugin est toujours autorisé par Orca.
-- Les noms de fichiers du plugin évitent les mots bloqués par Orca (`config`, `conf`, `secret`, `cert`…) : `reglages_memorises.json`, `capture_reglages.3mf`, `erreurs.log`.
+- Les noms de fichiers du plugin évitent les mots bloqués par Orca (`config`, `conf`, `secret`, `cert`…) : `reglages_memorises.json`, `capture_reglages.3mf`, `options.json` (langue choisie), `erreurs.log`.
 
 ## 3. Les réglages mémorisés (`Template`)
 
@@ -143,12 +144,22 @@ Capacité « onglet » avec `on_lifecycle_event` :
 
 | Page → plugin | Plugin → page |
 |---|---|
-| `init`, `recent` | `state` (réglages mémorisés / actuels, projet ouvert), `recent` (fichiers) ; à `init`, les derniers `analysis`, `result`, `progress` sont renvoyés |
+| `init {nav}`, `recent` | `state` (réglages mémorisés / actuels, projet ouvert, `lang`, `lang_choice`), `recent` (fichiers) ; à `init`, les derniers `analysis`, `result`, `progress` sont renvoyés |
+| `lang {lang: "auto" \| "fr" \| "en"…, nav}` | `state`, puis les derniers `analysis` et `result` avec `relabel: true` (mêmes données, textes refaits dans la nouvelle langue) et `progress` |
 | `capture` | `state` |
 | `analyze {path \| upload, name, template, one_per_plate}` | `progress`, puis `analysis` (source, plaques, `files` avec les cases, `profiles`, `heads`) ou `error` |
 | `replan {token, template, one_per_plate}` | `analysis` |
 | `convert {token, template, files}` | `progress`, puis `built {token}` |
 | `write {token}` | `result {files}` |
+
+## 9 bis. Langues
+
+- **Une seule table** : `TEXTS = {"fr": {...}, "en": {...}}` contient tous les textes montrés à l'utilisateur, ceux du plugin (erreurs, alertes, notifications, noms de couleurs, noms des fichiers par plaque) comme ceux de la page. `page_html()` met toute la table dans la page (JSON, `</` échappé) avec la langue de départ ; la page traduit avec `t(clé, …)` et les attributs `data-t` (texte), `data-th` (HTML), `data-tp` (placeholder), `data-tt` (bulle). Les valeurs s'insèrent par `{0}`, `{1}`… (`str.format` côté Python, avec format éventuel comme `{0:.0f}`) : une langue peut les placer dans l'ordre qu'elle veut. Un texte absent est pris en anglais.
+- **Ajouter une langue** : copier le bloc `"en"` de `TEXTS`, traduire en gardant les `{n}` et le HTML, ajouter son nom anglais dans `_LANG_WORDS` (pour les noms de langue de Windows). La liste de la page se remplit seule (`lang_name`). `tests/test_lang.py` vérifie que chaque langue a tous les textes et les mêmes `{n}`.
+- **Textes retraduisibles** : `tr(clé, …)` rend un `Msg`, une `str` qui garde sa clé et ses valeurs (elles-mêmes des `Msg` au besoin). Les messages envoyés à la page sont gardés tels quels par `Converter` ; `_send` les passe par `relocalize`, qui refait chaque `Msg` dans la langue courante. Changer de langue renvoie donc l'analyse et les fichiers prêts dans la nouvelle langue, sans refaire l'analyse ; la page garde les profils choisis à la main (`relabel`).
+- **Choix de la langue** (`Converter.refresh_language`, appelé dans le fil de l'interface : `get_ui`, chaque message de la page, événements d'Orca) : le choix de l'onglet (`options.json` : `auto`, `fr`, `en`…), sinon la langue de l'interface d'Orca (`orca.host.app_info()["language"]`, par exemple `fr_FR`, lisible seulement dans le fil de l'interface), sinon celle du navigateur de la page, sinon celle du système. Langue inconnue → anglais.
+- Les fichiers par plaque sont nommés dans la langue courante (`… - U1 - plaque 2.3mf`, `… - U1 - plate 2.3mf`) ; l'ancien suffixe, dans l'une ou l'autre langue, est retiré du nom d'origine.
+- Lien Ko-fi en bas de la page : texte et bouton « Copier le lien ». Pas de lien cliquable : une page d'onglet ouvre les liens dans l'onglet lui-même (`PluginPage::on_new_window` → `LoadURL`), sans retour possible.
 
 ## 10. Références (OrcaSlicer 2.5.1)
 
@@ -163,4 +174,5 @@ Capacité « onglet » avec `on_lifecycle_event` :
 - `resources/profiles/Snapmaker/machine/` : profils U1 (variantes de buse, G-code de changement d'outil).
 - `src/slic3r/plugin/host/PluginPages.cpp`, `src/slic3r/plugin/pluginTypes/pages/` : onglets des plugins (page construite à la première ouverture, `post_message`, icône).
 - `src/slic3r/plugin/host/PluginHostUi.cpp` : notifications (`push_notification`, niveaux).
+- `src/slic3r/plugin/host/PluginHostApp.cpp` : `app_info()` (langue de l'interface, fil de l'interface seulement) ; `src/slic3r/GUI/WebPanel.cpp` : page d'un onglet (`SetPage`, liens ouverts dans la page).
 - `src/slic3r/plugin/` et `docs/HLSD/plugin-permissions.md` : API des plugins et droits.

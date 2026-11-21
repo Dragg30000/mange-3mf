@@ -1,3 +1,14 @@
+<p align="center"><img src="docs/visuals/github_banner.png" alt="Mange-3MF : mange n'importe quel 3MF et le recrache en projet pour ta Snapmaker U1" width="100%"></p>
+
+<p align="center">
+  <a href="https://github.com/Dragg30000/mange-3mf/releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/Dragg30000/mange-3mf?label=version&color=22b3a5"></a>
+  <img alt="OrcaSlicer 2.5" src="https://img.shields.io/badge/OrcaSlicer-2.5-22b3a5">
+  <img alt="Snapmaker U1" src="https://img.shields.io/badge/Snapmaker-U1-1E5BD8">
+  <img alt="Français et anglais" src="https://img.shields.io/badge/langue-Fran%C3%A7ais%20%7C%20English-6A1B9A">
+  <a href="LICENSE"><img alt="Licence GPL-3.0" src="https://img.shields.io/badge/licence-GPL--3.0-8b919b"></a>
+  <a href="https://ko-fi.com/dragg"><img alt="Offre un café à Dragg sur Ko-fi" src="https://img.shields.io/badge/Ko--fi-offre%20un%20caf%C3%A9%20%C3%A0%20Dragg-FF5E5B?logo=ko-fi&logoColor=white"></a>
+</p>
+
 # Mange-3MF (Snapmaker U1) — plugin OrcaSlicer
 
 > 🇬🇧 English: [README.md](README.md)
@@ -5,11 +16,13 @@
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
-- Version : **0.2.1** (21/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
+- Version : **0.3.0** (21/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), Snapmaker U1 (profil à 4 têtes)
+- Langues : français ou anglais (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
 - Plugin communautaire, non officiel, sans lien avec Snapmaker, Bambu Lab ou OrcaSlicer. **À utiliser à tes risques et périls** : vérifie toujours le projet converti avant d'imprimer.
 - Code, versions et bugs : [github.com/Dragg30000/mange-3mf](https://github.com/Dragg30000/mange-3mf)
+- Le plugin te plaît ? [Offre un café à Dragg sur Ko-fi](https://ko-fi.com/dragg) ☕
 
 ---
 
@@ -24,6 +37,7 @@ Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes :
 7. [Limites connues](#7-limites-connues)
 8. [Dépannage](#8-dépannage)
 9. [Contenu du dossier](#9-contenu-du-dossier)
+10. [Soutenir le projet](#10-soutenir-le-projet)
 
 ---
 
@@ -48,6 +62,8 @@ Mange-3MF ajoute un **onglet « Mange-3MF »** à OrcaSlicer. Il lit le 3MF d'or
 - **réglages** : les tiens (imprimante, buses Haut débit / Standard, profil de traitement avec l'étape multiACE, type de plaque), mémorisés d'un clic dans Orca. Rien n'est repris des réglages de l'auteur ;
 - **profils de filament** : chaque couleur prend un de tes profils, de la même matière, celui dont la couleur est la plus proche, avec ses réglages Haut débit et Standard. Tu peux en choisir un autre dans l'onglet ;
 - **ordre des filaments** : les couleurs qui ressemblent le plus à tes bobines actuelles prennent leurs cases (1 à 4), les autres suivent.
+
+![Ouvert tel quel dans Orca : 4 × Generic ABS. Converti par Mange-3MF : 7 couleurs, 7 filaments](docs/visuals/01_cover.jpg)
 
 Le fichier converti est écrit à côté de l'original, par exemple `Mon modèle - U1.3mf`. Tu l'ouvres ensuite avec **Fichier › Ouvrir un projet (Ctrl+O)** : un plugin Orca ne peut pas ouvrir un projet lui-même.
 
@@ -114,6 +130,10 @@ Avant d'imprimer, vérifie dans Orca :
 - la **tour d'essuyage**, posée à la place choisie par l'auteur (déplacée comme les pièces) ;
 - la position des pièces si un avertissement « trop grande pour le plateau de la U1 » est affiché.
 
+### 4.5 Langue de l'onglet
+
+L'onglet suit la langue d'Orca : en français si Orca est en français, en anglais sinon. La liste en haut à droite (**Auto / Français / English**) permet d'en choisir une autre ; le choix est gardé. Tout passe dans la nouvelle langue tout de suite, même l'analyse affichée (les profils que tu as choisis à la main sont gardés). Les notifications d'Orca et les noms des fichiers par plaque (`… - U1 - plaque 2.3mf`, `… - U1 - plate 2.3mf`) suivent aussi.
+
 ## 5. Plus de 4 couleurs
 
 Orca accepte plus de filaments que de têtes sur la U1 : le projet converti a un filament par couleur, et c'est **Orca qui attribue les têtes** au tranchage, avec ton réglage habituel (attribution automatique ou manuelle).
@@ -139,7 +159,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.2.1** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome). L'onglet et l'analyse de la 0.2.0 ont tourné dans un vrai Orca 2.5.1 ; la conversion à plus de 4 filaments reste à essayer.
+- **Version 0.3.0** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). L'onglet et l'analyse de la 0.2.0 ont tourné dans un vrai Orca 2.5.1 ; la conversion à plus de 4 filaments reste à essayer.
 - Fichiers **PrusaSlicer** (Printables) : pas encore gérés. Orca les ouvre déjà en gardant la forme et la peinture.
 - Fichiers **déjà tranchés** (`.gcode.3mf`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si aucun de tes profils n'a la matière du modèle (PETG, TPU…), le plugin te prévient mais ne crée pas de profil.
@@ -154,6 +174,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | « le projet de référence doit venir d'OrcaSlicer » | Version 0.2.0 ou plus ancienne : passe à la 0.2.1 (OrcaSlicer 2.5.1 signe ses projets « BambuStudio-02.08.01.55 »). |
 | « Accès refusé par Orca : … » | Le fichier est hors de Téléchargements et l'autorisation a été refusée. Mets le fichier dans Téléchargements, glisse-le dans l'onglet, accepte la demande d'Orca, ou gère les droits dans la fenêtre **Plugins** (fiche du plugin). |
 | « Fichier trop gros pour être lu ici » | Mets le fichier dans Téléchargements ou colle son chemin. |
+| L'onglet n'est pas dans la bonne langue | Choisis-la dans la liste en haut à droite de l'onglet (**Auto** suit la langue d'Orca). |
 | « fichier PrusaSlicer », « déjà tranché » | Voir [§ 7](#7-limites-connues). |
 | L'onglet n'apparaît pas | Vérifie dans la fenêtre Plugins que Mange-3MF est chargé et activé. S'il y a beaucoup d'onglets de plugins, les derniers passent dans le menu ▾ au bout de la barre (le nombre visible se règle dans les préférences d'Orca). |
 | Couleurs ou pièces bizarres dans le projet converti | Ouvre une [issue sur GitHub](https://github.com/Dragg30000/mange-3mf/issues) avec le lien du modèle (MakerWorld…) et une capture de l'onglet. Le plugin note les erreurs dans `erreurs.log`, dans son dossier de stockage (sous `%APPDATA%\OrcaSlicer\orca_plugins\`). |
@@ -167,6 +188,11 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | `README.md` | Présentation en anglais (page d'accueil du dépôt GitHub). |
 | `CHANGELOG.md` | Historique des versions. |
 | `docs/FONCTIONNEMENT.md` | Fonctionnement détaillé (formats 3MF, peinture, plaques, plan des couleurs, réglages du projet) pour reprendre le code. |
-| `docs/captures/` | Captures de l'onglet. |
+| `docs/captures/` | Captures de l'onglet (en anglais dans `docs/captures/en/`). |
+| `docs/visuals/` | Visuels pour Orca Cloud et GitHub (bannière, avant / après, captures mises en scène). |
 | `tests/` | Tests automatiques (sans Orca) : `python tests/run_all.py`. Voir [tests/README.md](tests/README.md). |
 | `LICENSE` | Licence GPL-3.0. |
+
+## 10. Soutenir le projet
+
+Mange-3MF est gratuit. S'il te fait gagner du temps, tu peux offrir un café à Dragg sur **[Ko-fi](https://ko-fi.com/dragg)** ☕ (le lien est aussi en bas de l'onglet). Les retours aident tout autant : une [issue](https://github.com/Dragg30000/mange-3mf/issues) avec le lien d'un modèle qui se convertit mal, une capture, une idée.

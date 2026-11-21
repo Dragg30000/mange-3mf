@@ -105,6 +105,70 @@ n = len(st["notes"])
 tab.on_lifecycle_event("ProjectOpened", type("C", (), {"name": own})())
 ok(len(st["notes"]) == n, "pas de notification pour un projet deja converti")
 
+print("== langues")
+def count(cmd):
+    return len([p for p in w.posts if p["command"] == cmd])
+EN_COLORS = {m.TEXTS["en"][k] for k in m.TEXTS["en"] if k.startswith("col_")}
+html = tab.get_ui()
+ok('<html lang="fr">' in html and "English" in html and "Fran\\u00e7ais" in html, "page en francais, avec les deux langues")
+state = [p for p in w.posts if p["command"] == "state"][-1]
+ok(state["lang"] == "fr" and state["lang_choice"] == "auto", "langue d'Orca (fr_FR) en mode auto")
+n_state, n_an = count("state"), count("analysis")
+tab.on_message({"command": "lang", "lang": "en", "nav": "fr-FR"})
+state = w.wait("state", n_state + 1)
+ok(state["lang"] == "en" and state["lang_choice"] == "en" and state["saved"]["when"].startswith("saved "),
+   "anglais choisi : %s" % state["saved"]["when"])
+an_en = w.wait("analysis", n_an + 1)
+ok(an_en.get("relabel") and an_en["token"] == an4["token"] and an_en["dest_hint"] == "in Downloads",
+   "analyse affichee renvoyee en anglais : %s" % an_en["dest_hint"])
+cn = {s["name"] for f in an_en["files"] for s in f["slots"] if not s["pad"]}
+ok(cn and cn <= EN_COLORS and all(p["cname"] in EN_COLORS for p in an_en["profiles"]), "couleurs en anglais %s" % sorted(cn))
+ok(json.load(open(os.path.join(storage, "options.json"))) == {"lang": "en"}, "choix memorise")
+ok(m.Converter().language_choice() == "en", "garde au redemarrage d'Orca")
+ok('<html lang="en">' in tab.get_ui(), "page reconstruite en anglais")
+tab.on_message({"command": "capture"})
+state = w.wait("state", n_state + 2)
+ok(state["cap"] == "Settings saved.", "message « Memoriser » : %s" % state["cap"])
+n_res = count("result")
+tab.on_message({"command": "convert", "token": an_en["token"], "template": "saved", "files": plan(an_en)})
+b3 = w.wait("built", 3); tab.on_message({"command": "write", "token": b3["token"]})
+res3 = w.wait("result", n_res + 1)
+ok(res3["files"][0]["name"].startswith("cute baby dragon - U1"), "converti : %s" % res3["files"][0]["name"])
+n_state, n_an, n_res = count("state"), count("analysis"), count("result")
+st["language"] = "de_DE"
+tab.on_message({"command": "lang", "lang": "auto"})
+state = w.wait("state", n_state + 1)
+ok(state["lang"] == "en" and state["lang_choice"] == "auto", "auto avec Orca en allemand : anglais")
+st["language"] = "fr_FR"
+tab.on_message({"command": "lang", "lang": "auto"})
+state = w.wait("state", n_state + 2)
+ok(state["lang"] == "fr" and state["saved"]["when"].startswith("mémorisés le "), "auto avec Orca en francais : %s" % state["saved"]["when"])
+an_fr = w.wait("analysis", n_an + 2)
+res_fr = w.wait("result", n_res + 2)
+ok(an_fr.get("relabel") and an_fr["dest_hint"] == "dans Téléchargements" and res_fr.get("relabel"),
+   "analyse et resultat renvoyes en francais : %s" % an_fr["dest_hint"])
+ok(json.load(open(os.path.join(storage, "options.json"))) == {"lang": "auto"}, "choix « auto » memorise")
+tab.on_message({"command": "lang", "lang": "en"})
+n_notes = len(st["notes"])
+tab.on_lifecycle_event("ProjectOpened", type("C", (), {"name": os.path.join(dl, "cute baby dragon.3mf")})())
+note = st["notes"][-1] if len(st["notes"]) > n_notes else None
+ok(note and "comes from Bambu Studio" in note[1] and note[2] == "Prepare the conversion in the Mange-3MF tab",
+   "notification en anglais : %s / %s" % (note[1], note[2]) if note else "notification en anglais")
+n_an = count("analysis")
+note[3]()
+w.wait("analysis", n_an + 1)
+deadline = time.time() + 5
+while time.time() < deadline and not any("is ready" in x[1] for x in st["notes"]):
+    time.sleep(0.05)
+ok(any("is ready: open the Mange-3MF tab" in x[1] for x in st["notes"]), "notification « ready » : %s" % st["notes"][-1][1])
+tab.on_message({"command": "analyze", "path": os.path.join(dl, "absent.3mf"), "template": "saved"})
+time.sleep(0.2)
+errs = [p for p in w.posts if p["command"] == "error"]
+ok(errs and errs[-1]["text"].startswith("file not found: "), "erreur en anglais : %s" % (errs[-1]["text"] if errs else None))
+w.posts = [p for p in w.posts if p["command"] != "error"]
+tab.on_message({"command": "lang", "lang": "fr"})
+ok([p for p in w.posts if p["command"] == "state"][-1]["lang"] == "fr", "retour au francais")
+
 print("== erreurs")
 tab.on_message({"command": "analyze", "path": os.path.join(dl, "absent.3mf"), "template": "saved"})
 time.sleep(0.2)

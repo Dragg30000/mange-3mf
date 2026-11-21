@@ -3,9 +3,9 @@
 #
 # [tool.orcaslicer.plugin]
 # name = "Mange-3MF (Snapmaker U1)"
-# description = "Onglet qui convertit n'importe quel 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, autres Orca) en projet OrcaSlicer pour la Snapmaker U1 : exactement les couleurs du modele, peinture et plaques gardees, avec tes propres reglages."
+# description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
 # author = "Dragg avec son ami Claude"
-# version = "0.2.1"
+# version = "0.3.0"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -25,7 +25,8 @@ Ce que fait la conversion :
   filaments (meme matiere, couleur la plus proche), avec ses reglages Haut debit / Standard ;
 * les couleurs vont si possible dans les cases dont la bobine actuelle est la plus proche.
 
-L'interface est un onglet « Mange-3MF » d'Orca. Le fichier converti s'ouvre ensuite avec
+L'interface est un onglet « Mange-3MF » d'Orca, en francais ou en anglais (langue d'Orca, ou au
+choix dans l'onglet ; tous les textes sont dans TEXTS). Le fichier converti s'ouvre ensuite avec
 Fichier > Ouvrir (Ctrl+O) : un plugin ne peut pas ouvrir un projet lui-meme.
 
 Plugin communautaire, non officiel. Licence GPL-3.0.
@@ -48,7 +49,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -196,6 +197,421 @@ MAX_PAINT_FILAMENTS = 16
 LOGICAL_PART_PLATE_GAP = 1.0 / 5.0
 
 
+# --------------------------------------------------------------------------- langues
+
+# Tous les textes montres a l'utilisateur, une table par langue : messages du plugin et textes de
+# l'onglet (la page recoit toute la table). Pour ajouter une langue : copier le bloc "en", traduire
+# chaque texte en gardant les {0}, {1}... (valeurs inserees, avec leur format eventuel) et le HTML
+# (<b>...</b>), puis ajouter son nom anglais dans _LANG_WORDS. Un texte absent est pris en anglais.
+TEXTS = {
+    "fr": {
+        "lang_name": "Français",
+        "lang_auto": "Auto (langue d'Orca)",
+        "lang_title": "Langue de l'onglet",
+        # --- onglet
+        "sub": "n'importe quel 3MF → ta Snapmaker U1",
+        "lead": "MakerWorld / Bambu Studio, Snapmaker Orca, autres Orca : exactement les couleurs du modèle "
+                "(un filament par couleur), la peinture et les plaques, avec <b>tes</b> réglages.",
+        "h_analysis": "Analyse",
+        "h_result": "Fichiers prêts",
+        "h_tpl": "Tes réglages pour la conversion",
+        "h_src": "Le 3MF à manger",
+        "capture": "Mémoriser les réglages actuels d'Orca",
+        "recent_title": "Derniers 3MF de tes Téléchargements",
+        "refresh": "Actualiser",
+        "searching": "Recherche…",
+        "path_ph": "Ou colle le chemin d'un 3MF (clic droit sur le fichier › Copier en tant que chemin d'accès)",
+        "analyse": "Analyser",
+        "browse": "Parcourir…",
+        "drop_hint": "Tu peux aussi glisser un 3MF dans cet onglet.",
+        "drop": "Lâche le 3MF ici",
+        "tpl_saved": "Réglages mémorisés",
+        "tpl_current": "Réglages actuels d'Orca",
+        "badge_not_u1": "pas une U1",
+        "badge_foreign": "viennent du projet ouvert",
+        "tpl_hint": "Choisis tes réglages habituels dans Orca (U1, buses, profil, plaque, filaments) puis clique "
+                    "« Mémoriser » : ils serviront à chaque conversion.",
+        "nozzles": "buses",
+        "except": "sauf",
+        "hf": "Haut débit",
+        "std": "Standard",
+        "bed_tpei": "plaque PEI texturée",
+        "bed_cool": "plaque Cool",
+        "bed_eng": "plaque Engineering",
+        "bed_hot": "plaque haute température",
+        "bed_tack": "plaque SuperTack",
+        "bed_tcool": "plaque Cool texturée",
+        "badge_unreadable": "illisible",
+        "badge_sliced": "déjà tranché",
+        "badge_todo": "à convertir",
+        "badge_ok": "déjà pour la U1",
+        "color1": "couleur",
+        "colorN": "couleurs",
+        "mb": "Mo",
+        "kb": "Ko",
+        "ago_now": "à l'instant",
+        "ago_min": "il y a {0} min",
+        "ago_h": "il y a {0} h",
+        "ago_d": "il y a {0} j",
+        "opened_in_orca": "ouvert dans Orca",
+        "no_3mf": "Aucun 3MF dans {0}.",
+        "analysing": "Analyse en cours…",
+        "by": "par",
+        "nozzle": "buse",
+        "bed": "plateau",
+        "plate1": "plaque",
+        "plateN": "plaques",
+        "one_per_plate": "Un fichier par plaque",
+        "file_n": "Fichier {0} : ",
+        "n_filaments": "{0} filaments",
+        "th_color": "Couleur du modèle",
+        "th_profile": "Profil de filament (tes réglages)",
+        "pad_row": "pas de couleur du modèle : reste ta bobine actuelle ({0}, {1})",
+        "warn_material": "le modèle veut du {0}, ce profil est du {1}",
+        "mixed": "couleur mélangée",
+        "same_n": "{0} filaments identiques",
+        "pads_one": "Orca garde au moins une case par tête de la U1 : la case {0} ne sert pas.",
+        "pads_many": "Orca garde au moins une case par tête de la U1 : les cases {0} et {1} ne servent pas.",
+        "to_know": "À savoir",
+        "convert": "Convertir",
+        "convert_n": "Convertir en {0} fichiers",
+        "created_1": "Le fichier est créé {0}. Un filament par couleur du modèle, avec le profil choisi.",
+        "created_n": "Les fichiers sont créés {0}. Un filament par couleur du modèle, avec le profil choisi.",
+        "converting": "Conversion en cours…",
+        "copy_path": "Copier le chemin",
+        "copied": "Copié ✓",
+        "open_hint": "Dans Orca : <b>Fichier › Ouvrir un projet</b> (Ctrl+O), colle le chemin et valide. "
+                     "Tes réglages et les couleurs sont déjà dedans.",
+        "not_3mf": "Ce n'est pas un fichier 3MF : {0}",
+        "too_big": "Fichier trop gros pour être lu ici ({0}) : mets-le dans Téléchargements ou colle son chemin.",
+        "reading": "Lecture de {0}…",
+        "support": "Le plugin te plaît ? Offre un café à Dragg ☕",
+        "copy_link": "Copier le lien",
+        # --- messages du plugin
+        "when_saved": "mémorisés le {0:02d}/{1:02d} à {3:02d}:{4:02d}",
+        "cap_saved": "Réglages mémorisés.",
+        "cap_current": "Réglages actuels mémorisés pour la conversion.",
+        "dest_in": "dans {0}",
+        "downloads": "Téléchargements",
+        "out_plate1": "{0} - U1 - plaque {1}.3mf",
+        "out_plateN": "{0} - U1 - plaques {1}.3mf",
+        "unknown_app": "logiciel inconnu",
+        "another_slicer": "un autre logiciel",
+        "unknown": "inconnu",
+        "unnamed": "sans nom",
+        "mix": "mélange {0}+{1}",
+        "p_analysing": "Analyse de {0}…",
+        "p_converting": "Conversion en cours…",
+        "p_file": "Fichier {0} sur {1}…",
+        "need_u1": "Il me faut tes réglages U1 : choisis ta Snapmaker U1 et tes profils dans Orca (ou ouvre un de "
+                   "tes projets U1), puis clique « Mémoriser les réglages actuels d'Orca ».",
+        "w_cfg_unreadable": "Les réglages du projet d'origine sont illisibles : ils sont ignorés.",
+        "w_obj_unreadable": "Les réglages des objets sont illisibles : couleurs des objets ignorées.",
+        "w_mixed_orca": "Le projet utilise des couleurs mélangées (filaments mixtes d'Orca) : chacune devient une "
+                        "couleur pleine, avec son propre filament.",
+        "w_mixed_fs": "Le projet utilise des couleurs mélangées (Full Spectrum de Snapmaker Orca) : chacune devient "
+                      "une couleur pleine, avec son propre filament.",
+        "w_paint": "Une partie de la peinture est illisible : elle est gardée telle quelle.",
+        "w_paint_max": "Plus de {0} couleurs : Orca ne sait peindre que les {0} premiers filaments.",
+        "w_plate": "Plaque {0} « {1} » : {2}.",
+        "w_too_big": "trop grande pour le plateau de la U1 ({0:.0f} x {1:.0f} mm)",
+        "w_material": "Filament {0} ({1}) : le modèle veut du {2}, le profil choisi « {3} » est du {4}. "
+                      "Change-le dans Orca si besoin.",
+        "err_not_3mf": "ce fichier n'est pas un 3MF (archive illisible)",
+        "err_no_model": "ce 3MF ne contient pas de modèle 3D",
+        "err_ref_unreadable": "projet de référence illisible ({0})",
+        "err_ref_not_orca": "le projet de référence doit venir d'OrcaSlicer (trouvé : {0})",
+        "err_prusa": "fichier PrusaSlicer : pas encore géré. Ouvre-le directement dans Orca (il garde la forme "
+                     "et la peinture).",
+        "err_sliced": "c'est un fichier déjà tranché (.gcode.3mf) : il ne contient pas le modèle. Télécharge le "
+                      "projet 3MF d'origine.",
+        "err_no_part": "aucune pièce dans ce 3MF",
+        "err_profile": "profil {0} inconnu : refais l'analyse",
+        "err_no_slot": "filament {0} sans case : refais l'analyse",
+        "err_plates_missing": "plaque(s) {0} oubliée(s) dans le plan",
+        "err_not_found": "fichier introuvable : {0}",
+        "err_lost": "analyse perdue : relance l'analyse du fichier",
+        "err_not_u1": "le projet ouvert n'est pas réglé pour une Snapmaker U1",
+        "err_nothing": "rien à écrire : relance la conversion",
+        "err_denied": "Accès refusé par Orca : {0}",
+        "err_generic": "Erreur : {0}",
+        "err_in_file": "{0} : {1}",
+        "err_analyse": "Analyse impossible de {0} : {1}",
+        "err_convert": "Conversion impossible : {0}",
+        "err_storage": "dossier de stockage du plugin indisponible",
+        "n_foreign": "« {0} » vient de {1}{2} : couleurs et réglages pas adaptés à ta U1.",
+        "n_link": "Préparer la conversion dans l'onglet Mange-3MF",
+        "n_ready": "Conversion de « {0} » prête : ouvre l'onglet Mange-3MF.",
+        "n_error": "Mange-3MF : {0}",
+        # --- noms de couleurs
+        "col_black": "noir",
+        "col_white": "blanc",
+        "col_lightgrey": "gris clair",
+        "col_grey": "gris",
+        "col_darkgrey": "gris foncé",
+        "col_brown": "marron",
+        "col_beige": "beige",
+        "col_red": "rouge",
+        "col_orange": "orange",
+        "col_yellow": "jaune",
+        "col_green": "vert",
+        "col_turquoise": "turquoise",
+        "col_blue": "bleu",
+        "col_purple": "violet",
+        "col_pink": "rose",
+        "col_lightpink": "rose clair",
+    },
+    "en": {
+        "lang_name": "English",
+        "lang_auto": "Auto (Orca's language)",
+        "lang_title": "Tab language",
+        # --- tab
+        "sub": "any 3MF → your Snapmaker U1",
+        "lead": "MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks: exactly the model's colors "
+                "(one filament per color), the painting and the plates, with <b>your</b> settings.",
+        "h_analysis": "Analysis",
+        "h_result": "Files ready",
+        "h_tpl": "Your settings for the conversion",
+        "h_src": "The 3MF to eat",
+        "capture": "Save Orca's current settings",
+        "recent_title": "Latest 3MFs in your Downloads",
+        "refresh": "Refresh",
+        "searching": "Searching…",
+        "path_ph": "Or paste the path of a 3MF (right-click the file › Copy as path)",
+        "analyse": "Analyze",
+        "browse": "Browse…",
+        "drop_hint": "You can also drop a 3MF onto this tab.",
+        "drop": "Drop the 3MF here",
+        "tpl_saved": "Saved settings",
+        "tpl_current": "Orca's current settings",
+        "badge_not_u1": "not a U1",
+        "badge_foreign": "from the open project",
+        "tpl_hint": "Select your usual settings in Orca (U1, nozzles, process, plate, filaments), then click "
+                    "“Save”: they will be used for every conversion.",
+        "nozzles": "nozzles",
+        "except": "except",
+        "hf": "High Flow",
+        "std": "Standard",
+        "bed_tpei": "Textured PEI Plate",
+        "bed_cool": "Cool Plate",
+        "bed_eng": "Engineering Plate",
+        "bed_hot": "High Temp Plate",
+        "bed_tack": "SuperTack Plate",
+        "bed_tcool": "Textured Cool Plate",
+        "badge_unreadable": "unreadable",
+        "badge_sliced": "already sliced",
+        "badge_todo": "to convert",
+        "badge_ok": "already for the U1",
+        "color1": "color",
+        "colorN": "colors",
+        "mb": "MB",
+        "kb": "KB",
+        "ago_now": "just now",
+        "ago_min": "{0} min ago",
+        "ago_h": "{0} h ago",
+        "ago_d": "{0} d ago",
+        "opened_in_orca": "open in Orca",
+        "no_3mf": "No 3MF in {0}.",
+        "analysing": "Analyzing…",
+        "by": "by",
+        "nozzle": "nozzle",
+        "bed": "bed",
+        "plate1": "plate",
+        "plateN": "plates",
+        "one_per_plate": "One file per plate",
+        "file_n": "File {0}: ",
+        "n_filaments": "{0} filaments",
+        "th_color": "Model color",
+        "th_profile": "Filament profile (your settings)",
+        "pad_row": "no model color: keeps your current spool ({0}, {1})",
+        "warn_material": "the model wants {0}, this profile is {1}",
+        "mixed": "mixed color",
+        "same_n": "{0} identical filaments",
+        "pads_one": "Orca keeps at least one slot per U1 head: slot {0} is not used.",
+        "pads_many": "Orca keeps at least one slot per U1 head: slots {0} and {1} are not used.",
+        "to_know": "Good to know",
+        "convert": "Convert",
+        "convert_n": "Convert into {0} files",
+        "created_1": "The file is created {0}. One filament per model color, with the chosen profile.",
+        "created_n": "The files are created {0}. One filament per model color, with the chosen profile.",
+        "converting": "Converting…",
+        "copy_path": "Copy path",
+        "copied": "Copied ✓",
+        "open_hint": "In Orca: <b>File › Open Project</b> (Ctrl+O), paste the path and confirm. "
+                     "Your settings and the colors are already in it.",
+        "not_3mf": "This is not a 3MF file: {0}",
+        "too_big": "File too large to be read here ({0}): put it in Downloads or paste its path.",
+        "reading": "Reading {0}…",
+        "support": "Like the plugin? Buy Dragg a coffee ☕",
+        "copy_link": "Copy link",
+        # --- plugin messages
+        "when_saved": "saved {2:04d}-{1:02d}-{0:02d} {3:02d}:{4:02d}",
+        "cap_saved": "Settings saved.",
+        "cap_current": "Current settings saved for the conversion.",
+        "dest_in": "in {0}",
+        "downloads": "Downloads",
+        "out_plate1": "{0} - U1 - plate {1}.3mf",
+        "out_plateN": "{0} - U1 - plates {1}.3mf",
+        "unknown_app": "unknown software",
+        "another_slicer": "another slicer",
+        "unknown": "unknown",
+        "unnamed": "unnamed",
+        "mix": "mix {0}+{1}",
+        "p_analysing": "Analyzing {0}…",
+        "p_converting": "Converting…",
+        "p_file": "File {0} of {1}…",
+        "need_u1": "I need your U1 settings: select your Snapmaker U1 and your profiles in Orca (or open one of "
+                   "your U1 projects), then click “Save Orca's current settings”.",
+        "w_cfg_unreadable": "The original project's settings are unreadable: they are ignored.",
+        "w_obj_unreadable": "The object settings are unreadable: object colors are ignored.",
+        "w_mixed_orca": "The project uses mixed colors (Orca mixed filaments): each one becomes a solid color "
+                        "with its own filament.",
+        "w_mixed_fs": "The project uses mixed colors (Snapmaker Orca Full Spectrum): each one becomes a solid "
+                      "color with its own filament.",
+        "w_paint": "Part of the painting is unreadable: it is kept as is.",
+        "w_paint_max": "More than {0} colors: Orca can only paint with the first {0} filaments.",
+        "w_plate": "Plate {0} “{1}”: {2}.",
+        "w_too_big": "too large for the U1 bed ({0:.0f} x {1:.0f} mm)",
+        "w_material": "Filament {0} ({1}): the model wants {2}, the chosen profile “{3}” is {4}. "
+                      "Change it in Orca if needed.",
+        "err_not_3mf": "this file is not a 3MF (unreadable archive)",
+        "err_no_model": "this 3MF contains no 3D model",
+        "err_ref_unreadable": "unreadable reference project ({0})",
+        "err_ref_not_orca": "the reference project must come from OrcaSlicer (found: {0})",
+        "err_prusa": "PrusaSlicer file: not supported yet. Open it directly in Orca (it keeps the shape and "
+                     "the painting).",
+        "err_sliced": "this is an already sliced file (.gcode.3mf): it does not contain the model. Download the "
+                      "original 3MF project.",
+        "err_no_part": "no part in this 3MF",
+        "err_profile": "unknown profile {0}: analyze the file again",
+        "err_no_slot": "filament {0} has no slot: analyze the file again",
+        "err_plates_missing": "plate(s) {0} left out of the plan",
+        "err_not_found": "file not found: {0}",
+        "err_lost": "analysis lost: analyze the file again",
+        "err_not_u1": "the open project is not set up for a Snapmaker U1",
+        "err_nothing": "nothing to write: run the conversion again",
+        "err_denied": "Access denied by Orca: {0}",
+        "err_generic": "Error: {0}",
+        "err_in_file": "{0}: {1}",
+        "err_analyse": "Could not analyze {0}: {1}",
+        "err_convert": "Conversion failed: {0}",
+        "err_storage": "plugin storage folder unavailable",
+        "n_foreign": "“{0}” comes from {1}{2}: colors and settings are not set up for your U1.",
+        "n_link": "Prepare the conversion in the Mange-3MF tab",
+        "n_ready": "Conversion of “{0}” is ready: open the Mange-3MF tab.",
+        "n_error": "Mange-3MF: {0}",
+        # --- color names
+        "col_black": "black",
+        "col_white": "white",
+        "col_lightgrey": "light gray",
+        "col_grey": "gray",
+        "col_darkgrey": "dark gray",
+        "col_brown": "brown",
+        "col_beige": "beige",
+        "col_red": "red",
+        "col_orange": "orange",
+        "col_yellow": "yellow",
+        "col_green": "green",
+        "col_turquoise": "turquoise",
+        "col_blue": "blue",
+        "col_purple": "purple",
+        "col_pink": "pink",
+        "col_lightpink": "light pink",
+    },
+}
+DEFAULT_LANG = "en"
+_LANG_WORDS = {"french": "fr", "english": "en"}   # noms de langue de Windows (« French_France »)
+_LANG = DEFAULT_LANG                              # langue courante (voir set_language)
+
+
+class Msg(str):
+    """Texte traduit qui garde sa cle et ses valeurs : relocalize() le refait si la langue change."""
+
+    def __new__(cls, key, *args):
+        self = str.__new__(cls, _render(key, args))
+        self.key = key
+        self.args = args
+        return self
+
+    def again(self):
+        return Msg(self.key, *[a.again() if isinstance(a, Msg) else a for a in self.args])
+
+
+def _render(key, args):
+    text = (TEXTS.get(_LANG) or {}).get(key)
+    if text is None:
+        text = TEXTS[DEFAULT_LANG].get(key, key)
+    if not args:
+        return text
+    try:
+        return text.format(*args)
+    except (IndexError, KeyError, ValueError):
+        return text + " " + " ".join(str(a) for a in args)
+
+
+def tr(key, *args):
+    """Texte de TEXTS dans la langue courante, {0}, {1}... remplaces par args."""
+    return Msg(key, *args)
+
+
+def relocalize(obj):
+    """Copie de obj (dict, liste...) ou chaque texte traduit est refait dans la langue courante."""
+    if isinstance(obj, Msg):
+        return str(obj.again())
+    if isinstance(obj, dict):
+        return {k: relocalize(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [relocalize(v) for v in obj]
+    return obj
+
+
+def set_language(code):
+    global _LANG
+    _LANG = code if code in TEXTS else DEFAULT_LANG
+
+
+def current_language():
+    return _LANG
+
+
+def lang_of(code):
+    """« fr_FR », « fr-CA », « French_France »... -> langue connue ("fr", "en"...), sinon l'anglais."""
+    c = (code or "").strip().lower().replace("-", "_")
+    base = re.split(r"[_.@]", c)[0] if c else ""
+    if base in TEXTS:
+        return base
+    return _LANG_WORDS.get(base, DEFAULT_LANG)
+
+
+def system_language():
+    """Langue du systeme, si Orca ne donne pas la sienne (« fr_FR », « French_France »...)."""
+    for var in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
+        v = (os.environ.get(var) or "").split(":")[0].strip()
+        if v and v.upper() not in ("C", "POSIX") and not v.upper().startswith("C."):
+            return v
+    try:
+        import locale
+        return locale.getlocale()[0] or ""
+    except Exception:
+        return ""
+
+
+def orca_language():
+    """Langue de l'interface d'Orca (« fr_FR »...), lue sur le fil de l'interface ; "" sinon."""
+    try:
+        return str(orca.host.app_info().get("language") or "")
+    except Exception:
+        return ""
+
+
+def message_of(error):
+    """Texte d'une erreur, en gardant sa traduction si c'en est une."""
+    return error.args[0] if error.args and isinstance(error.args[0], Msg) else str(error)
+
+
+set_language(lang_of(system_language()))
+
+
 class ConvertError(Exception):
     """Erreur a montrer telle quelle a l'utilisateur."""
 
@@ -242,17 +658,22 @@ def color_distance(a, b):
 
 def color_name(hexc):
     """Nom de couleur approximatif, pour les messages."""
+    key = _color_key(hexc)
+    return tr("col_" + key) if key else "?"
+
+
+def _color_key(hexc):
     if not hexc:
-        return "?"
+        return None
     r, g, b = _rgb(hexc)
     mx, mn = max(r, g, b), min(r, g, b)
     v, s = mx, (mx - mn) / mx if mx else 0.0
     if v < 0.2:
-        return "noir"
+        return "black"
     if s < 0.14:
         if v > 0.86:
-            return "blanc"
-        return "gris clair" if v > 0.62 else ("gris" if v > 0.38 else "gris foncé")
+            return "white"
+        return "lightgrey" if v > 0.62 else ("grey" if v > 0.38 else "darkgrey")
     d = mx - mn
     if mx == r:
         h = (60.0 * ((g - b) / d)) % 360.0
@@ -261,16 +682,16 @@ def color_name(hexc):
     else:
         h = 60.0 * ((r - g) / d) + 240.0
     if 15 <= h < 50 and v < 0.62:
-        return "marron"
+        return "brown"
     if 20 <= h < 55 and s < 0.38 and v > 0.7:
         return "beige"
-    for limit, name in ((12, "rouge"), (40, "orange"), (68, "jaune"), (165, "vert"), (195, "turquoise"),
-                        (255, "bleu"), (290, "violet"), (335, "rose"), (361, "rouge")):
+    for limit, name in ((12, "red"), (40, "orange"), (68, "yellow"), (165, "green"), (195, "turquoise"),
+                        (255, "blue"), (290, "purple"), (335, "pink"), (361, "red")):
         if h < limit:
-            if name in ("rouge", "rose") and v > 0.85 and s < 0.45:
-                return "rose clair"
+            if name in ("red", "pink") and v > 0.85 and s < 0.45:
+                return "lightpink"
             return name
-    return "?"
+    return None
 
 
 def base_type(value):
@@ -579,11 +1000,11 @@ class Source3MF:
 
     def __init__(self, data, name="projet.3mf", path=""):
         if not data or data[:2] != b"PK":
-            raise ConvertError("ce fichier n'est pas un 3MF (archive illisible)")
+            raise ConvertError(tr("err_not_3mf"))
         try:
             self.zip = zipfile.ZipFile(io.BytesIO(data))
         except zipfile.BadZipFile:
-            raise ConvertError("ce fichier n'est pas un 3MF (archive illisible)")
+            raise ConvertError(tr("err_not_3mf"))
         self.data = data
         self.name = name
         self.path = path
@@ -591,7 +1012,7 @@ class Source3MF:
         self.nameset = set(self.names)
         self.main = self._main_model_name()
         if self.main not in self.nameset:
-            raise ConvertError("ce 3MF ne contient pas de modele 3D")
+            raise ConvertError(tr("err_no_model"))
         self._texts = {}
         self.warnings = []
         self.config = {}
@@ -600,7 +1021,7 @@ class Source3MF:
                 self.config = json.loads(self.zip.read(PROJECT_CFG).decode("utf-8", "replace"))
             except (ValueError, UnicodeDecodeError):
                 self.config = {}
-                self.warnings.append("Les reglages du projet d'origine sont illisibles : ils sont ignores.")
+                self.warnings.append(tr("w_cfg_unreadable"))
         self.meta = self._model_metadata()
         self.application = self.meta.get("Application", "")
         self.objects = {}
@@ -738,7 +1159,7 @@ class Source3MF:
             col = _blend(ca, cb, pct / 100.0)
             main = a if pct <= 50 else b
             f = dict(self.filament(main))
-            f.update({"index": idx, "color": col, "mixed": True, "name": "mélange %d+%d" % (a, b)})
+            f.update({"index": idx, "color": col, "mixed": True, "name": tr("mix", a, b)})
             return f
         return {"index": idx, "color": None, "type": "", "base": "?", "name": "filament %d" % idx,
                 "vendor": "", "mixed": False}
@@ -791,7 +1212,7 @@ class Source3MF:
         try:
             root = ET.fromstring(self.raw(MODEL_CFG))
         except ET.ParseError:
-            self.warnings.append("Les reglages des objets sont illisibles : couleurs des objets ignorees.")
+            self.warnings.append(tr("w_obj_unreadable"))
             return
         self.model_cfg = root
         for oe in root.findall("object"):
@@ -1088,13 +1509,13 @@ class Template:
             cfg = json.loads(z.read(PROJECT_CFG).decode("utf-8"))
             main = z.read(MAIN_MODEL).decode("utf-8", "replace")
         except (KeyError, ValueError, zipfile.BadZipFile) as e:
-            raise ConvertError("projet de reference illisible (%s)" % e)
+            raise ConvertError(tr("err_ref_unreadable", e))
         meta = {m.group(1): xml_unescape(m.group(2)).strip()
                 for m in re.finditer(r'<metadata\s+name="([^"]+)"\s*>(.*?)</metadata>', main[:200000], re.S)}
         app = meta.get("Application", "")
         tag = meta.get("OrcaSlicer") or ""
         if not is_orca_file(app, tag):
-            raise ConvertError("le projet de reference doit venir d'OrcaSlicer (trouve : %s)" % (app or "inconnu"))
+            raise ConvertError(tr("err_ref_not_orca", app or tr("unknown")))
         if not tag and app.startswith("OrcaSlicer-"):
             tag = app[len("OrcaSlicer-"):]      # anciennes versions : pas d'etiquette a part
         return cls(cfg, app, tag or None, source=source)
@@ -1310,7 +1731,7 @@ def _plate_shift(src, template, plate, dest_index, dest_cols):
     margin = 0.5
     if content is not None:
         if (lx1 - lx0) > dw + 0.01 or (ly1 - ly0) > dd + 0.01:
-            warn = "trop grande pour le plateau de la U1 (%.0f x %.0f mm)" % (lx1 - lx0, ly1 - ly0)
+            warn = tr("w_too_big", lx1 - lx0, ly1 - ly0)
             sx = (dw - (lx1 + lx0)) / 2.0
             sy = (dd - (ly1 + ly0)) / 2.0
         elif lx0 + sx < margin or ly0 + sy < margin or lx1 + sx > dw - margin or ly1 + sy > dd - margin:
@@ -1562,7 +1983,7 @@ def build_output(src, template, group, slots, report):
         shifts[p.index] = (dx, dy)
         local_shift[p.index] = (sx, sy)
         if warn:
-            report["warnings"].append("Plaque %d « %s » : %s." % (p.id, p.name or "sans nom", warn))
+            report["warnings"].append(tr("w_plate", p.id, p.name or tr("unnamed"), warn))
 
     out_files = {}
     # --- modele principal
@@ -1795,11 +2216,11 @@ def _filter_pkg_rels(data, keep):
 
 def output_name(src, plates, multiple):
     base = os.path.splitext(os.path.basename(src.name or "projet.3mf"))[0]
-    base = re.sub(r"\s*-\s*U1(\s*-\s*plaques? [\d\-]+)?$", "", base).strip() or "projet"
+    base = re.sub(r"\s*-\s*U1(\s*-\s*(?:plaques?|plates?) [\d\-]+)?$", "", base).strip() or "projet"
     if not multiple:
         return base + " - U1.3mf"
     ids = "-".join(str(p.id) for p in plates)
-    return "%s - U1 - plaque%s %s.3mf" % (base, "s" if len(plates) > 1 else "", ids)
+    return tr("out_plateN" if len(plates) > 1 else "out_plate1", base, ids)
 
 
 def describe_source(src):
@@ -1833,13 +2254,11 @@ def plate_thumbnail(src, plate):
 
 def _check_source(src):
     if src.kind == "prusa":
-        raise ConvertError("fichier PrusaSlicer : pas encore gere. Ouvre-le directement dans Orca "
-                           "(il garde la forme et la peinture).")
+        raise ConvertError(tr("err_prusa"))
     if src.is_sliced_only:
-        raise ConvertError("c'est un fichier deja tranche (.gcode.3mf) : il ne contient pas le modele. "
-                           "Telecharge le projet 3MF d'origine.")
+        raise ConvertError(tr("err_sliced"))
     if not any(o.instances for o in src.objects.values()):
-        raise ConvertError("aucune piece dans ce 3MF")
+        raise ConvertError(tr("err_no_part"))
 
 
 def analyze(src, template, one_per_plate=False, with_thumbs=True):
@@ -1884,16 +2303,13 @@ def analyze(src, template, one_per_plate=False, with_thumbs=True):
                       "colors": sum(1 for s in slots if not s["pad"])})
     warnings = list(src.warnings)
     if any(src.filament(i)["mixed"] for i in used if i not in src.virtual):
-        warnings.append("Le projet utilise des couleurs melangees (filaments mixtes d'Orca) : chacune devient "
-                        "une couleur pleine, avec son propre filament.")
+        warnings.append(tr("w_mixed_orca"))
     if src.virtual and any(i in src.virtual for i in used):
-        warnings.append("Le projet utilise des couleurs melangees (Full Spectrum de Snapmaker Orca) : "
-                        "chacune devient une couleur pleine, avec son propre filament.")
+        warnings.append(tr("w_mixed_fs"))
     if any(m.unreadable_paint for m in src.meshes.values() if isinstance(m, Mesh)):
-        warnings.append("Une partie de la peinture est illisible : elle est gardee telle quelle.")
+        warnings.append(tr("w_paint"))
     if any(len(f["slots"]) > MAX_PAINT_FILAMENTS for f in plan):
-        warnings.append("Plus de %d couleurs : Orca ne sait peindre que les %d premiers filaments."
-                        % (MAX_PAINT_FILAMENTS, MAX_PAINT_FILAMENTS))
+        warnings.append(tr("w_paint_max", MAX_PAINT_FILAMENTS))
     return {
         "source": describe_source(src),
         "filaments": filaments,
@@ -1933,11 +2349,11 @@ def check_plan(src, template, files):
                     got.add(x)
             base = _int(s.get("base"), -1)
             if not 0 <= base < k:
-                raise ConvertError("profil %d inconnu : refais l'analyse" % (base + 1))
+                raise ConvertError(tr("err_profile", base + 1))
             slots.append({"src": srcs, "base": base})
         missing = needed - got
         if missing:
-            raise ConvertError("filament %s sans case : refais l'analyse" % ", ".join(str(x) for x in sorted(missing)))
+            raise ConvertError(tr("err_no_slot", ", ".join(str(x) for x in sorted(missing))))
         while len(slots) > heads and not slots[-1]["src"]:
             slots.pop()
         while len(slots) < heads:
@@ -1945,7 +2361,7 @@ def check_plan(src, template, files):
         clean.append({"plates": plates, "slots": slots})
     missing_plates = [p.id for p in src.plates if p.instances and p.index not in seen]
     if missing_plates:
-        raise ConvertError("plaque(s) %s oubliee(s) dans le plan" % ", ".join(map(str, missing_plates)))
+        raise ConvertError(tr("err_plates_missing", ", ".join(map(str, missing_plates))))
     return clean
 
 
@@ -1959,7 +2375,7 @@ def convert(src, template, files, progress=None):
     slot_names = template.slot_names
     for fi, f in enumerate(files):
         if progress:
-            progress("Fichier %d sur %d..." % (fi + 1, len(files)) if multiple else "Conversion en cours…")
+            progress(tr("p_file", fi + 1, len(files)) if multiple else tr("p_converting"))
         plates = [src.plates[i] for i in f["plates"]]
         report = {"warnings": []}
         for j, s in enumerate(f["slots"]):
@@ -1968,10 +2384,8 @@ def convert(src, template, files, progress=None):
             fl = src.filament(s["src"][0])
             want, have = fl["base"], base_type(slot_types[s["base"]])
             if want != "?" and have != "?" and want != have:
-                report["warnings"].append(
-                    "Filament %d (%s) : le modele veut du %s, le profil choisi « %s » est du %s. "
-                    "Change-le dans Orca si besoin." % (j + 1, color_name(fl["color"]), want,
-                                                        slot_names[s["base"]] or "?", have))
+                report["warnings"].append(tr("w_material", j + 1, color_name(fl["color"]), want,
+                                             slot_names[s["base"]] or "?", have))
         data = build_output(src, template, f["plates"], f["slots"], report)
         results.append({"name": output_name(src, plates, multiple), "data": data,
                         "plates": [p.id for p in plates], "map": slot_mapping(f["slots"]),
@@ -2054,7 +2468,7 @@ def storage_dir():
     if _STORAGE[0] is None:
         path = orca.host.plugin.storage()
         if not path:
-            raise RuntimeError("dossier de stockage du plugin indisponible")
+            raise RuntimeError(tr("err_storage"))
         os.makedirs(path, exist_ok=True)
         _STORAGE[0] = path
     return _STORAGE[0]
@@ -2081,6 +2495,27 @@ def save_template(template):
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(template.to_json(), f)
+    os.replace(tmp, path)
+
+
+def _options_path():
+    return os.path.join(storage_dir(), "options.json")
+
+
+def load_options():
+    try:
+        with open(_options_path(), "r", encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_options(options):
+    path = _options_path()
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(options, f)
     os.replace(tmp, path)
 
 
@@ -2112,7 +2547,7 @@ def app_label(app):
     m = re.match(r"([A-Za-z_ ]+?)[- ]?(\d[\w.\-]*)$", app or "")
     name, ver = (m.group(1), m.group(2)) if m else (app or "", "")
     name = {"BambuStudio": "Bambu Studio", "Snapmaker_Orca": "Snapmaker Orca", "OrcaSlicer": "OrcaSlicer"}.get(name, name.replace("_", " "))
-    return (name + " " + ver).strip() or "logiciel inconnu"
+    return (name + " " + ver).strip() or tr("unknown_app")
 
 
 def is_orca_file(app, orca_tag):
@@ -2178,7 +2613,7 @@ def source_label(info):
 
 # --------------------------------------------------------------------------- onglet (page HTML)
 
-PAGE = r"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
+PAGE = r"""<!doctype html><html lang="__LANG__"><head><meta charset="utf-8"><style>
 :root{--fg:var(--orca-fg,#e9ecef);--muted:var(--orca-muted,#9aa3ad);--line:var(--orca-border,rgba(255,255,255,.13));
 --bg:var(--orca-bg,#1f2226);--accent:#009688;--accent2:#4fd1c0;--bad:#e05a4f;--warn:#e0a030;--ok:#3fb27f;
 color-scheme:dark;font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -2219,117 +2654,155 @@ ul.w{margin:4px 0 0 18px;padding:0}ul.w li{margin:2px 0}
 .hidden{display:none!important}code{font-size:12px;word-break:break-all}
 .wrap{max-width:1100px;margin:0 auto}td.num{width:22px;color:var(--muted);font-weight:600;text-align:right;padding-right:6px}
 tr.pad td{opacity:.75}select{max-width:100%;background:rgba(0,0,0,.25);color:inherit;border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit}
-body.dropping::after{content:"Lâche le 3MF ici";position:fixed;inset:10px;border:2px dashed var(--accent2);border-radius:12px;display:grid;place-items:center;background:rgba(0,150,136,.14);font-size:17px;pointer-events:none}
+body.dropping::after{content:attr(data-drop);position:fixed;inset:10px;border:2px dashed var(--accent2);border-radius:12px;display:grid;place-items:center;background:rgba(0,150,136,.14);font-size:17px;pointer-events:none}
+header select{font-size:11px;padding:1px 4px;margin-left:8px;color:var(--muted)}
+footer{margin:18px 0 0;text-align:center}footer button{padding:1px 8px;margin-left:8px;font-size:11.5px}
 </style></head><body><div class="wrap">
-<header><h1>Mange-3MF</h1><span class="muted">n'importe quel 3MF → ta Snapmaker U1</span><span class="v" id="ver"></span></header>
-<p class="lead">MakerWorld / Bambu Studio, Snapmaker Orca, autres Orca : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques, avec <b>tes</b> réglages.</p>
+<header><h1>Mange-3MF</h1><span class="muted" data-t="sub"></span><span class="v"><span id="ver"></span><select id="lang" data-tt="lang_title"></select></span></header>
+<p class="lead" data-th="lead"></p>
 
 <div id="status"></div>
-<section id="s3" class="hidden"><h2>Analyse</h2><div id="analysis"></div></section>
-<section id="s4" class="hidden"><h2>Fichiers prêts</h2><div id="result"></div></section>
+<section id="s3" class="hidden"><h2 data-t="h_analysis"></h2><div id="analysis"></div></section>
+<section id="s4" class="hidden"><h2 data-t="h_result"></h2><div id="result"></div></section>
 
-<section id="s1"><h2>Tes réglages pour la conversion</h2>
+<section id="s1"><h2 data-t="h_tpl"></h2>
 <div id="tplChoices"></div>
-<div class="row small" style="margin-top:6px"><button id="capture">Mémoriser les réglages actuels d'Orca</button><span class="muted" id="capMsg"></span></div>
+<div class="row small" style="margin-top:6px"><button id="capture" data-t="capture"></button><span class="muted" id="capMsg"></span></div>
 </section>
 
-<section id="s2"><h2>Le 3MF à manger</h2>
+<section id="s2"><h2 data-t="h_src"></h2>
 <div id="opened"></div>
-<div class="muted small" style="margin:4px 0 2px">Derniers 3MF de tes Téléchargements <button id="refresh" class="small" style="padding:1px 7px;margin-left:6px">Actualiser</button></div>
-<div class="files" id="recent"><div class="muted small">Recherche…</div></div>
-<div class="row" style="margin-top:8px"><input type="text" id="path" placeholder="Ou colle le chemin d'un 3MF (clic droit sur le fichier › Copier en tant que chemin d'accès)">
-<button id="go">Analyser</button><button id="browse">Parcourir…</button><input type="file" id="file" accept=".3mf" class="hidden"></div>
-<div class="muted small" style="margin-top:6px">Tu peux aussi glisser un 3MF dans cet onglet.</div>
+<div class="muted small" style="margin:4px 0 2px"><span data-t="recent_title"></span> <button id="refresh" class="small" style="padding:1px 7px;margin-left:6px" data-t="refresh"></button></div>
+<div class="files" id="recent"><div class="muted small" data-t="searching"></div></div>
+<div class="row" style="margin-top:8px"><input type="text" id="path" data-tp="path_ph">
+<button id="go" data-t="analyse"></button><button id="browse" data-t="browse"></button><input type="file" id="file" accept=".3mf" class="hidden"></div>
+<div class="muted small" style="margin-top:6px" data-t="drop_hint"></div>
 </section>
+<footer class="muted small"><span data-t="support"></span> <code>ko-fi.com/dragg</code><button id="kofi" data-t="copy_link"></button></footer>
 </div>
 <script>
 (function(){
-var S={tpl:null,cur:null,choice:"saved",an:null,token:null,busy:false,conv:false,onePer:false};
+var L=__TEXTS__;
+var nav=(navigator.languages&&navigator.languages[0])||navigator.language||"";
+var lang="__LANG__";if(!L[lang]){lang=nav.slice(0,2).toLowerCase();if(!L[lang])lang="en"}
+function t(k){var a=arguments,s=L[lang]&&L[lang][k];if(s==null)s=L.en&&L.en[k];if(s==null)s=k;
+ return String(s).replace(/\{(\d+)\}/g,function(_,i){var v=a[+i+1];return v==null?"":v})}
+var S={tpl:null,cur:null,choice:"saved",an:null,res:null,rec:null,opened:null,token:null,busy:false,conv:false,onePer:false,langChoice:"auto"};
 function $(id){return document.getElementById(id)}
-function esc(t){var d=document.createElement("span");d.textContent=t==null?"":String(t);return d.innerHTML}
+function esc(x){var d=document.createElement("span");d.textContent=x==null?"":String(x);return d.innerHTML}
 function send(m){orca.postMessage(m)}
+function each(sel,fn){Array.prototype.forEach.call(document.querySelectorAll(sel),fn)}
+function hidden(id){return $(id).classList.contains("hidden")}
 function sw(c,big){return '<span class="sw'+(big?' big':'')+'" style="background:'+esc(c||'#808080')+'"></span>'}
-function status(kind,html,progress){var box=(S.conv&&$("cstatus"))||$("status");if(box!==$("status"))$("status").innerHTML="";box.innerHTML=html?'<div class="msg '+kind+'">'+html+(progress?'<div class="bar"><i></i></div>':'')+'</div>':''}
-function ago(t){if(!t)return"";var s=(Date.now()/1000-t);if(s<90)return"à l'instant";if(s<3600)return"il y a "+Math.round(s/60)+" min";if(s<86400)return"il y a "+Math.round(s/3600)+" h";return"il y a "+Math.round(s/86400)+" j"}
-function size(b){return b>1048576?(b/1048576).toFixed(1)+" Mo":Math.max(1,Math.round(b/1024))+" Ko"}
-var BEDS={"Textured PEI Plate":"plaque PEI texturée","Cool Plate":"plaque Cool","Engineering Plate":"plaque Engineering","High Temp Plate":"plaque haute température","Supertack Plate":"plaque SuperTack","Textured Cool Plate":"plaque Cool texturée"};
-function flowFr(f){return f=="High Flow"?"Haut débit":f}
-function nozzles(t){var n=t.nozzles||[],f=(t.flows||[]).map(flowFr);if(!n.length)return"";var same=n.every(function(x){return x==n[0]});
- var out="buses "+(same?n[0]:n.join("/"));if(f.length){var cnt={};f.forEach(function(x){cnt[x]=(cnt[x]||0)+1});var main=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})[0];
- var ex=[];f.forEach(function(x,i){if(x!=main)ex.push("T"+(i+1)+" "+x)});out+=" "+(ex.length?"("+main+", sauf "+ex.join(", ")+")":"("+main+")")}return out}
-function tplLine(t){if(!t)return"";var n=nozzles(t);
- return esc(t.printer)+(n?" · "+esc(n):"")+(t.process?" · "+esc(t.process):"")+(t.bed_type?" · "+esc(BEDS[t.bed_type]||t.bed_type):"")}
-function slotsHtml(t){if(!t)return"";return '<div class="slots">'+t.slots.map(function(s,i){return '<span class="slot">'+sw(s.color)+'<b>'+(i+1)+'</b> '+esc(s.name||s.type)+'</span>'}).join("")+'</div>'}
-function renderTpl(){var h="";
- if(S.tpl){h+='<label class="choice'+(S.choice=="saved"?" on":"")+'"><input type="radio" name="tc" value="saved"'+(S.choice=="saved"?" checked":"")+'><div><div><b>Réglages mémorisés</b> <span class="muted small">'+esc(S.tpl.when)+'</span></div><div class="small">'+tplLine(S.tpl)+'</div>'+slotsHtml(S.tpl)+'</div></label>'}
- if(S.cur){var bad=!S.cur.u1;h+='<label class="choice'+(S.choice=="current"?" on":"")+'"><input type="radio" name="tc" value="current"'+(S.choice=="current"?" checked":"")+'><div><div><b>Réglages actuels d\'Orca</b>'+(bad?' <span class="badge todo">pas une U1</span>':'')+(S.cur.foreign?' <span class="badge todo">viennent du projet ouvert</span>':'')+'</div><div class="small">'+tplLine(S.cur)+'</div>'+slotsHtml(S.cur)+'</div></label>'}
- if(!S.tpl)h+='<div class="msg info small">Choisis tes réglages habituels dans Orca (U1, buses, profil, plaque, filaments) puis clique « Mémoriser » : ils serviront à chaque conversion.</div>';
- $("tplChoices").innerHTML=h;
- Array.prototype.forEach.call(document.querySelectorAll('input[name=tc]'),function(r){r.onchange=function(){S.choice=r.value;renderTpl();if(S.token)send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})}})}
-function fileRow(f,opened){var tag=f.error?'<span class="badge">illisible</span>':f.prusa?'<span class="badge">PrusaSlicer</span>':f.sliced?'<span class="badge">déjà tranché</span>':f.todo?'<span class="badge todo">à convertir</span>':'<span class="badge ok">déjà pour la U1</span>';
- var info=[f.label,f.printer,f.colors?f.colors+" couleur"+(f.colors>1?"s":""):""].filter(Boolean).join(" · ");
- return '<div class="f"><div class="t"><div><b>'+esc(f.name)+'</b> '+tag+'</div><div class="muted small">'+esc(info)+(f.size?" · "+size(f.size):"")+(f.mtime?" · "+ago(f.mtime):"")+(opened?" · ouvert dans Orca":"")+'</div></div><button data-p="'+esc(f.path)+'">Analyser</button></div>'}
-function bindAnalyze(root){Array.prototype.forEach.call(root.querySelectorAll("button[data-p]"),function(b){b.onclick=function(){analyze({path:b.getAttribute("data-p")})}})}
-function top(){try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){window.scrollTo(0,0)}}
-function analyze(src){if(S.busy)return;S.conv=false;src.command="analyze";src.template=S.choice;src.one_per_plate=S.onePer;S.busy=true;$("s3").classList.add("hidden");$("s4").classList.add("hidden");status("info","Analyse en cours…",true);top();send(src)}
 function plural(n,one,many){return n>1?many:one}
+function colors(n){return n+" "+plural(n,t("color1"),t("colorN"))}
+function statics(){document.documentElement.lang=lang;
+ each("[data-t]",function(e){e.textContent=t(e.getAttribute("data-t"))});
+ each("[data-th]",function(e){e.innerHTML=t(e.getAttribute("data-th"))});
+ each("[data-tp]",function(e){e.setAttribute("placeholder",t(e.getAttribute("data-tp")))});
+ each("[data-tt]",function(e){e.setAttribute("title",t(e.getAttribute("data-tt")))});
+ document.body.setAttribute("data-drop",t("drop"));
+ var h='<option value="auto">'+esc(t("lang_auto"))+'</option>';
+ Object.keys(L).forEach(function(k){h+='<option value="'+esc(k)+'">'+esc(L[k].lang_name||k)+'</option>'});
+ $("lang").innerHTML=h;$("lang").value=S.langChoice}
+function status(kind,html,progress){var box=(S.conv&&$("cstatus"))||$("status");if(box!==$("status"))$("status").innerHTML="";box.innerHTML=html?'<div class="msg '+kind+'">'+html+(progress?'<div class="bar"><i></i></div>':'')+'</div>':''}
+function ago(x){if(!x)return"";var s=(Date.now()/1000-x);if(s<90)return t("ago_now");if(s<3600)return t("ago_min",Math.round(s/60));if(s<86400)return t("ago_h",Math.round(s/3600));return t("ago_d",Math.round(s/86400))}
+function size(b){return b>1048576?(b/1048576).toFixed(1)+" "+t("mb"):Math.max(1,Math.round(b/1024))+" "+t("kb")}
+var BEDS={"Textured PEI Plate":"bed_tpei","Cool Plate":"bed_cool","Engineering Plate":"bed_eng","High Temp Plate":"bed_hot","Supertack Plate":"bed_tack","Textured Cool Plate":"bed_tcool"};
+function flow(f){return f=="High Flow"?t("hf"):(f=="Standard"?t("std"):f)}
+function nozzles(x){var n=x.nozzles||[],f=(x.flows||[]).map(flow);if(!n.length)return"";var same=n.every(function(y){return y==n[0]});
+ var out=t("nozzles")+" "+(same?n[0]:n.join("/"));if(f.length){var cnt={};f.forEach(function(y){cnt[y]=(cnt[y]||0)+1});var main=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})[0];
+ var ex=[];f.forEach(function(y,i){if(y!=main)ex.push("T"+(i+1)+" "+y)});out+=" "+(ex.length?"("+main+", "+t("except")+" "+ex.join(", ")+")":"("+main+")")}return out}
+function tplLine(x){if(!x)return"";var n=nozzles(x);
+ return esc(x.printer)+(n?" · "+esc(n):"")+(x.process?" · "+esc(x.process):"")+(x.bed_type?" · "+esc(BEDS[x.bed_type]?t(BEDS[x.bed_type]):x.bed_type):"")}
+function slotsHtml(x){if(!x)return"";return '<div class="slots">'+x.slots.map(function(s,i){return '<span class="slot">'+sw(s.color)+'<b>'+(i+1)+'</b> '+esc(s.name||s.type)+'</span>'}).join("")+'</div>'}
+function renderTpl(){var h="";
+ if(S.tpl){h+='<label class="choice'+(S.choice=="saved"?" on":"")+'"><input type="radio" name="tc" value="saved"'+(S.choice=="saved"?" checked":"")+'><div><div><b>'+esc(t("tpl_saved"))+'</b> <span class="muted small">'+esc(S.tpl.when)+'</span></div><div class="small">'+tplLine(S.tpl)+'</div>'+slotsHtml(S.tpl)+'</div></label>'}
+ if(S.cur){var bad=!S.cur.u1;h+='<label class="choice'+(S.choice=="current"?" on":"")+'"><input type="radio" name="tc" value="current"'+(S.choice=="current"?" checked":"")+'><div><div><b>'+esc(t("tpl_current"))+'</b>'+(bad?' <span class="badge todo">'+esc(t("badge_not_u1"))+'</span>':'')+(S.cur.foreign?' <span class="badge todo">'+esc(t("badge_foreign"))+'</span>':'')+'</div><div class="small">'+tplLine(S.cur)+'</div>'+slotsHtml(S.cur)+'</div></label>'}
+ if(!S.tpl)h+='<div class="msg info small">'+esc(t("tpl_hint"))+'</div>';
+ $("tplChoices").innerHTML=h;
+ each('input[name=tc]',function(r){r.onchange=function(){S.choice=r.value;renderTpl();if(S.token)send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})}})}
+function fileRow(f,opened){var tag=f.error?'<span class="badge">'+esc(t("badge_unreadable"))+'</span>':f.prusa?'<span class="badge">PrusaSlicer</span>':f.sliced?'<span class="badge">'+esc(t("badge_sliced"))+'</span>':f.todo?'<span class="badge todo">'+esc(t("badge_todo"))+'</span>':'<span class="badge ok">'+esc(t("badge_ok"))+'</span>';
+ var info=[f.label,f.printer,f.colors?colors(f.colors):""].filter(Boolean).join(" · ");
+ return '<div class="f"><div class="t"><div><b>'+esc(f.name)+'</b> '+tag+'</div><div class="muted small">'+esc(info)+(f.size?" · "+size(f.size):"")+(f.mtime?" · "+ago(f.mtime):"")+(opened?" · "+esc(t("opened_in_orca")):"")+'</div></div><button data-p="'+esc(f.path)+'">'+esc(t("analyse"))+'</button></div>'}
+function bindAnalyze(root){Array.prototype.forEach.call(root.querySelectorAll("button[data-p]"),function(b){b.onclick=function(){analyze({path:b.getAttribute("data-p")})}})}
+function renderOpened(){$("opened").innerHTML=S.opened?'<div class="files">'+fileRow(S.opened,true)+'</div>':'';bindAnalyze($("opened"))}
+function renderRecent(){var m=S.rec;if(!m)return;$("recent").innerHTML=m.files.length?m.files.map(function(f){return fileRow(f)}).join(""):'<div class="muted small">'+esc(t("no_3mf",m.folder))+'</div>';bindAnalyze($("recent"))}
+function top(){try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){window.scrollTo(0,0)}}
+function analyze(src){if(S.busy)return;S.conv=false;src.command="analyze";src.template=S.choice;src.one_per_plate=S.onePer;S.busy=true;$("s3").classList.add("hidden");$("s4").classList.add("hidden");status("info",esc(t("analysing")),true);top();send(src)}
 function profOpts(sel){return S.an.profiles.map(function(p,i){return '<option value="'+i+'"'+(i==sel?' selected':'')+'>'+esc(p.n+' · '+(p.name||p.type)+' ('+p.cname+')')+'</option>'}).join("")}
 function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null)S.onePer=!!a.one_per_plate;var s=a.source,h="";
- h+='<div class="row"><div style="flex:1"><div><b>'+esc(a.file)+'</b>'+(s.title?' — '+esc(s.title):'')+(s.designer?' <span class="muted">par '+esc(s.designer)+'</span>':'')+'</div><div class="muted small">'+esc(s.app)+(s.printer?' · '+esc(s.printer):'')+(s.nozzle?' · buse '+esc(s.nozzle):'')+' · plateau '+s.bed[0]+'×'+s.bed[1]+' · '+s.plates+' '+plural(s.plates,'plaque','plaques')+' · '+s.colors+' '+plural(s.colors,'couleur','couleurs')+'</div></div></div>';
+ h+='<div class="row"><div style="flex:1"><div><b>'+esc(a.file)+'</b>'+(s.title?' — '+esc(s.title):'')+(s.designer?' <span class="muted">'+esc(t("by"))+' '+esc(s.designer)+'</span>':'')+'</div><div class="muted small">'+esc(s.app)+(s.printer?' · '+esc(s.printer):'')+(s.nozzle?' · '+esc(t("nozzle"))+' '+esc(s.nozzle):'')+' · '+esc(t("bed"))+' '+s.bed[0]+'×'+s.bed[1]+' · '+s.plates+' '+plural(s.plates,t("plate1"),t("plateN"))+' · '+colors(s.colors)+'</div></div></div>';
  h+='<div class="plates">'+a.plates.map(function(p){return '<div class="plate">'+(p.thumb?'<img src="'+p.thumb+'">':'')+'<div class="nm">'+p.id+(p.name?' · '+esc(p.name):'')+'</div><div>'+p.filaments.map(function(i){return sw(fil(i).color)}).join(" ")+'</div></div>'}).join("")+'</div>';
- if(a.plates.length>1)h+='<label class="row small" style="margin-bottom:4px"><input type="checkbox" id="onePer"'+(S.onePer?" checked":"")+'> Un fichier par plaque</label>';
+ if(a.plates.length>1)h+='<label class="row small" style="margin-bottom:4px"><input type="checkbox" id="onePer"'+(S.onePer?" checked":"")+'> '+esc(t("one_per_plate"))+'</label>';
  a.files.forEach(function(f,fi){
-  h+='<div class="group"><h3>'+(a.files.length>1?'Fichier '+(fi+1)+' : ':'')+esc(f.name)+' <span class="muted small" style="font-weight:normal">· '+f.colors+' '+plural(f.colors,'couleur','couleurs')+' → '+f.slots.length+' filaments</span></h3><table class="map">';
-  h+='<tr class="muted small"><td></td><td></td><td>Couleur du modèle</td><td>Profil de filament (tes réglages)</td></tr>';
+  h+='<div class="group"><h3>'+(a.files.length>1?esc(t("file_n",fi+1)):'')+esc(f.name)+' <span class="muted small" style="font-weight:normal">· '+colors(f.colors)+' → '+esc(t("n_filaments",f.slots.length))+'</span></h3><table class="map">';
+  h+='<tr class="muted small"><td></td><td></td><td>'+esc(t("th_color"))+'</td><td>'+esc(t("th_profile"))+'</td></tr>';
   var pads=[];
   f.slots.forEach(function(sl,si){var p=a.profiles[sl.base]||{};
-   if(sl.pad){pads.push(sl.n);h+='<tr class="pad"><td class="num">'+sl.n+'</td><td style="width:26px">'+sw(p.color,1)+'</td><td colspan="2" class="muted small">pas de couleur du modèle : reste ta bobine actuelle ('+esc(p.name||p.type)+', '+esc(p.cname)+')</td></tr>';return}
-   var warn=(sl.ftype&&sl.ftype!="?"&&p.base&&p.base!="?"&&p.base!=sl.ftype)?'<div class="small" style="color:var(--warn);margin-top:2px">le modèle veut du '+esc(sl.ftype)+', ce profil est du '+esc(p.base)+'</div>':'';
-   h+='<tr><td class="num">'+sl.n+'</td><td style="width:26px">'+sw(sl.color,1)+'</td><td><b>'+esc(sl.name)+'</b> <span class="muted">· '+esc(sl.type)+(sl.preset?' · '+esc(sl.preset):'')+'</span><div class="muted small">'+plural(sl.plates.length,'plaque ','plaques ')+sl.plates.join(", ")+(sl.mixed?' · couleur mélangée':'')+(sl.same>1?' · '+sl.same+' filaments identiques':'')+'</div></td><td><select data-f="'+fi+'" data-s="'+si+'">'+profOpts(sl.base)+'</select>'+warn+'</td></tr>'});
+   if(sl.pad){pads.push(sl.n);h+='<tr class="pad"><td class="num">'+sl.n+'</td><td style="width:26px">'+sw(p.color,1)+'</td><td colspan="2" class="muted small">'+esc(t("pad_row",p.name||p.type,p.cname))+'</td></tr>';return}
+   var warn=(sl.ftype&&sl.ftype!="?"&&p.base&&p.base!="?"&&p.base!=sl.ftype)?'<div class="small" style="color:var(--warn);margin-top:2px">'+esc(t("warn_material",sl.ftype,p.base))+'</div>':'';
+   h+='<tr><td class="num">'+sl.n+'</td><td style="width:26px">'+sw(sl.color,1)+'</td><td><b>'+esc(sl.name)+'</b> <span class="muted">· '+esc(sl.type)+(sl.preset?' · '+esc(sl.preset):'')+'</span><div class="muted small">'+plural(sl.plates.length,t("plate1"),t("plateN"))+' '+sl.plates.join(", ")+(sl.mixed?' · '+esc(t("mixed")):'')+(sl.same>1?' · '+esc(t("same_n",sl.same)):'')+'</div></td><td><select data-f="'+fi+'" data-s="'+si+'">'+profOpts(sl.base)+'</select>'+warn+'</td></tr>'});
   h+='</table>';
-  if(pads.length)h+='<div class="muted small" style="margin-top:4px">Orca garde au moins une case par tête de la U1 : '+(pads.length>1?'les cases '+pads.slice(0,-1).join(", ")+' et '+pads[pads.length-1]+' ne servent pas.':'la case '+pads[0]+' ne sert pas.')+'</div>';
+  if(pads.length)h+='<div class="muted small" style="margin-top:4px">'+esc(pads.length>1?t("pads_many",pads.slice(0,-1).join(", "),pads[pads.length-1]):t("pads_one",pads[0]))+'</div>';
   h+='</div>'});
- if(a.warnings.length)h+='<div class="msg warn"><b>À savoir</b><ul class="w">'+a.warnings.map(function(w){return'<li>'+esc(w)+'</li>'}).join("")+'</ul></div>';
+ if(a.warnings.length)h+='<div class="msg warn"><b>'+esc(t("to_know"))+'</b><ul class="w">'+a.warnings.map(function(w){return'<li>'+esc(w)+'</li>'}).join("")+'</ul></div>';
  if(a.not_ready)h+='<div class="msg err">'+esc(a.not_ready)+'</div>';
- h+='<div class="row" style="margin-top:10px"><button class="go" id="convert"'+(a.not_ready?' disabled':'')+'>Convertir'+(a.files.length>1?' en '+a.files.length+' fichiers':'')+'</button><span class="muted small">'+(a.files.length>1?'Les fichiers sont créés ':'Le fichier est créé ')+esc(a.dest_hint)+'. Un filament par couleur du modèle, avec le profil choisi.</span></div><div id="cstatus"></div>';
+ h+='<div class="row" style="margin-top:10px"><button class="go" id="convert"'+(a.not_ready?' disabled':'')+'>'+esc(a.files.length>1?t("convert_n",a.files.length):t("convert"))+'</button><span class="muted small">'+esc(a.files.length>1?t("created_n",a.dest_hint):t("created_1",a.dest_hint))+'</span></div><div id="cstatus"></div>';
  $("analysis").innerHTML=h;$("s3").classList.remove("hidden");if(fresh)top();
  var op=$("onePer");if(op)op.onchange=function(){S.onePer=op.checked;send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})};
- Array.prototype.forEach.call(document.querySelectorAll("select[data-f]"),function(sel){sel.onchange=function(){a.files[+sel.getAttribute("data-f")].slots[+sel.getAttribute("data-s")].base=+sel.value;renderAnalysis(a)}});
- $("convert").onclick=function(){if(S.busy)return;S.busy=true;S.conv=true;status("info","Conversion en cours…",true);send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base}})}})})}}
+ each("select[data-f]",function(sel){sel.onchange=function(){a.files[+sel.getAttribute("data-f")].slots[+sel.getAttribute("data-s")].base=+sel.value;renderAnalysis(a)}});
+ $("convert").onclick=function(){if(S.busy)return;S.busy=true;S.conv=true;status("info",esc(t("converting")),true);send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base}})}})})}}
+function keepBases(old,a){if(old.files.length!=a.files.length)return;a.files.forEach(function(f,fi){var o=old.files[fi];if(o.slots.length!=f.slots.length)return;f.slots.forEach(function(sl,si){sl.base=o.slots[si].base})})}
 function fil(i){var a=S.an;for(var j=0;j<a.filaments.length;j++)if(a.filaments[j].index==i)return a.filaments[j];return{color:"#808080",name:"?",type:"?",plates:[]}}
-function slotsFor(){var t=S.choice=="current"?S.cur:S.tpl;return t?t.slots:(S.an?S.an.profiles:[])}
-function renderResult(r){var h=r.files.map(function(f){return '<div class="f"><div class="t"><div>✅ <b>'+esc(f.name)+'</b> <span class="muted small">'+f.colors+' '+plural(f.colors,'couleur','couleurs')+' · '+f.filaments+' filaments · '+plural(f.plates.length,'plaque ','plaques ')+f.plates.join(", ")+'</span></div><div class="muted small"><code>'+esc(f.path)+'</code></div>'+(f.warnings.length?'<ul class="w small">'+f.warnings.map(function(w){return'<li>'+esc(w)+'</li>'}).join("")+'</ul>':'')+'</div><button data-c="'+esc(f.path)+'">Copier le chemin</button></div>'}).join("");
- h+='<div class="msg info">Dans Orca : <b>Fichier › Ouvrir un projet</b> (Ctrl+O), colle le chemin et valide. Tes réglages et les couleurs sont déjà dedans.</div>';
+function renderResult(r,scroll){S.res=r;var h=r.files.map(function(f){return '<div class="f"><div class="t"><div>✅ <b>'+esc(f.name)+'</b> <span class="muted small">'+colors(f.colors)+' · '+esc(t("n_filaments",f.filaments))+' · '+plural(f.plates.length,t("plate1"),t("plateN"))+' '+f.plates.join(", ")+'</span></div><div class="muted small"><code>'+esc(f.path)+'</code></div>'+(f.warnings.length?'<ul class="w small">'+f.warnings.map(function(w){return'<li>'+esc(w)+'</li>'}).join("")+'</ul>':'')+'</div><button data-c="'+esc(f.path)+'">'+esc(t("copy_path"))+'</button></div>'}).join("");
+ h+='<div class="msg info">'+t("open_hint")+'</div>';
  $("result").innerHTML='<div class="files">'+h+'</div>';$("s4").classList.remove("hidden");
- Array.prototype.forEach.call(document.querySelectorAll("button[data-c]"),function(b){b.onclick=function(){var p=b.getAttribute("data-c");copy(p);b.textContent="Copié ✓";setTimeout(function(){b.textContent="Copier le chemin"},1500)}});
- $("s4").scrollIntoView({behavior:"smooth"})}
-function copy(t){try{navigator.clipboard.writeText(t)}catch(e){}var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}ta.remove()}
+ each("button[data-c]",function(b){b.onclick=function(){var p=b.getAttribute("data-c");copy(p);b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_path")},1500)}});
+ if(scroll!==false)$("s4").scrollIntoView({behavior:"smooth"})}
+function copy(x){try{navigator.clipboard.writeText(x)}catch(e){}var ta=document.createElement("textarea");ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}ta.remove()}
+function relabel(full){statics();renderTpl();renderOpened();renderRecent();
+ if(full){if(S.an&&!hidden("s3"))renderAnalysis(S.an);if(S.res&&!hidden("s4"))renderResult(S.res,false)}}
 orca.onMessage(function(m){if(!m||!m.command)return;
- if(m.command=="state"){$("ver").textContent="v"+m.version;S.tpl=m.saved;S.cur=m.current;if(!S.tpl)S.choice="current";else if(m.choice)S.choice=m.choice;renderTpl();
-  $("opened").innerHTML=m.opened?'<div class="files">'+fileRow(m.opened,true)+'</div>':'';bindAnalyze($("opened"));if(m.cap)$("capMsg").textContent=m.cap}
- else if(m.command=="recent"){$("recent").innerHTML=m.files.length?m.files.map(function(f){return fileRow(f)}).join(""):'<div class="muted small">Aucun 3MF dans '+esc(m.folder)+'.</div>';bindAnalyze($("recent"))}
- else if(m.command=="analysis"){S.busy=false;status();renderAnalysis(m,true)}
+ if(m.command=="state"){$("ver").textContent="v"+m.version;S.tpl=m.saved;S.cur=m.current;if(!S.tpl)S.choice="current";else if(m.choice)S.choice=m.choice;
+  if(m.lang_choice)S.langChoice=m.lang_choice;var nl=(m.lang&&L[m.lang])?m.lang:lang,changed=nl!=lang;lang=nl;
+  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;relabel(changed)}
+ else if(m.command=="recent"){S.rec=m;renderRecent()}
+ else if(m.command=="analysis"){
+  if(m.relabel){if(S.an&&S.an.token==m.token&&!hidden("s3")){keepBases(S.an,m);renderAnalysis(m,false)}return}
+  S.busy=false;status();renderAnalysis(m,true)}
  else if(m.command=="built"){send({command:"write",token:m.token})}
- else if(m.command=="result"){S.busy=false;status();S.conv=false;renderResult(m)}
+ else if(m.command=="result"){
+  if(m.relabel){if(S.res&&!hidden("s4"))renderResult(m,false);return}
+  S.busy=false;status();S.conv=false;renderResult(m)}
  else if(m.command=="progress"){S.busy=true;status("info",esc(m.text),true)}
  else if(m.command=="error"){S.busy=false;status("err",esc(m.text));S.conv=false}});
 $("go").onclick=function(){var p=$("path").value.trim().replace(/^"|"$/g,"");if(p)analyze({path:p})};
 $("path").onkeydown=function(e){if(e.key=="Enter")$("go").click()};
-$("refresh").onclick=function(){$("recent").innerHTML='<div class="muted small">Recherche…</div>';send({command:"recent"})};
+$("refresh").onclick=function(){$("recent").innerHTML='<div class="muted small">'+esc(t("searching"))+'</div>';send({command:"recent"})};
 $("capture").onclick=function(){$("capMsg").textContent="…";send({command:"capture"})};
 $("browse").onclick=function(){$("file").click()};
-function readFile(f){if(!/\.3mf$/i.test(f.name||"")){status("err","Ce n'est pas un fichier 3MF : "+esc(f.name));return}
- if(f.size>80*1048576){status("err","Fichier trop gros pour être lu ici ("+size(f.size)+") : mets-le dans Téléchargements ou colle son chemin.");return}
- var rd=new FileReader();status("info","Lecture de "+esc(f.name)+"…",true);rd.onload=function(){var b=String(rd.result);analyze({upload:b.slice(b.indexOf(",")+1),name:f.name})};rd.readAsDataURL(f)}
+$("kofi").onclick=function(){var b=$("kofi");copy("https://ko-fi.com/dragg");b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_link")},1500)};
+$("lang").onchange=function(){var v=$("lang").value;S.langChoice=v;if(L[v]&&v!=lang){lang=v;relabel(true)}send({command:"lang",lang:v,nav:nav})};
+function readFile(f){if(!/\.3mf$/i.test(f.name||"")){status("err",esc(t("not_3mf",f.name)));return}
+ if(f.size>80*1048576){status("err",esc(t("too_big",size(f.size))));return}
+ var rd=new FileReader();status("info",esc(t("reading",f.name)),true);rd.onload=function(){var b=String(rd.result);analyze({upload:b.slice(b.indexOf(",")+1),name:f.name})};rd.readAsDataURL(f)}
 $("file").onchange=function(){var f=$("file").files[0];if(f)readFile(f);$("file").value=""};
 var depth=0;
 document.addEventListener("dragenter",function(e){e.preventDefault();depth++;document.body.classList.add("dropping")});
 document.addEventListener("dragover",function(e){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect="copy"});
 document.addEventListener("dragleave",function(){depth=Math.max(0,depth-1);if(!depth)document.body.classList.remove("dropping")});
 document.addEventListener("drop",function(e){e.preventDefault();depth=0;document.body.classList.remove("dropping");var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)readFile(f)});
-send({command:"init"});
+statics();
+send({command:"init",nav:nav});
 })();
 </script></body></html>"""
+
+
+def page_html(lang=None):
+    """Page de l'onglet, avec tous les textes et la langue de depart."""
+    texts = json.dumps(TEXTS).replace("</", "<\\/")
+    return PAGE.replace("__TEXTS__", texts).replace("__LANG__", lang or current_language())
 
 
 ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FEFEFE" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
@@ -2350,8 +2823,11 @@ class Converter:
         self.built = {}         # jeton -> resultats a ecrire
         self.counter = 0
         self.opened = None      # projet ouvert dans Orca s'il vient d'ailleurs
-        self.cap_msg = ""
-        self.replay = {}        # derniers messages "progress" / "analysis" / "result"
+        self.cap_key = ""       # dernier message de « Memoriser » (cle de TEXTS)
+        self.replay = {}        # derniers messages "progress" / "analysis" / "result" (textes a traduire)
+        self.lang_choice = None # "auto" ou une langue de TEXTS (options.json, lu a la demande)
+        self.orca_lang = ""     # langue de l'interface d'Orca
+        self.nav = ""           # langue du navigateur de la page (secours)
 
     def attach(self, page):
         if page is not None:
@@ -2369,12 +2845,52 @@ class Converter:
                 self.replay["progress"] = data
             elif cmd == "error":
                 self.replay.pop("progress", None)
+        self._send(data)
+
+    def _send(self, data):
+        """Envoie a la page, textes dans la langue courante."""
         p = self.page
         if p is not None:
             try:
-                p.post_message(data)
+                p.post_message(relocalize(data))
             except Exception:
                 pass
+
+    # ---- langue
+    def language_choice(self):
+        if self.lang_choice is None:
+            choice = load_options().get("lang", "auto")
+            self.lang_choice = choice if choice in TEXTS else "auto"
+        return self.lang_choice
+
+    def refresh_language(self):
+        """Langue choisie dans l'onglet, sinon celle d'Orca (a appeler sur le fil de l'interface)."""
+        code = orca_language()
+        if code:
+            self.orca_lang = code
+        choice = self.language_choice()
+        set_language(choice if choice in TEXTS else lang_of(self.orca_lang or self.nav or system_language()))
+        return current_language()
+
+    def choose_language(self, choice, nav=""):
+        """Langue choisie dans l'onglet : memorisee, puis tout est renvoye dans cette langue."""
+        choice = choice if choice in TEXTS else "auto"
+        self.lang_choice = choice
+        try:
+            options = load_options()
+            options["lang"] = choice
+            save_options(options)
+        except Exception as e:
+            log_error("options : %s" % e)
+        if nav:
+            self.nav = nav
+        self.refresh_language()
+        self.send_state()
+        with self.lock:
+            again = [dict(self.replay[k], relabel=True) for k in ("analysis", "result") if k in self.replay]
+            again += [self.replay[k] for k in ("progress",) if k in self.replay]
+        for m in again:
+            self._send(m)
 
     # ---- messages de la page (fil de l'interface)
     def on_message(self, msg):
@@ -2387,21 +2903,24 @@ class Converter:
             return
         cmd = msg.get("command")
         try:
+            if cmd in ("init", "lang") and msg.get("nav"):
+                self.nav = str(msg["nav"])
+            self.refresh_language()
             if cmd == "init":
                 self.send_state()
                 self.list_recent()
                 with self.lock:
                     replay = [self.replay[k] for k in ("analysis", "result", "progress") if k in self.replay]
                 for m in replay:
-                    p = self.page
-                    if p is not None:
-                        p.post_message(m)
+                    self._send(m)
+            elif cmd == "lang":
+                self.choose_language(msg.get("lang"))
             elif cmd == "recent":
                 self.list_recent()
             elif cmd == "capture":
                 t = capture_current_template()
                 save_template(t)
-                self.cap_msg = "Réglages mémorisés."
+                self.cap_key = "cap_saved"
                 self.send_state(choice="saved")
             elif cmd == "analyze":
                 self.start_analyze(msg)
@@ -2412,20 +2931,23 @@ class Converter:
             elif cmd == "write":
                 self.write_outputs(msg.get("token"))
         except PermissionError as e:
-            self.post({"command": "error", "text": "Accès refusé par Orca : %s" % e})
+            self.post({"command": "error", "text": tr("err_denied", e)})
         except ConvertError as e:
-            self.post({"command": "error", "text": str(e)})
+            self.post({"command": "error", "text": message_of(e)})
         except Exception as e:
             import traceback
             log_error(traceback.format_exc())
-            self.post({"command": "error", "text": "Erreur : %s" % e})
+            self.post({"command": "error", "text": tr("err_generic", e)})
 
     # ---- etat
     def template_summary(self, t):
         if t is None:
             return None
         s = t.summary()
-        when = time.strftime("mémorisés le %d/%m à %H:%M", time.localtime(t.captured_at)) if t.source != "current" else ""
+        when = ""
+        if t.source != "current":
+            lt = time.localtime(t.captured_at)
+            when = tr("when_saved", lt.tm_mday, lt.tm_mon, lt.tm_year, lt.tm_hour, lt.tm_min)
         s["when"] = when
         s["u1"] = is_u1(s.get("printer_model") or s.get("printer"))
         return s
@@ -2445,7 +2967,8 @@ class Converter:
             o["todo"] = needs_conversion(o)
             opened = o
         self.post({"command": "state", "version": VERSION, "saved": saved, "current": cur, "opened": opened,
-                   "choice": choice, "cap": self.cap_msg})
+                   "choice": choice, "cap": tr(self.cap_key) if self.cap_key else "",
+                   "lang": current_language(), "lang_choice": self.language_choice()})
 
     def list_recent(self):
         folder = downloads_dir()
@@ -2490,8 +3013,7 @@ class Converter:
             model = ""
         if is_u1(model):
             return None
-        return ("Il me faut tes réglages U1 : choisis ta Snapmaker U1 et tes profils dans Orca "
-                "(ou ouvre un de tes projets U1), puis clique « Mémoriser les réglages actuels ».")
+        return tr("need_u1")
 
     def start_analyze(self, msg, on_done=None):
         if msg.get("upload"):
@@ -2501,7 +3023,7 @@ class Converter:
         else:
             path = os.path.abspath(os.path.expanduser((msg.get("path") or "").strip().strip('"')))
             if not path.lower().endswith(".3mf") or not os.path.isfile(path):
-                raise ConvertError("fichier introuvable : %s" % path)
+                raise ConvertError(tr("err_not_found", path))
             with open(path, "rb") as f:
                 data = f.read()
             name = os.path.basename(path)
@@ -2513,7 +3035,7 @@ class Converter:
             self.counter += 1
             token = "a%d" % self.counter
             self.jobs = {token: {"path": path, "name": name, "dest": dest}}
-        self.post({"command": "progress", "text": "Analyse de %s…" % name})
+        self.post({"command": "progress", "text": tr("p_analysing", name)})
 
         def worker():
             ok = False
@@ -2526,15 +3048,15 @@ class Converter:
                         return
                     job["src"] = src
                 res.update({"command": "analysis", "token": token, "file": name, "one_per_plate": one,
-                            "dest_hint": "dans " + _short_folder(dest), "not_ready": ready})
+                            "dest_hint": tr("dest_in", _short_folder(dest)), "not_ready": ready})
                 self.post(res)
                 ok = True
             except ConvertError as e:
-                self.post({"command": "error", "text": "%s : %s" % (name, e)})
+                self.post({"command": "error", "text": tr("err_in_file", name, message_of(e))})
             except Exception as e:
                 import traceback
                 log_error(traceback.format_exc())
-                self.post({"command": "error", "text": "Analyse impossible de %s : %s" % (name, e)})
+                self.post({"command": "error", "text": tr("err_analyse", name, e)})
             if on_done:
                 on_done(name, ok)
         threading.Thread(target=worker, daemon=True).start()
@@ -2543,7 +3065,7 @@ class Converter:
         with self.lock:
             job = self.jobs.get(token)
         if not job or "src" not in job:
-            raise ConvertError("analyse perdue : relance l'analyse du fichier")
+            raise ConvertError(tr("err_lost"))
         return job
 
     def start_replan(self, msg):
@@ -2552,7 +3074,7 @@ class Converter:
         one = bool(msg.get("one_per_plate"))
         res = analyze(job["src"], template, one)
         res.update({"command": "analysis", "token": msg.get("token"), "file": job["name"], "one_per_plate": one,
-                    "dest_hint": "dans " + _short_folder(job["dest"]),
+                    "dest_hint": tr("dest_in", _short_folder(job["dest"])),
                     "not_ready": self.ready_message(msg.get("template"))})
         self.post(res)
 
@@ -2566,13 +3088,13 @@ class Converter:
                 raise ConvertError(missing)
             template = capture_current_template()
             if not is_u1(template.config.get("printer_model")):
-                raise ConvertError("le projet ouvert n'est pas réglé pour une Snapmaker U1")
+                raise ConvertError(tr("err_not_u1"))
             save_template(template)
-            self.cap_msg = "Réglages actuels mémorisés pour la conversion."
+            self.cap_key = "cap_current"
         else:
             template = load_saved_template()
         files = msg.get("files") or []
-        self.post({"command": "progress", "text": "Conversion en cours…"})
+        self.post({"command": "progress", "text": tr("p_converting")})
 
         def worker():
             try:
@@ -2582,11 +3104,11 @@ class Converter:
                     self.built[token] = results
                 self.post({"command": "built", "token": token})
             except ConvertError as e:
-                self.post({"command": "error", "text": str(e)})
+                self.post({"command": "error", "text": message_of(e)})
             except Exception as e:
                 import traceback
                 log_error(traceback.format_exc())
-                self.post({"command": "error", "text": "Conversion impossible : %s" % e})
+                self.post({"command": "error", "text": tr("err_convert", e)})
         threading.Thread(target=worker, daemon=True).start()
 
     def write_outputs(self, token):
@@ -2594,7 +3116,7 @@ class Converter:
             results = self.built.pop(token, None)
             job = self.jobs.get(token)
         if not results or not job:
-            raise ConvertError("rien a ecrire : relance la conversion")
+            raise ConvertError(tr("err_nothing"))
         folder = job["dest"]
         files = []
         for r in results:
@@ -2613,24 +3135,24 @@ class Converter:
             ui = orca.host.ui
             lvl = getattr(ui.NotificationLevel, level, None) or getattr(ui.NotificationLevel, "ImportantNotificationLevel")
             if callback is None:
-                ui.push_notification(lvl, text)
+                ui.push_notification(lvl, str(text))
             else:
-                ui.push_notification(lvl, text, hypertext, callback)
+                ui.push_notification(lvl, str(text), str(hypertext), callback)
         except Exception as e:
             log_error("notification : %s" % e)
 
     def prepare(self, path):
         """Clic sur la notification : analyse du projet ouvert, prete dans l'onglet."""
         try:
+            self.refresh_language()
             choice = "saved" if load_saved_template() is not None else "current"
 
             def done(name, ok):
                 if ok:
-                    self.notify("Conversion de « %s » prête : ouvre l'onglet Mange-3MF." % name,
-                                level="RegularNotificationLevel")
+                    self.notify(tr("n_ready", name), level="RegularNotificationLevel")
             self.start_analyze({"path": path, "template": choice}, on_done=done)
         except ConvertError as e:
-            self.notify("Mange-3MF : %s" % e, level="WarningNotificationLevel")
+            self.notify(tr("n_error", message_of(e)), level="WarningNotificationLevel")
         except Exception as e:
             log_error("preparation : %s" % e)
         return True
@@ -2652,10 +3174,9 @@ class Converter:
         if not foreign:
             return
         self.opened = info
-        what = source_label(info) if info.get("app") else "un autre logiciel"
-        text = "« %s » vient de %s%s : couleurs et réglages pas adaptés à ta U1." % (
-            info["name"], what, (" (%s)" % info["printer"]) if info.get("printer") else "")
-        self.notify(text, "Préparer la conversion dans l'onglet Mange-3MF", lambda p=path: self.prepare(p))
+        what = source_label(info) if info.get("app") else tr("another_slicer")
+        text = tr("n_foreign", info["name"], what, (" (%s)" % info["printer"]) if info.get("printer") else "")
+        self.notify(text, tr("n_link"), lambda p=path: self.prepare(p))
         self.send_state()
 
     def on_new_project(self):
@@ -2687,7 +3208,7 @@ def _short_folder(folder):
     home = os.path.expanduser("~")
     if _inside(folder, home):
         rel = os.path.relpath(folder, home)
-        return "Téléchargements" if rel in ("Downloads",) else rel
+        return tr("downloads") if rel in ("Downloads",) else rel
     return folder
 
 
@@ -2729,7 +3250,8 @@ if orca is not None:
 
         def get_ui(self):
             CONVERTER.attach(self)
-            return PAGE
+            CONVERTER.refresh_language()
+            return page_html()
 
         # Appele sur le fil de l'interface.
         def on_message(self, data):
@@ -2739,6 +3261,7 @@ if orca is not None:
         def on_lifecycle_event(self, event, ctx):
             CONVERTER.attach(self)
             try:
+                CONVERTER.refresh_language()
                 if event == getattr(orca.LifecycleEvent, "ProjectOpened", object()):
                     CONVERTER.on_project_opened(getattr(ctx, "name", "") or "")
                 elif event == getattr(orca.LifecycleEvent, "NewProject", object()):

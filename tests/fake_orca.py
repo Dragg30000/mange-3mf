@@ -40,7 +40,7 @@ def template_3mf_bytes(cfg):
 
 def install(storage, template_cfg, current=None):
     orca = types.ModuleType("orca")
-    state = {"windows": [], "notes": [], "perms": [], "caps": [], "exports": 0}
+    state = {"windows": [], "notes": [], "perms": [], "caps": [], "exports": 0, "language": "fr_FR"}
     cur = dict(current or template_cfg)
     def ser(v):
         if isinstance(v, list):
@@ -74,7 +74,9 @@ def install(storage, template_cfg, current=None):
                                                  RegularNotificationLevel="Regular")
     ui.push_notification = lambda lvl, txt, hyper="", cb=None: state["notes"].append((lvl, txt, hyper, cb))
     orca.host = types.SimpleNamespace(ui=ui, preset_bundle=lambda: Bundle(), plater=lambda: Plater(),
-                                      plugin=types.SimpleNamespace(storage=lambda: storage))
+                                      plugin=types.SimpleNamespace(storage=lambda: storage),
+                                      # comme Orca : langue de l'interface (« fr_FR », « en_US »...)
+                                      app_info=lambda: {"version": "2.5.1", "language": state["language"]})
     class Base: pass
     class ScriptBase: pass
     page = FakeWindow()
