@@ -5,7 +5,7 @@
 # name = "Mange-3MF (Snapmaker U1)"
 # description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
 # author = "Dragg avec son ami Claude"
-# version = "0.3.0"
+# version = "0.4.0"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -49,7 +49,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -285,12 +285,26 @@ TEXTS = {
         "not_3mf": "Ce n'est pas un fichier 3MF : {0}",
         "too_big": "Fichier trop gros pour être lu ici ({0}) : mets-le dans Téléchargements ou colle son chemin.",
         "reading": "Lecture de {0}…",
+        "grp_slots": "Dans tes réglages",
+        "grp_user": "Tes préréglages",
+        "grp_other": "Pour une autre imprimante",
+        "pick_color": "Changer la couleur de ce filament",
+        "color_changed": "couleur changée",
+        "color_reset": "remettre celle du modèle",
+        "out_title": "Fichiers convertis :",
+        "out_beside": "à côté du 3MF d'origine",
+        "out_downloads": "dans Téléchargements",
+        "out_folder": "dans ce dossier",
+        "out_ph": "Chemin du dossier (clic droit sur le dossier › Copier en tant que chemin d'accès)",
+        "out_ok": "OK",
         "support": "Le plugin te plaît ? Offre un café à Dragg ☕",
         "copy_link": "Copier le lien",
         # --- messages du plugin
         "when_saved": "mémorisés le {0:02d}/{1:02d} à {3:02d}:{4:02d}",
         "cap_saved": "Réglages mémorisés.",
         "cap_current": "Réglages actuels mémorisés pour la conversion.",
+        "out_saved": "Dossier enregistré.",
+        "err_out_dir": "Dossier introuvable : {0}",
         "dest_in": "dans {0}",
         "downloads": "Téléchargements",
         "out_plate1": "{0} - U1 - plaque {1}.3mf",
@@ -442,12 +456,26 @@ TEXTS = {
         "not_3mf": "This is not a 3MF file: {0}",
         "too_big": "File too large to be read here ({0}): put it in Downloads or paste its path.",
         "reading": "Reading {0}…",
+        "grp_slots": "In your settings",
+        "grp_user": "Your presets",
+        "grp_other": "For another printer",
+        "pick_color": "Change this filament's color",
+        "color_changed": "color changed",
+        "color_reset": "back to the model's color",
+        "out_title": "Converted files:",
+        "out_beside": "next to the original 3MF",
+        "out_downloads": "in Downloads",
+        "out_folder": "in this folder",
+        "out_ph": "Folder path (right-click the folder › Copy as path)",
+        "out_ok": "OK",
         "support": "Like the plugin? Buy Dragg a coffee ☕",
         "copy_link": "Copy link",
         # --- plugin messages
         "when_saved": "saved {2:04d}-{1:02d}-{0:02d} {3:02d}:{4:02d}",
         "cap_saved": "Settings saved.",
         "cap_current": "Current settings saved for the conversion.",
+        "out_saved": "Folder saved.",
+        "err_out_dir": "Folder not found: {0}",
         "dest_in": "in {0}",
         "downloads": "Downloads",
         "out_plate1": "{0} - U1 - plate {1}.3mf",
@@ -1492,6 +1520,182 @@ def _read_mesh(text, start, end):
 
 # --------------------------------------------------------------------------- reglages de l'utilisateur (modele)
 
+# --------------------------------------------------------------------------- prereglages de filament d'Orca
+
+# Reglages de filament qui sont des listes de textes (Orca les ecrit separes par « ; »).
+STRING_VECTOR_KEYS = frozenset("""
+filament_type filament_vendor default_filament_colour filament_settings_id filament_ids filament_start_gcode
+filament_end_gcode filament_change_extrusion_role_gcode filament_notes compatible_printers compatible_prints
+filament_ramming_parameters filament_extruder_variant filament_colour filament_multi_colour filament_colour_type
+filament_plugin_config_overrides adaptive_pressure_advance_model volumetric_speed_coefficients
+""".split())
+
+
+def _unescape_cstyle(text):
+    """Texte echappe par Orca (\\n, \\r, \\x -> x)."""
+    out, i, n = [], 0, len(text)
+    while i < n:
+        c = text[i]
+        if c == "\\" and i + 1 < n:
+            nxt = text[i + 1]
+            out.append("\n" if nxt == "n" else "\r" if nxt == "r" else nxt)
+            i += 2
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
+def split_serialized(text, strings=False):
+    """Valeur d'un reglage ecrite par Orca (opt_serialize) -> liste de textes, comme dans un projet.
+    Textes : separes par « ; », entre guillemets si besoin (comme unescape_strings_cstyle d'Orca) ;
+    nombres, booleens et listes de choix : separes par « , »."""
+    t = text or ""
+    if not t:
+        return []
+    if not (strings or '"' in t or ";" in t):
+        return t.split(",")
+    out, i, n = [], 0, len(t)
+    while True:
+        while i < n and t[i] in " \t":
+            i += 1
+        if i >= n:
+            return out
+        buf = []
+        if t[i] == '"':
+            i += 1
+            while i < n and t[i] != '"':
+                if t[i] == "\\" and i + 1 < n:
+                    i += 1
+                    buf.append("\n" if t[i] == "n" else "\r" if t[i] == "r" else t[i])
+                else:
+                    buf.append(t[i])
+                i += 1
+            i += 1
+        else:
+            while i < n and t[i] != ";":
+                buf.append(t[i])
+                i += 1
+        out.append("".join(buf))
+        while i < n and t[i] in " \t":
+            i += 1
+        if i >= n:
+            return out
+        if t[i] != ";":
+            return out
+        i += 1
+        if i >= n:
+            out.append("")
+            return out
+
+
+def strip_project_suffix(name):
+    """« Anycubic PLA(un projet.3mf)(un autre (1V2).3mf) » -> « Anycubic PLA » : Orca ajoute le nom
+    du projet aux profils d'un projet qui different des tiens."""
+    name = (name or "").strip()
+    while name.lower().endswith(".3mf)"):
+        depth, i = 0, len(name) - 1
+        while i >= 0:
+            if name[i] == ")":
+                depth += 1
+            elif name[i] == "(":
+                depth -= 1
+                if depth == 0:
+                    break
+            i -= 1
+        if i <= 0:
+            break
+        name = name[:i].rstrip()
+    return name
+
+
+class FilamentPreset:
+    """Un prereglage de filament d'Orca : son nom et ses valeurs telles qu'Orca les ecrit."""
+    SCALARS = ("inherits", "filament_id", "compatible_printers_condition", "compatible_prints_condition")
+
+    def __init__(self, name, raw, other=False):
+        self.name = name
+        self.raw = dict(raw)
+        self.other = other          # prevu pour une autre imprimante que celle des reglages
+        self._cache = {}
+
+    @classmethod
+    def read(cls, preset, other=False):
+        raw = {}
+        for key in preset.config_keys():
+            try:
+                value = preset.config_value(key)
+            except Exception:
+                continue
+            if value is not None:
+                raw[key] = str(value)
+        return cls(preset.name, raw, other)
+
+    def values(self, key, strings=False):
+        """Valeurs d'un reglage (une par variante de buse). strings : le reglage est un texte qui
+        peut contenir des virgules (deduit des reglages du projet)."""
+        if key in self.SCALARS or key not in self.raw:
+            return None
+        strings = strings or key in STRING_VECTOR_KEYS
+        if (key, strings) not in self._cache:
+            self._cache[(key, strings)] = split_serialized(self.raw[key], strings)
+        return self._cache[(key, strings)]
+
+    def first(self, key):
+        v = self.values(key)
+        return v[0] if v else None
+
+    def scalar(self, key):
+        v = self.raw.get(key)
+        return _unescape_cstyle(v) if v is not None else None
+
+    def variants(self):
+        return self.values("filament_extruder_variant") or []
+
+    @property
+    def type(self):
+        return self.first("filament_type") or ""
+
+    @property
+    def color(self):
+        return norm_color(self.first("default_filament_colour") or "") or None
+
+
+def read_filament_presets(template):
+    """Prereglages utiles a la conversion, lus dans Orca (fil de l'interface) : ceux de
+    l'utilisateur, et ceux des cases des reglages (par leur nom, sans le nom de projet ajoute par
+    Orca). Retourne {"user": [FilamentPreset...], "slots": {case: FilamentPreset}}."""
+    out = {"user": [], "slots": {}}
+    try:
+        bundle = orca.host.preset_bundle()
+        coll = bundle.filaments
+    except Exception:
+        return out
+    try:
+        same_printer = bundle.current_printer_preset().name == _cfg_str(template.config, "printer_settings_id")
+    except Exception:
+        same_printer = False
+    for s, name in enumerate(template.slot_names):
+        clean = strip_project_suffix(name)
+        try:
+            p = coll.find_preset(clean) if clean else None
+            if p is not None and not p.is_project_embedded and not p.is_default:
+                out["slots"][s] = FilamentPreset.read(p)
+        except Exception as e:
+            log_error("prereglage %s : %s" % (clean, e))
+    taken = {p.name for p in out["slots"].values()}
+    for i in range(coll.size()):
+        try:
+            p = coll.preset(i)
+            if p.is_default or p.is_project_embedded or not p.is_user() or p.name in taken:
+                continue
+            out["user"].append(FilamentPreset.read(p, other=bool(same_printer and not p.is_compatible)))
+        except Exception as e:
+            log_error("prereglage %d : %s" % (i, e))
+    out["user"].sort(key=lambda p: (p.other, p.name.lower()))
+    return out
+
+
 class Template:
     """Reglages de l'utilisateur, pris dans un projet enregistre par son OrcaSlicer."""
 
@@ -1501,6 +1705,33 @@ class Template:
         self.orca_tag = orca_tag
         self.captured_at = captured_at or time.time()
         self.source = source
+        self.presets = []           # prereglages de l'utilisateur proposes en plus des cases
+        self.slot_presets = {}      # case -> prereglage d'Orca du meme nom (valeurs a jour)
+
+    def attach(self, presets):
+        """Prereglages lus dans Orca (read_filament_presets)."""
+        presets = presets or {}
+        self.presets = list(presets.get("user") or [])
+        self.slot_presets = dict(presets.get("slots") or {})
+        return self
+
+    def profile(self, index):
+        """Profil numero index de la liste proposee : (nom, matiere, prereglage d'Orca ou None,
+        case de base des reglages)."""
+        k = self.slot_count
+        if index < k:
+            p = self.slot_presets.get(index)
+            name = p.name if p else strip_project_suffix(self.slot_names[index])
+            return name, self.slot_types[index], p, index
+        p = self.presets[index - k]
+        return p.name, p.type, p, self.closest_slot(p)
+
+    def closest_slot(self, preset):
+        """Case des reglages la plus proche d'un prereglage (meme matiere, couleur proche)."""
+        k = self.slot_count
+        want = base_type(preset.type)
+        return min(range(k), key=lambda t: (base_type(self.slot_types[t]) != want,
+                                            color_distance(preset.color, self.slot_colors[t]) if preset.color else 0.0, t))
 
     @classmethod
     def from_3mf_bytes(cls, data, source=""):
@@ -1551,9 +1782,17 @@ class Template:
 
     @property
     def profiles(self):
-        """Profils de filament proposes pour les couleurs du modele (les cases du projet de reference)."""
-        return [{"n": i + 1, "color": c, "cname": color_name(c), "type": t or "?", "base": base_type(t), "name": nm}
-                for i, (c, t, nm) in enumerate(zip(self.slot_colors, self.slot_types, self.slot_names))]
+        """Profils de filament proposes pour les couleurs du modele : les cases des reglages, puis les
+        prereglages de l'utilisateur (avec leur couleur par defaut s'ils en ont une)."""
+        out = []
+        for i, (c, t) in enumerate(zip(self.slot_colors, self.slot_types)):
+            out.append({"n": i + 1, "color": c, "cname": color_name(c), "type": t or "?", "base": base_type(t),
+                        "name": self.profile(i)[0], "group": "slot"})
+        for p in self.presets:
+            c = p.color
+            out.append({"n": None, "color": c, "cname": color_name(c) if c else "", "type": p.type or "?",
+                        "base": base_type(p.type), "name": p.name, "group": "other" if p.other else "user"})
+        return out
 
     @property
     def slot_colors(self):
@@ -1583,7 +1822,7 @@ class Template:
             "bed_type": _cfg_str(cfg, "curr_bed_type"),
             "nozzles": nozzles,
             "flows": flows,
-            "slots": [{"color": c, "type": t, "name": n}
+            "slots": [{"color": c, "type": t, "name": strip_project_suffix(n)}
                       for c, t, n in zip(self.slot_colors, self.slot_types[:self.slot_count], self.slot_names[:self.slot_count])],
             "captured_at": self.captured_at,
             "app": self.application,
@@ -1671,16 +1910,28 @@ def order_entries(entries, template):
 
 def default_profile(entry, s, template):
     """Profil propose pour la couleur placee en case s : celui de la case s s'il est de la bonne
-    matiere, sinon un de tes profils de cette matiere (couleur la plus proche)."""
+    matiere, sinon le plus proche parmi tes cases et tes prereglages : meme matiere d'abord, puis
+    couleur la plus proche (un prereglage sans couleur passe apres ceux qui en ont une)."""
     k = template.slot_count
     types = [base_type(t) for t in template.slot_types]
     want = entry["base"] if entry else "?"
     if s < k and (want == "?" or types[s] in (want, "?")):
         return s
-    same = [t for t in range(k) if types[t] == want]
-    if not same:
-        return s if s < k else min(range(k), key=lambda t: (color_distance(entry["color"], template.slot_colors[t]), t))
-    return min(same, key=lambda t: (color_distance(entry["color"], template.slot_colors[t]) if entry["color"] else 0.0, t))
+    cands = [(t, types[t], template.slot_colors[t]) for t in range(k)]
+    cands += [(k + i, base_type(p.type), p.color) for i, p in enumerate(template.presets) if not p.other]
+    color = entry["color"] if entry else None
+
+    def cost(c):
+        idx, typ, col = c
+        mismatch = not (want == "?" or typ in (want, "?"))
+        if color and col:
+            d = color_distance(color, col)
+        else:
+            d = 0.0 if not color else 1000.0
+        return (mismatch, d, idx >= k, idx)
+    if s < k and not any(not cost(c)[0] for c in cands):
+        return s
+    return min(cands, key=cost)[0]
 
 
 def plan_file(src, template, plate_indices):
@@ -1836,14 +2087,16 @@ def _rewrite_main_model(src, text, drop_objs, keep_inst, shifts, template):
 
 def build_project_config(template, slots):
     """Reglages du projet converti, faits a partir de ceux de l'utilisateur. slots : une entree par
-    filament du projet converti, {"base": case du projet de reference dont on reprend le profil,
-    "color": couleur du modele ou None pour garder celle de la case}. Chaque reglage de filament est
-    recopie depuis la case de base, variantes de buse comprises (lignes de filament_self_index)."""
+    filament du projet converti, {"base": case des reglages, "preset": prereglage d'Orca ou None,
+    "color": couleur voulue ou None pour garder celle de la case}. Chaque reglage de filament vient
+    du prereglage d'Orca s'il y en a un (avec ses variantes de buse, comme Orca l'ecrit dans un
+    projet), sinon de la case de base (lignes de filament_self_index)."""
     cfg = json.loads(json.dumps(template.config))
     total = template.filament_total
     if not total or not slots:
         return cfg
     bases = [min(max(0, int(s["base"])), total - 1) for s in slots]
+    presets = [s.get("preset") for s in slots]
     physical = template.slot_count
     self_index = [_int(x, 0) for x in _cfg_list(cfg, "filament_self_index")]
     rows_of = {}
@@ -1854,14 +2107,38 @@ def build_project_config(template, slots):
     def rows(b):
         return rows_of.get(b) or [min(b, n_rows - 1)]
 
-    def per_filament(values):
-        return [values[b] for b in bases]
+    # lignes de chaque filament : une par variante de buse du prereglage, sinon celles de la case
+    counts = []
+    for b, p in zip(bases, presets):
+        pv = p.variants() if (p is not None and self_index) else []
+        counts.append(len(pv) if pv else len(rows(b)))
 
-    def per_row(values):
-        return [values[r] for b in bases for r in rows(b)]
+    def is_text(values):
+        return any(isinstance(x, str) and ("," in x or " " in x or "\n" in x) for x in values)
+
+    def per_filament(key, values):
+        out = []
+        text = is_text(values)
+        for b, p in zip(bases, presets):
+            pv = p.values(key, text) if p is not None else None
+            out.append(pv[0] if pv else values[b])
+        return out
+
+    def per_row(key, values):
+        out = []
+        text = is_text(values)
+        for b, p, n in zip(bases, presets, counts):
+            pv = p.values(key, text) if p is not None else None
+            if pv:
+                out.extend(pv[i] if i < len(pv) else pv[0] for i in range(n))
+            else:
+                rb = rows(b)
+                out.extend(values[rb[min(i, len(rb) - 1)]] for i in range(n))
+        return out
 
     special = set(FILAMENT_POSITION_KEYS) | set(FILAMENT_MIXED_DEFAULTS) | {
-        "filament_self_index", "filament_colour", "filament_multi_colour", "filament_colour_type"}
+        "filament_self_index", "filament_colour", "filament_multi_colour", "filament_colour_type",
+        "filament_settings_id", "filament_ids"}
     for key in list(cfg):
         v = cfg[key]
         if not isinstance(v, list) or key in special:
@@ -1869,11 +2146,21 @@ def build_project_config(template, slots):
         if key not in FILAMENT_PRESET_KEYS and not key.startswith("filament_"):
             continue
         if self_index and len(v) == n_rows and (n_rows != total or key in FILAMENT_VARIANT_KEYS):
-            cfg[key] = per_row(v)
+            cfg[key] = per_row(key, v)
         elif len(v) == total:
-            cfg[key] = per_filament(v)
+            cfg[key] = per_filament(key, v)
+    # nom des profils (ceux d'Orca, sans nom de projet ajoute) et identifiant de filament
+    names = _cfg_list(cfg, "filament_settings_id")
+    if names:
+        cfg["filament_settings_id"] = [
+            p.name if p is not None else strip_project_suffix(names[b] if b < len(names) else "")
+            for b, p in zip(bases, presets)]
+    ids = cfg.get("filament_ids")
+    if isinstance(ids, list) and len(ids) == total:
+        cfg["filament_ids"] = [(p.scalar("filament_id") if p is not None and p.scalar("filament_id") is not None
+                                else ids[b]) for b, p in zip(bases, presets)]
     if self_index:
-        cfg["filament_self_index"] = [str(j + 1) for j, b in enumerate(bases) for _r in rows(b)]
+        cfg["filament_self_index"] = [str(j + 1) for j, n in enumerate(counts) for _r in range(n)]
     # tete et buse prevues : celles de la case pour les premieres places, sinon celles du profil
     for key in FILAMENT_POSITION_KEYS:
         v = cfg.get(key)
@@ -1903,17 +2190,32 @@ def build_project_config(template, slots):
         cfg["filament_multi_colour"] = new_multi
     if isinstance(cfg.get("filament_colour_type"), list):
         cfg["filament_colour_type"] = new_types
-    # profils utilises : [traitement, filaments..., imprimante]
+    # profils utilises : [traitement, filaments..., imprimante]. Pour un prereglage d'Orca : son
+    # parent, ses conditions, et aucun ecart note (Orca reprend alors les valeurs du projet telles
+    # quelles et reconnait ton prereglage a l'ouverture)
+    from_preset = {"inherits_group": "inherits", "compatible_machine_expression_group": "compatible_printers_condition",
+                   "compatible_process_expression_group": "compatible_prints_condition"}
+
+    def group(key, values):
+        out = []
+        for b, p in zip(bases, presets):
+            if p is None:
+                out.append(values[b])
+            elif key == "different_settings_to_system":
+                out.append("")
+            else:
+                out.append(p.scalar(from_preset[key]) or "")
+        return out
     for key in PRESET_GROUP_KEYS:
         v = cfg.get(key)
         if not isinstance(v, list):
             continue
         if len(v) == total + 2:
-            cfg[key] = [v[0]] + per_filament(v[1:-1]) + [v[-1]]
+            cfg[key] = [v[0]] + group(key, v[1:-1]) + [v[-1]]
         elif len(v) == total + 1:
-            cfg[key] = [v[0]] + per_filament(v[1:])
+            cfg[key] = [v[0]] + group(key, v[1:])
         elif len(v) == total:
-            cfg[key] = per_filament(v)
+            cfg[key] = group(key, v)
     # purge entre filaments : celle des profils de base, calculee comme Orca entre deux couleurs
     # qui partagent le meme profil
     vec = cfg.get("flush_volumes_vector")
@@ -2047,8 +2349,12 @@ def build_output(src, template, group, slots, report):
             root.append(_new_plate_elem(src, p, j, inst_new))
         out_files[MODEL_CFG] = _xml_bytes(root)
     # --- reglages du projet : ceux de l'utilisateur, un filament par couleur du modele
-    cfg = build_project_config(template, [
-        {"base": s["base"], "color": src.filament(s["src"][0])["color"] if s["src"] else None} for s in slots])
+    cfg_slots = []
+    for s in slots:
+        name, _t, preset, base = template.profile(s["base"])
+        color = (s.get("pick") or src.filament(s["src"][0])["color"]) if s["src"] else None
+        cfg_slots.append({"base": base, "preset": preset, "color": color})
+    cfg = build_project_config(template, cfg_slots)
     # tour d'essuyage : a la place choisie par l'auteur, deplacee comme les pieces
     sx_list, sy_list = _cfg_list(src.config, "wipe_tower_x"), _cfg_list(src.config, "wipe_tower_y")
     tx_list, ty_list = _cfg_list(cfg, "wipe_tower_x") or ["15"], _cfg_list(cfg, "wipe_tower_y") or ["220"]
@@ -2348,9 +2654,11 @@ def check_plan(src, template, files):
                     srcs.append(x)
                     got.add(x)
             base = _int(s.get("base"), -1)
-            if not 0 <= base < k:
+            if not 0 <= base < k + len(template.presets):
                 raise ConvertError(tr("err_profile", base + 1))
-            slots.append({"src": srcs, "base": base})
+            pick = s.get("color")
+            pick = pick.upper() if isinstance(pick, str) and re.fullmatch(r"#[0-9A-Fa-f]{6}", pick) else None
+            slots.append({"src": srcs, "base": base, "pick": pick if srcs else None})
         missing = needed - got
         if missing:
             raise ConvertError(tr("err_no_slot", ", ".join(str(x) for x in sorted(missing))))
@@ -2371,8 +2679,6 @@ def convert(src, template, files, progress=None):
     files = check_plan(src, template, files)
     results = []
     multiple = len(files) > 1
-    slot_types = template.slot_types
-    slot_names = template.slot_names
     for fi, f in enumerate(files):
         if progress:
             progress(tr("p_file", fi + 1, len(files)) if multiple else tr("p_converting"))
@@ -2382,10 +2688,10 @@ def convert(src, template, files, progress=None):
             if not s["src"]:
                 continue
             fl = src.filament(s["src"][0])
-            want, have = fl["base"], base_type(slot_types[s["base"]])
+            name, ftype = template.profile(s["base"])[:2]
+            want, have = fl["base"], base_type(ftype)
             if want != "?" and have != "?" and want != have:
-                report["warnings"].append(tr("w_material", j + 1, color_name(fl["color"]), want,
-                                             slot_names[s["base"]] or "?", have))
+                report["warnings"].append(tr("w_material", j + 1, color_name(fl["color"]), want, name or "?", have))
         data = build_output(src, template, f["plates"], f["slots"], report)
         results.append({"name": output_name(src, plates, multiple), "data": data,
                         "plates": [p.id for p in plates], "map": slot_mapping(f["slots"]),
@@ -2517,6 +2823,26 @@ def save_options(options):
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(options, f)
     os.replace(tmp, path)
+
+
+OUT_MODES = ("beside", "downloads", "folder")
+
+
+def output_choice(options=None):
+    """Ou ecrire les fichiers convertis : (mode, dossier choisi)."""
+    o = options if options is not None else load_options()
+    mode = o.get("out") if o.get("out") in OUT_MODES else "beside"
+    return mode, str(o.get("out_dir") or "")
+
+
+def output_folder(source_path, options=None):
+    """Dossier des fichiers convertis selon le choix de l'utilisateur."""
+    mode, folder = output_choice(options)
+    if mode == "downloads":
+        return downloads_dir()
+    if mode == "folder" and folder and os.path.isdir(folder):
+        return folder
+    return _output_folder(source_path) if source_path else downloads_dir()
 
 
 def capture_current_template():
@@ -2656,6 +2982,13 @@ ul.w{margin:4px 0 0 18px;padding:0}ul.w li{margin:2px 0}
 tr.pad td{opacity:.75}select{max-width:100%;background:rgba(0,0,0,.25);color:inherit;border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit}
 body.dropping::after{content:attr(data-drop);position:fixed;inset:10px;border:2px dashed var(--accent2);border-radius:12px;display:grid;place-items:center;background:rgba(0,150,136,.14);font-size:17px;pointer-events:none}
 header select{font-size:11px;padding:1px 4px;margin-left:8px;color:var(--muted)}
+.pick{width:24px;height:24px;padding:0;border:1px solid rgba(0,0,0,.45);border-radius:6px;background:none;cursor:pointer;vertical-align:middle}
+.pick::-webkit-color-swatch-wrapper{padding:0}.pick::-webkit-color-swatch{border:none;border-radius:5px}
+a.reset{color:var(--accent);cursor:pointer;text-decoration:underline}
+.out{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:10px}
+.out label{display:flex;align-items:center;gap:5px}
+.out input[type=text]{flex:1;min-width:260px}
+.out .err{color:var(--warn)}
 footer{margin:18px 0 0;text-align:center}footer button{padding:1px 8px;margin-left:8px;font-size:11.5px}
 </style></head><body><div class="wrap">
 <header><h1>Mange-3MF</h1><span class="muted" data-t="sub"></span><span class="v"><span id="ver"></span><select id="lang" data-tt="lang_title"></select></span></header>
@@ -2668,6 +3001,11 @@ footer{margin:18px 0 0;text-align:center}footer button{padding:1px 8px;margin-le
 <section id="s1"><h2 data-t="h_tpl"></h2>
 <div id="tplChoices"></div>
 <div class="row small" style="margin-top:6px"><button id="capture" data-t="capture"></button><span class="muted" id="capMsg"></span></div>
+<div class="out small"><span data-t="out_title"></span>
+<label><input type="radio" name="out" value="beside"><span data-t="out_beside"></span></label>
+<label><input type="radio" name="out" value="downloads"><span data-t="out_downloads"></span></label>
+<label><input type="radio" name="out" value="folder"><span data-t="out_folder"></span></label>
+<input type="text" id="outDir" data-tp="out_ph"><button id="outOk" data-t="out_ok"></button><span id="outMsg" class="muted"></span></div>
 </section>
 
 <section id="s2"><h2 data-t="h_src"></h2>
@@ -2730,7 +3068,10 @@ function renderOpened(){$("opened").innerHTML=S.opened?'<div class="files">'+fil
 function renderRecent(){var m=S.rec;if(!m)return;$("recent").innerHTML=m.files.length?m.files.map(function(f){return fileRow(f)}).join(""):'<div class="muted small">'+esc(t("no_3mf",m.folder))+'</div>';bindAnalyze($("recent"))}
 function top(){try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){window.scrollTo(0,0)}}
 function analyze(src){if(S.busy)return;S.conv=false;src.command="analyze";src.template=S.choice;src.one_per_plate=S.onePer;S.busy=true;$("s3").classList.add("hidden");$("s4").classList.add("hidden");status("info",esc(t("analysing")),true);top();send(src)}
-function profOpts(sel){return S.an.profiles.map(function(p,i){return '<option value="'+i+'"'+(i==sel?' selected':'')+'>'+esc(p.n+' · '+(p.name||p.type)+' ('+p.cname+')')+'</option>'}).join("")}
+function profLabel(p){var c=p.cname?' ('+p.cname+')':'';return p.n?p.n+' · '+(p.name||p.type)+c:(p.name||p.type)+(p.type&&p.type!="?"?' · '+p.type:'')+c}
+function profOpts(sel){var groups={slot:[],user:[],other:[]};
+ S.an.profiles.forEach(function(p,i){(groups[p.group||"slot"]||groups.slot).push('<option value="'+i+'"'+(i==sel?' selected':'')+'>'+esc(profLabel(p))+'</option>')});
+ return [["slot","grp_slots"],["user","grp_user"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'+groups[g[0]].join("")+'</optgroup>':''}).join("")}
 function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null)S.onePer=!!a.one_per_plate;var s=a.source,h="";
  h+='<div class="row"><div style="flex:1"><div><b>'+esc(a.file)+'</b>'+(s.title?' — '+esc(s.title):'')+(s.designer?' <span class="muted">'+esc(t("by"))+' '+esc(s.designer)+'</span>':'')+'</div><div class="muted small">'+esc(s.app)+(s.printer?' · '+esc(s.printer):'')+(s.nozzle?' · '+esc(t("nozzle"))+' '+esc(s.nozzle):'')+' · '+esc(t("bed"))+' '+s.bed[0]+'×'+s.bed[1]+' · '+s.plates+' '+plural(s.plates,t("plate1"),t("plateN"))+' · '+colors(s.colors)+'</div></div></div>';
  h+='<div class="plates">'+a.plates.map(function(p){return '<div class="plate">'+(p.thumb?'<img src="'+p.thumb+'">':'')+'<div class="nm">'+p.id+(p.name?' · '+esc(p.name):'')+'</div><div>'+p.filaments.map(function(i){return sw(fil(i).color)}).join(" ")+'</div></div>'}).join("")+'</div>';
@@ -2742,7 +3083,8 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
   f.slots.forEach(function(sl,si){var p=a.profiles[sl.base]||{};
    if(sl.pad){pads.push(sl.n);h+='<tr class="pad"><td class="num">'+sl.n+'</td><td style="width:26px">'+sw(p.color,1)+'</td><td colspan="2" class="muted small">'+esc(t("pad_row",p.name||p.type,p.cname))+'</td></tr>';return}
    var warn=(sl.ftype&&sl.ftype!="?"&&p.base&&p.base!="?"&&p.base!=sl.ftype)?'<div class="small" style="color:var(--warn);margin-top:2px">'+esc(t("warn_material",sl.ftype,p.base))+'</div>':'';
-   h+='<tr><td class="num">'+sl.n+'</td><td style="width:26px">'+sw(sl.color,1)+'</td><td><b>'+esc(sl.name)+'</b> <span class="muted">· '+esc(sl.type)+(sl.preset?' · '+esc(sl.preset):'')+'</span><div class="muted small">'+plural(sl.plates.length,t("plate1"),t("plateN"))+' '+sl.plates.join(", ")+(sl.mixed?' · '+esc(t("mixed")):'')+(sl.same>1?' · '+esc(t("same_n",sl.same)):'')+'</div></td><td><select data-f="'+fi+'" data-s="'+si+'">'+profOpts(sl.base)+'</select>'+warn+'</td></tr>'});
+   var col=sl.pick||sl.color,changed=sl.pick?' · <span style="color:var(--accent)">'+esc(t("color_changed"))+'</span> (<a class="reset" data-rf="'+fi+'" data-rs="'+si+'">'+esc(t("color_reset"))+'</a>)':'';
+   h+='<tr><td class="num">'+sl.n+'</td><td style="width:30px"><input type="color" class="pick" data-cf="'+fi+'" data-cs="'+si+'" value="'+esc(String(col).slice(0,7))+'" title="'+esc(t("pick_color"))+'"></td><td><b>'+esc(sl.name)+'</b> <span class="muted">· '+esc(sl.type)+(sl.preset?' · '+esc(sl.preset):'')+'</span><div class="muted small">'+plural(sl.plates.length,t("plate1"),t("plateN"))+' '+sl.plates.join(", ")+(sl.mixed?' · '+esc(t("mixed")):'')+(sl.same>1?' · '+esc(t("same_n",sl.same)):'')+changed+'</div></td><td><select data-f="'+fi+'" data-s="'+si+'">'+profOpts(sl.base)+'</select>'+warn+'</td></tr>'});
   h+='</table>';
   if(pads.length)h+='<div class="muted small" style="margin-top:4px">'+esc(pads.length>1?t("pads_many",pads.slice(0,-1).join(", "),pads[pads.length-1]):t("pads_one",pads[0]))+'</div>';
   h+='</div>'});
@@ -2752,8 +3094,10 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
  $("analysis").innerHTML=h;$("s3").classList.remove("hidden");if(fresh)top();
  var op=$("onePer");if(op)op.onchange=function(){S.onePer=op.checked;send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})};
  each("select[data-f]",function(sel){sel.onchange=function(){a.files[+sel.getAttribute("data-f")].slots[+sel.getAttribute("data-s")].base=+sel.value;renderAnalysis(a)}});
- $("convert").onclick=function(){if(S.busy)return;S.busy=true;S.conv=true;status("info",esc(t("converting")),true);send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base}})}})})}}
-function keepBases(old,a){if(old.files.length!=a.files.length)return;a.files.forEach(function(f,fi){var o=old.files[fi];if(o.slots.length!=f.slots.length)return;f.slots.forEach(function(sl,si){sl.base=o.slots[si].base})})}
+ each("input.pick",function(inp){inp.onchange=function(){var sl=a.files[+inp.getAttribute("data-cf")].slots[+inp.getAttribute("data-cs")],v=inp.value.toUpperCase();if(v==String(sl.color).slice(0,7).toUpperCase())delete sl.pick;else sl.pick=v;renderAnalysis(a)}});
+ each("a.reset",function(x){x.onclick=function(){delete a.files[+x.getAttribute("data-rf")].slots[+x.getAttribute("data-rs")].pick;renderAnalysis(a)}});
+ $("convert").onclick=function(){if(S.busy)return;S.busy=true;S.conv=true;status("info",esc(t("converting")),true);send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base,color:sl.pick||null}})}})})}}
+function keepBases(old,a){if(old.files.length!=a.files.length)return;a.files.forEach(function(f,fi){var o=old.files[fi];if(o.slots.length!=f.slots.length)return;f.slots.forEach(function(sl,si){sl.base=o.slots[si].base;if(o.slots[si].pick)sl.pick=o.slots[si].pick})})}
 function fil(i){var a=S.an;for(var j=0;j<a.filaments.length;j++)if(a.filaments[j].index==i)return a.filaments[j];return{color:"#808080",name:"?",type:"?",plates:[]}}
 function renderResult(r,scroll){S.res=r;var h=r.files.map(function(f){return '<div class="f"><div class="t"><div>✅ <b>'+esc(f.name)+'</b> <span class="muted small">'+colors(f.colors)+' · '+esc(t("n_filaments",f.filaments))+' · '+plural(f.plates.length,t("plate1"),t("plateN"))+' '+f.plates.join(", ")+'</span></div><div class="muted small"><code>'+esc(f.path)+'</code></div>'+(f.warnings.length?'<ul class="w small">'+f.warnings.map(function(w){return'<li>'+esc(w)+'</li>'}).join("")+'</ul>':'')+'</div><button data-c="'+esc(f.path)+'">'+esc(t("copy_path"))+'</button></div>'}).join("");
  h+='<div class="msg info">'+t("open_hint")+'</div>';
@@ -2761,12 +3105,15 @@ function renderResult(r,scroll){S.res=r;var h=r.files.map(function(f){return '<d
  each("button[data-c]",function(b){b.onclick=function(){var p=b.getAttribute("data-c");copy(p);b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_path")},1500)}});
  if(scroll!==false)$("s4").scrollIntoView({behavior:"smooth"})}
 function copy(x){try{navigator.clipboard.writeText(x)}catch(e){}var ta=document.createElement("textarea");ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}ta.remove()}
-function relabel(full){statics();renderTpl();renderOpened();renderRecent();
+function renderOut(){var o=S.out||{mode:"beside",dir:"",msg:""};each('input[name=out]',function(r){r.checked=r.value==o.mode});
+ if(document.activeElement!==$("outDir"))$("outDir").value=o.dir||"";$("outMsg").textContent=o.msg||"";$("outMsg").className=o.error?"err":"muted"}
+function sendOut(mode){send({command:"outdir",mode:mode,dir:$("outDir").value.trim().replace(/^"|"$/g,"")})}
+function relabel(full){statics();renderTpl();renderOpened();renderRecent();renderOut();
  if(full){if(S.an&&!hidden("s3"))renderAnalysis(S.an);if(S.res&&!hidden("s4"))renderResult(S.res,false)}}
 orca.onMessage(function(m){if(!m||!m.command)return;
  if(m.command=="state"){$("ver").textContent="v"+m.version;S.tpl=m.saved;S.cur=m.current;if(!S.tpl)S.choice="current";else if(m.choice)S.choice=m.choice;
   if(m.lang_choice)S.langChoice=m.lang_choice;var nl=(m.lang&&L[m.lang])?m.lang:lang,changed=nl!=lang;lang=nl;
-  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;relabel(changed)}
+  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;if(m.out)S.out=m.out;relabel(changed)}
  else if(m.command=="recent"){S.rec=m;renderRecent()}
  else if(m.command=="analysis"){
   if(m.relabel){if(S.an&&S.an.token==m.token&&!hidden("s3")){keepBases(S.an,m);renderAnalysis(m,false)}return}
@@ -2782,6 +3129,9 @@ $("path").onkeydown=function(e){if(e.key=="Enter")$("go").click()};
 $("refresh").onclick=function(){$("recent").innerHTML='<div class="muted small">'+esc(t("searching"))+'</div>';send({command:"recent"})};
 $("capture").onclick=function(){$("capMsg").textContent="…";send({command:"capture"})};
 $("browse").onclick=function(){$("file").click()};
+each('input[name=out]',function(r){r.onchange=function(){if(r.value!="folder"||$("outDir").value.trim())sendOut(r.value);else $("outDir").focus()}});
+$("outOk").onclick=function(){if($("outDir").value.trim())sendOut("folder")};
+$("outDir").onkeydown=function(e){if(e.key=="Enter")$("outOk").click()};
 $("kofi").onclick=function(){var b=$("kofi");copy("https://ko-fi.com/dragg");b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_link")},1500)};
 $("lang").onchange=function(){var v=$("lang").value;S.langChoice=v;if(L[v]&&v!=lang){lang=v;relabel(true)}send({command:"lang",lang:v,nav:nav})};
 function readFile(f){if(!/\.3mf$/i.test(f.name||"")){status("err",esc(t("not_3mf",f.name)));return}
@@ -2828,6 +3178,8 @@ class Converter:
         self.lang_choice = None # "auto" ou une langue de TEXTS (options.json, lu a la demande)
         self.orca_lang = ""     # langue de l'interface d'Orca
         self.nav = ""           # langue du navigateur de la page (secours)
+        self.out_key = ""       # dernier message du choix de dossier (cle de TEXTS)
+        self.out_arg = ""
 
     def attach(self, page):
         if page is not None:
@@ -2872,6 +3224,42 @@ class Converter:
         set_language(choice if choice in TEXTS else lang_of(self.orca_lang or self.nav or system_language()))
         return current_language()
 
+    def template_for(self, choice):
+        """Reglages pour le plan, avec les prereglages d'Orca (fil de l'interface)."""
+        template = self.pick_template(choice)
+        return template.attach(read_filament_presets(template))
+
+    def dest_hint(self, path):
+        return tr("dest_in", _short_folder(output_folder(path)))
+
+    def choose_output(self, mode, folder):
+        """Dossier des fichiers convertis choisi dans l'onglet."""
+        mode = mode if mode in OUT_MODES else "beside"
+        folder = os.path.expanduser((folder or "").strip().strip('"'))
+        options = load_options()
+        self.out_key, self.out_arg = "", ""
+        if mode == "folder" and not os.path.isdir(folder):
+            self.out_key, self.out_arg = "err_out_dir", folder
+            options["out_dir"] = folder
+        else:
+            options["out"] = mode
+            if mode == "folder":
+                options["out_dir"] = os.path.abspath(folder)
+                self.out_key = "out_saved"
+        try:
+            save_options(options)
+        except Exception as e:
+            log_error("options : %s" % e)
+        self.send_state()
+        with self.lock:
+            again = []
+            if "analysis" in self.replay:
+                job = self.jobs.get(self.replay["analysis"].get("token")) or {}
+                self.replay["analysis"]["dest_hint"] = self.dest_hint(job.get("path", ""))
+                again.append(dict(self.replay["analysis"], relabel=True))
+        for m in again:
+            self._send(m)
+
     def choose_language(self, choice, nav=""):
         """Langue choisie dans l'onglet : memorisee, puis tout est renvoye dans cette langue."""
         choice = choice if choice in TEXTS else "auto"
@@ -2915,6 +3303,8 @@ class Converter:
                     self._send(m)
             elif cmd == "lang":
                 self.choose_language(msg.get("lang"))
+            elif cmd == "outdir":
+                self.choose_output(msg.get("mode"), msg.get("dir"))
             elif cmd == "recent":
                 self.list_recent()
             elif cmd == "capture":
@@ -2966,9 +3356,12 @@ class Converter:
             o["label"] = source_label(o)
             o["todo"] = needs_conversion(o)
             opened = o
+        mode, folder = output_choice()
+        out_msg = (tr(self.out_key, self.out_arg) if self.out_arg else tr(self.out_key)) if self.out_key else ""
         self.post({"command": "state", "version": VERSION, "saved": saved, "current": cur, "opened": opened,
                    "choice": choice, "cap": tr(self.cap_key) if self.cap_key else "",
-                   "lang": current_language(), "lang_choice": self.language_choice()})
+                   "lang": current_language(), "lang_choice": self.language_choice(),
+                   "out": {"mode": mode, "dir": folder, "msg": out_msg, "error": self.out_key == "err_out_dir"}})
 
     def list_recent(self):
         folder = downloads_dir()
@@ -3019,7 +3412,7 @@ class Converter:
         if msg.get("upload"):
             data = base64.b64decode(msg["upload"])
             name = os.path.basename(msg.get("name") or "projet.3mf")
-            path, dest = "", downloads_dir()
+            path = ""
         else:
             path = os.path.abspath(os.path.expanduser((msg.get("path") or "").strip().strip('"')))
             if not path.lower().endswith(".3mf") or not os.path.isfile(path):
@@ -3027,14 +3420,14 @@ class Converter:
             with open(path, "rb") as f:
                 data = f.read()
             name = os.path.basename(path)
-            dest = _output_folder(path)
-        template = self.pick_template(msg.get("template"))
+        template = self.template_for(msg.get("template"))
         ready = self.ready_message(msg.get("template"))
         one = bool(msg.get("one_per_plate"))
         with self.lock:
             self.counter += 1
             token = "a%d" % self.counter
-            self.jobs = {token: {"path": path, "name": name, "dest": dest}}
+            self.jobs = {token: {"path": path, "name": name,
+                                 "presets": {"user": template.presets, "slots": template.slot_presets}}}
         self.post({"command": "progress", "text": tr("p_analysing", name)})
 
         def worker():
@@ -3048,7 +3441,7 @@ class Converter:
                         return
                     job["src"] = src
                 res.update({"command": "analysis", "token": token, "file": name, "one_per_plate": one,
-                            "dest_hint": tr("dest_in", _short_folder(dest)), "not_ready": ready})
+                            "dest_hint": self.dest_hint(path), "not_ready": ready})
                 self.post(res)
                 ok = True
             except ConvertError as e:
@@ -3070,11 +3463,12 @@ class Converter:
 
     def start_replan(self, msg):
         job = self._job(msg.get("token"))
-        template = self.pick_template(msg.get("template"))
+        template = self.template_for(msg.get("template"))
+        job["presets"] = {"user": template.presets, "slots": template.slot_presets}
         one = bool(msg.get("one_per_plate"))
         res = analyze(job["src"], template, one)
         res.update({"command": "analysis", "token": msg.get("token"), "file": job["name"], "one_per_plate": one,
-                    "dest_hint": tr("dest_in", _short_folder(job["dest"])),
+                    "dest_hint": self.dest_hint(job["path"]),
                     "not_ready": self.ready_message(msg.get("template"))})
         self.post(res)
 
@@ -3093,6 +3487,7 @@ class Converter:
             self.cap_key = "cap_current"
         else:
             template = load_saved_template()
+        template.attach(job.get("presets"))
         files = msg.get("files") or []
         self.post({"command": "progress", "text": tr("p_converting")})
 
@@ -3117,7 +3512,7 @@ class Converter:
             job = self.jobs.get(token)
         if not results or not job:
             raise ConvertError(tr("err_nothing"))
-        folder = job["dest"]
+        folder = output_folder(job["path"])
         files = []
         for r in results:
             path = _free_path(os.path.join(folder, r["name"]))

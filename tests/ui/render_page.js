@@ -31,11 +31,19 @@ const [pageFile, dataDir, outDir, chrome] = process.argv.slice(2);
   // autre profil pour la 5e couleur : garde apres le nouveau rendu et envoye a la conversion
   const sel = page.locator('select[data-f="0"][data-s="4"]');
   const choice = (await sel.locator('option').count()) - 1;
+  // tes prereglages sont proposes dans un groupe a part
+  const groups = await sel.locator('optgroup').evaluateAll(gs => gs.map(g => g.children.length));
+  if (groups.length < 2 || groups[1] < 1) { console.error('prereglages absents de la liste', groups); process.exit(1); }
   await sel.selectOption(String(choice));
   if (await page.locator('select[data-f="0"][data-s="4"]').inputValue() !== String(choice)) { console.error('choix du profil perdu'); process.exit(1); }
+  // couleur changee a la main pour le 1er filament : signalee, gardee et envoyee
+  await page.evaluate(() => { const i = document.querySelector('input.pick[data-cf="0"][data-cs="0"]'); i.value = '#123456'; i.dispatchEvent(new Event('change')); });
+  if (!(await page.locator('a.reset').count())) { console.error('couleur changee non signalee'); process.exit(1); }
+  if (await page.locator('select[data-f="0"][data-s="4"]').inputValue() !== String(choice)) { console.error('choix du profil perdu apres la couleur'); process.exit(1); }
   await page.click('#convert');
   const conv = (await sent()).slice(-1)[0];
-  if (conv.command !== 'convert' || conv.files[0].slots[4].base !== choice) { console.error('plan envoye incorrect', JSON.stringify(conv).slice(0, 300)); process.exit(1); }
+  if (conv.command !== 'convert' || conv.files[0].slots[4].base !== choice || conv.files[0].slots[0].color !== '#123456'
+      || conv.files[0].slots[1].color !== null) { console.error('plan envoye incorrect', JSON.stringify(conv).slice(0, 400)); process.exit(1); }
   // pendant la conversion, le message s'affiche sous le bouton Convertir
   if (!(await page.locator('#cstatus .msg').count())) { console.error('pas de message sous Convertir'); process.exit(1); }
   await recv({ command: 'built', token: conv.token });
@@ -66,6 +74,15 @@ const [pageFile, dataDir, outDir, chrome] = process.argv.slice(2);
   if (switched.h2 !== want || switched.html !== other || !switched.sent || switched.sent.command !== 'lang' || switched.sent.lang !== other
       || switched.options.join(',') !== 'auto,fr,en') {
     console.error('changement de langue incorrect', JSON.stringify(switched)); process.exit(1);
+  }
+  // dossier des fichiers convertis : choix envoye au plugin
+  await page.evaluate(() => { window.__sent.length = 0; });
+  await page.check('input[name=out][value=downloads]');
+  await page.fill('#outDir', 'C:\\Users\\Dragg\\3D');
+  await page.click('#outOk');
+  const outs = (await sent()).filter(m => m.command === 'outdir');
+  if (outs.length !== 2 || outs[0].mode !== 'downloads' || outs[1].mode !== 'folder' || outs[1].dir !== 'C:\\Users\\Dragg\\3D') {
+    console.error('choix du dossier incorrect', JSON.stringify(outs)); process.exit(1);
   }
   // lien Ko-fi : copie, sans quitter l'onglet
   await page.click('#kofi');

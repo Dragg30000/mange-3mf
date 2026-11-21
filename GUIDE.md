@@ -7,7 +7,7 @@
 **Eats any 3MF and spits out an OrcaSlicer project ready for your Snapmaker U1.**
 MakerWorld / Bambu Studio projects, Snapmaker Orca, OrcaSlicer and its forks: exactly the model's colors (one filament per color), the painting and the plates are kept, and **your** settings are used.
 
-- Version: **0.3.0** (2026-11-21) — see [CHANGELOG.md](CHANGELOG.md) (in French)
+- Version: **0.4.0** (2026-11-21) — see [CHANGELOG.md](CHANGELOG.md) (in French)
 - For: OrcaSlicer 2.5 (Python plugins), Snapmaker U1 (4-head profile)
 - Languages: English or French (Orca's language by default, selectable in the tab)
 - Author: Dragg with his friend Claude — GPL-3.0 license ([LICENSE](LICENSE))
@@ -51,12 +51,13 @@ Mange-3MF adds a **Mange-3MF tab** to OrcaSlicer. It reads the original 3MF itse
 - **colors**: the filament of each object and each part, the painting (renumbered filament by filament), modifiers, layer ranges, per-layer color or tool changes, per-feature filaments (walls, infill, supports…);
 - **plates**: same plates, same names, same parts on them, placed on the U1 bed (same position if the bed is the same, otherwise the same position relative to the center, or centered if it doesn't fit);
 - **settings**: yours (printer, High Flow / Standard nozzles, process with the multiACE step, plate type), saved in one click from Orca. Nothing is taken from the author's settings;
-- **filament profiles**: each color gets one of your profiles in the same material, the one with the closest color, with its High Flow and Standard values. You can pick another one in the tab;
+- **filament profiles**: each color gets one of your profiles in the same material, the one with the closest color, with its High Flow and Standard values. You can pick another one in the tab: one from your saved settings or **any of your Orca filament presets**. The values written are the current ones of the Orca preset with the same name, so Orca recognizes your presets when it opens the project;
+- **colors**: the model's, or the one you pick for a filament;
 - **filament order**: the colors closest to your current spools take their slots (1 to 4), the others follow.
 
 ![Opened as is in Orca: 4 × Generic ABS. Converted by Mange-3MF: 7 colors, 7 filaments](docs/visuals/before_after.jpg)
 
-The converted file is written next to the original, for example `My model - U1.3mf`. You then open it with **File › Open Project (Ctrl+O)**: an Orca plugin cannot open a project by itself.
+The converted file is written next to the original (or in the folder you choose), for example `My model - U1.3mf`. You then open it with **File › Open Project (Ctrl+O)**: an Orca plugin cannot open a project by itself.
 
 ## 3. Install and update
 
@@ -82,6 +83,8 @@ Set Orca to your usual U1 settings: printer (0.4 nozzle, High Flow / Standard pe
 
 Do it again when your usual settings change. For a single conversion, you can also pick **Orca's current settings** instead of the saved ones.
 
+In the same section, **Converted files** sets where they are written: **next to the original 3MF** (default), **in Downloads**, or **in this folder**: paste a folder path (in File Explorer: right-click the folder › "Copy as path"), then **OK**. The choice is kept. Orca may ask for permission to write in a folder outside Downloads.
+
 > Do it **before** opening a foreign 3MF in Orca: at that point, Orca's current settings are the author's project or Orca's defaults. The tab tells you so ("from the open project", "not a U1").
 
 ![Settings and files](docs/captures/en/1_reglages_et_fichiers.png)
@@ -100,7 +103,8 @@ The analysis shows at the top of the tab:
 
 - where the file comes from (software, printer, nozzle, bed size);
 - the plates with their thumbnail and their colors;
-- the file that will be created and, for each filament: the model's color, the plates where it is used, and **the filament profile** used (a list of your profiles: change it if needed). A warning shows when the profile's material is not the model's;
+- the file that will be created and, for each filament: the model's color, the plates where it is used, and **the filament profile** used. The list has two parts: **In your settings** (the slots of your saved settings) and **Your presets** (all your Orca filament presets, with their "default color" when they have one; those made for another printer are listed apart). A warning shows when the profile's material is not the model's;
+- the **color swatch** of each filament: click it to pick another color ("color changed", with a link back to the model's color);
 - the unused slots, when the model has fewer than 4 colors (Orca keeps at least one slot per head);
 - the **One file per plate** box, if you prefer one file per plate, each with only its plate's colors;
 - things to know (mixed colors, unreadable painting…).
@@ -109,7 +113,7 @@ The analysis shows at the top of the tab:
 
 ### 4.4 Convert and open
 
-**Convert** (progress shows just below) writes the file next to the original 3MF (or in Downloads if it came from a temporary folder or from drag and drop). An existing file is never overwritten: `(2)`, `(3)`… are added to the name.
+**Convert** (progress shows just below) writes the file in the chosen folder ([§ 4.1](#41-save-your-settings-once)): by default next to the original 3MF (or in Downloads if it came from a temporary folder or from drag and drop). An existing file is never overwritten: `(2)`, `(3)`… are added to the name.
 
 Then in Orca: **File › Open Project (Ctrl+O)**, paste the path (**Copy path** button) and confirm. Your settings and the colors are already in the project.
 
@@ -150,7 +154,7 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 
 ## 7. Known limits
 
-- **Version 0.3.0**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). The tab and the analysis of 0.2.0 have run in a real Orca 2.5.1; conversion with more than 4 filaments is still to be tried.
+- **Version 0.4.0**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.3.0 has run in a real Orca 2.5.1 (tab, analysis, languages); conversion with more than 4 filaments is still to be tried.
 - **PrusaSlicer** files (Printables): not supported yet. Orca already opens them and keeps the shape and the painting.
 - **Already sliced** files (`.gcode.3mf`): refused, they don't contain the model.
 - **Materials**: if none of your profiles has the model's material (PETG, TPU…), the plugin warns you but doesn't create a profile.
@@ -168,6 +172,8 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 | The tab is in the wrong language | Pick it in the list at the top right of the tab (**Auto** follows Orca's language). |
 | "PrusaSlicer file", "already sliced file" | See [§ 7](#7-known-limits). |
 | The tab doesn't show | Check in the Plugins window that Mange-3MF is loaded and enabled. With many plugin tabs, the last ones go into the ▾ menu at the end of the bar (the number of visible tabs is set in Orca's preferences). |
+| Long profile names "…(a project.3mf)" | These are copies Orca makes when a project's settings differ from your presets. Since 0.4.0 the plugin writes the values of your Orca presets, so Orca recognizes them. To clean your saved settings, open one of your clean U1 projects (or pick your presets in Orca), then **Save Orca's current settings**. |
+| "Folder not found" | The path pasted in **Converted files** doesn't exist: check it (no quotes, no file name at the end). |
 | Odd colors or parts in the converted project | Open an [issue on GitHub](https://github.com/Dragg30000/mange-3mf/issues) with the link to the model (MakerWorld…) and a screenshot of the tab. The plugin logs errors in `erreurs.log`, in its storage folder (under `%APPDATA%\OrcaSlicer\orca_plugins\`). |
 
 ## 9. What's in the repository

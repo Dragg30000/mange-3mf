@@ -1,6 +1,6 @@
 # Fonctionnement de Mange-3MF
 
-Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.3.0). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
+Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.4.0). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
 
 ## 1. Organisation du fichier
 
@@ -145,12 +145,22 @@ Capacité « onglet » avec `on_lifecycle_event` :
 | Page → plugin | Plugin → page |
 |---|---|
 | `init {nav}`, `recent` | `state` (réglages mémorisés / actuels, projet ouvert, `lang`, `lang_choice`), `recent` (fichiers) ; à `init`, les derniers `analysis`, `result`, `progress` sont renvoyés |
+| `outdir {mode: "beside" \| "downloads" \| "folder", dir}` | `state` (`out` : mode, dossier, message), puis la dernière `analysis` avec `relabel: true` et le nouveau dossier |
 | `lang {lang: "auto" \| "fr" \| "en"…, nav}` | `state`, puis les derniers `analysis` et `result` avec `relabel: true` (mêmes données, textes refaits dans la nouvelle langue) et `progress` |
 | `capture` | `state` |
 | `analyze {path \| upload, name, template, one_per_plate}` | `progress`, puis `analysis` (source, plaques, `files` avec les cases, `profiles`, `heads`) ou `error` |
 | `replan {token, template, one_per_plate}` | `analysis` |
 | `convert {token, template, files}` | `progress`, puis `built {token}` |
 | `write {token}` | `result {files}` |
+
+## 9 ter. Préréglages de filament d'Orca (0.4.0)
+
+- **Lecture** (`read_filament_presets`, fil de l'interface, à chaque analyse) : `orca.host.preset_bundle().filaments` ; pour chaque préréglage, `config_keys()` et `config_value(clé)` (valeur écrite par `opt_serialize`). Sont gardés : les préréglages utilisateur (`is_user()`, ni copie de projet `is_project_embedded`, ni `is_default`), et, pour chaque case des réglages, le préréglage du même nom (utilisateur ou système) trouvé par `find_preset` après avoir retiré les noms de projet ajoutés par Orca (`strip_project_suffix` : « X(projet.3mf)(autre (1V2).3mf) » → « X », parenthèses imbriquées comprises). Quand l'imprimante sélectionnée dans Orca est celle des réglages, `is_compatible` met à part les préréglages prévus pour une autre imprimante. Les préréglages lus sont gardés avec l'analyse (`job["presets"]`) et réutilisés à la conversion, pour que les numéros de profil restent les mêmes.
+- **Valeurs** (`split_serialized`, comme `unescape_strings_cstyle` d'Orca) : textes séparés par « ; », entre guillemets si besoin (`\n`, `\r`, `\"` échappés), une chaîne vide seule s'écrit `""`, un « ; » final ajoute une chaîne vide ; nombres, booléens, pourcentages, `nil` et listes de choix séparés par « , ». Un réglage est traité comme du texte s'il est dans `STRING_VECTOR_KEYS` ou si ses valeurs dans le projet contiennent une virgule, un espace ou un saut de ligne (ex. `adaptive_pressure_advance_model`). Valeurs simples (`inherits`, `filament_id`, conditions de compatibilité) : texte échappé sans guillemets.
+- **Profils proposés** (`Template.profiles`) : les cases des réglages (groupe `slot`, nom propre), puis les préréglages (`user` ou `other`), avec leur `default_filament_colour`. L'indice d'un profil est sa place dans cette liste : en dessous de `slot_count` c'est une case, au-delà un préréglage (`Template.profile`). Choix automatique (`default_profile`) : la case placée si elle a la bonne matière, sinon le plus proche parmi cases et préréglages (pas `other`) : même matière d'abord, puis couleur la plus proche ; un préréglage sans couleur passe après ceux qui en ont une.
+- **Réglages du projet** (`build_project_config`, entrée `preset`) : pour un filament fait d'un préréglage, chaque réglage de filament vient du préréglage, et ses lignes (`filament_self_index`, `filament_extruder_variant`) sont **ses variantes de buse**, comme Orca les écrit dans un projet (`full_fff_config`). `filament_settings_id` = nom du préréglage, `filament_ids` = son `filament_id`, `inherits_group` = son parent, conditions de compatibilité = les siennes, et **`different_settings_to_system` vide** : à l'ouverture, `Preset::load_external_config` ne remet alors aucune valeur à celles du parent, et `PresetCollection::load_external_preset` trouve le préréglage du même nom avec exactement ces valeurs (`profile_print_params_same`, qui ignore la couleur des cases) : il le sélectionne au lieu de créer une copie « nom(projet.3mf) ». La purge et la tête prévue viennent de la case la plus proche du préréglage (`closest_slot`).
+- **Couleur choisie** : la page envoie `color` (« #RRGGBB ») pour un filament ; `check_plan` la garde (`pick`) si elle est valide, et elle remplace la couleur du modèle dans `filament_colour`.
+- **Dossier des fichiers convertis** (`options.json` : `out` = `beside` / `downloads` / `folder`, `out_dir`) : `output_folder` le calcule à l'écriture ; un dossier choisi qui n'existe plus revient « à côté du 3MF ». Message `outdir {mode, dir}` de la page ; un dossier introuvable est refusé (`err_out_dir`) sans changer le choix ; l'analyse affichée est renvoyée avec le nouveau dossier.
 
 ## 9 bis. Langues
 
@@ -174,5 +184,6 @@ Capacité « onglet » avec `on_lifecycle_event` :
 - `resources/profiles/Snapmaker/machine/` : profils U1 (variantes de buse, G-code de changement d'outil).
 - `src/slic3r/plugin/host/PluginPages.cpp`, `src/slic3r/plugin/pluginTypes/pages/` : onglets des plugins (page construite à la première ouverture, `post_message`, icône).
 - `src/slic3r/plugin/host/PluginHostUi.cpp` : notifications (`push_notification`, niveaux).
+- `src/slic3r/plugin/host/PluginHostPresets.cpp` : préréglages (`preset_bundle().filaments`, `Preset.config_value` = `opt_serialize`) ; `src/libslic3r/PresetBundle.cpp` (`load_config_file_config`) et `src/libslic3r/Preset.cpp` (`load_external_config`, `load_external_preset`, `profile_print_params_same`) : préréglages d'un projet à l'ouverture.
 - `src/slic3r/plugin/host/PluginHostApp.cpp` : `app_info()` (langue de l'interface, fil de l'interface seulement) ; `src/slic3r/GUI/WebPanel.cpp` : page d'un onglet (`SetPage`, liens ouverts dans la page).
 - `src/slic3r/plugin/` et `docs/HLSD/plugin-permissions.md` : API des plugins et droits.

@@ -1,5 +1,13 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.4.0 — 21/11/2026
+
+- **Tes préréglages de filament** : la liste des profils propose aussi tous tes préréglages utilisateur d'Orca (groupe « Tes préréglages », ceux prévus pour une autre imprimante à part), avec leur « couleur par défaut » quand ils en ont une. Le choix automatique en tient compte : même matière d'abord, puis couleur la plus proche.
+- **Profils reconnus par Orca** : chaque filament est écrit avec les valeurs à jour du préréglage d'Orca du même nom, variantes de buse comprises. À l'ouverture, Orca retrouve tes préréglages au lieu d'en faire des copies nommées « …(projet.3mf) ». Les noms déjà abîmés par ces copies sont nettoyés (« Anycubic PLA(un projet.3mf)(un autre.3mf) » redevient « Anycubic PLA »).
+- **Couleur au choix** : un clic sur la pastille d'un filament change sa couleur (lien « remettre celle du modèle »).
+- **Dossier des fichiers convertis** : à côté du 3MF d'origine, dans Téléchargements ou dans un dossier choisi (chemin collé). Le choix est gardé.
+- Tests : 324 vérifications, dont `test_presets.py` (lecture des préréglages comme Orca les écrit, noms nettoyés, réglages du projet faits depuis un préréglage, couleur choisie, dossier).
+
 ## 0.3.0 — 21/11/2026
 
 - **En anglais ou en français** : l'onglet, les messages, les alertes, les notifications et les noms des couleurs. Par défaut, la langue d'Orca (français si Orca est en français, anglais sinon) ; liste **Auto / Français / English** en haut à droite de l'onglet, choix gardé. Le changement s'applique tout de suite, y compris à l'analyse et aux fichiers prêts déjà affichés (les profils choisis à la main sont gardés).

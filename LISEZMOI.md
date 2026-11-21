@@ -16,7 +16,7 @@
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
-- Version : **0.3.0** (21/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
+- Version : **0.4.0** (21/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), Snapmaker U1 (profil à 4 têtes)
 - Langues : français ou anglais (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
@@ -60,12 +60,13 @@ Mange-3MF ajoute un **onglet « Mange-3MF »** à OrcaSlicer. Il lit le 3MF d'or
 - **couleurs** : filament de chaque objet et de chaque pièce, peinture (renumérotée filament par filament), modificateurs, plages de couches, changements de couleur ou d'outil par couche, filaments par fonction (parois, remplissage, supports…) ;
 - **plaques** : mêmes plaques, mêmes noms, mêmes pièces dessus, replacées sur le plateau de la U1 (même position si le plateau est le même, sinon même position par rapport au centre, ou centrées si ça déborde) ;
 - **réglages** : les tiens (imprimante, buses Haut débit / Standard, profil de traitement avec l'étape multiACE, type de plaque), mémorisés d'un clic dans Orca. Rien n'est repris des réglages de l'auteur ;
-- **profils de filament** : chaque couleur prend un de tes profils, de la même matière, celui dont la couleur est la plus proche, avec ses réglages Haut débit et Standard. Tu peux en choisir un autre dans l'onglet ;
+- **profils de filament** : chaque couleur prend un de tes profils, de la même matière, celui dont la couleur est la plus proche, avec ses réglages Haut débit et Standard. Tu peux en choisir un autre dans l'onglet : ceux de tes réglages mémorisés ou **n'importe lequel de tes préréglages de filament** d'Orca. Les valeurs écrites sont celles, à jour, du préréglage d'Orca du même nom : à l'ouverture, Orca reconnaît tes préréglages ;
+- **couleurs** : celles du modèle, ou celle que tu choisis pour un filament ;
 - **ordre des filaments** : les couleurs qui ressemblent le plus à tes bobines actuelles prennent leurs cases (1 à 4), les autres suivent.
 
 ![Ouvert tel quel dans Orca : 4 × Generic ABS. Converti par Mange-3MF : 7 couleurs, 7 filaments](docs/visuals/before_after.jpg)
 
-Le fichier converti est écrit à côté de l'original, par exemple `Mon modèle - U1.3mf`. Tu l'ouvres ensuite avec **Fichier › Ouvrir un projet (Ctrl+O)** : un plugin Orca ne peut pas ouvrir un projet lui-même.
+Le fichier converti est écrit à côté de l'original (ou dans le dossier de ton choix), par exemple `Mon modèle - U1.3mf`. Tu l'ouvres ensuite avec **Fichier › Ouvrir un projet (Ctrl+O)** : un plugin Orca ne peut pas ouvrir un projet lui-même.
 
 ## 3. Installation et mise à jour
 
@@ -91,6 +92,8 @@ Mets Orca sur tes réglages habituels de la U1 : imprimante (buse 0.4, Haut déb
 
 À refaire quand tu changes de réglages habituels. Tu peux aussi choisir, pour une conversion, **« Réglages actuels d'Orca »** au lieu des réglages mémorisés.
 
+Dans la même partie, **« Fichiers convertis »** choisit où les écrire : **à côté du 3MF d'origine** (par défaut), **dans Téléchargements**, ou **dans ce dossier** : colle le chemin d'un dossier (dans l'Explorateur : clic droit sur le dossier › « Copier en tant que chemin d'accès ») puis **OK**. Le choix est gardé. Orca peut demander l'autorisation d'écrire dans un dossier hors de Téléchargements.
+
 > Fais-le **avant** d'ouvrir dans Orca un 3MF venu d'ailleurs : à ce moment-là, les réglages actuels d'Orca sont ceux du projet de l'auteur ou ses valeurs par défaut. L'onglet l'indique (« viennent du projet ouvert », « pas une U1 »).
 
 ![Réglages et fichiers](docs/captures/1_reglages_et_fichiers.png)
@@ -109,7 +112,8 @@ L'analyse s'affiche en haut de l'onglet. Elle montre :
 
 - l'origine du fichier (logiciel, imprimante, buse, taille du plateau) ;
 - les plaques avec leur vignette et leurs couleurs ;
-- le fichier qui sera créé et, pour chaque filament : la couleur du modèle, les plaques où elle sert, et **le profil de filament** utilisé (une liste de tes profils : change-le si besoin). Une alerte s'affiche si la matière du profil n'est pas celle du modèle ;
+- le fichier qui sera créé et, pour chaque filament : la couleur du modèle, les plaques où elle sert, et **le profil de filament** utilisé. La liste a deux parties : **Dans tes réglages** (les cases de tes réglages mémorisés) et **Tes préréglages** (tous tes préréglages de filament d'Orca, avec leur « couleur par défaut » s'ils en ont une ; ceux prévus pour une autre imprimante sont à part). Une alerte s'affiche si la matière du profil n'est pas celle du modèle ;
+- la **pastille de couleur** de chaque filament : clique dessus pour choisir une autre couleur (« couleur changée », avec un lien pour remettre celle du modèle) ;
 - les cases qui ne servent pas, quand le modèle a moins de 4 couleurs (Orca garde au moins une case par tête) ;
 - la case **« Un fichier par plaque »** si tu préfères un fichier par plaque, chacun avec les seules couleurs de sa plaque ;
 - les points à savoir (couleurs mélangées, peinture illisible…).
@@ -118,7 +122,7 @@ L'analyse s'affiche en haut de l'onglet. Elle montre :
 
 ### 4.4 Convertir et ouvrir
 
-**Convertir** (le message de suivi s'affiche juste en dessous) écrit le fichier à côté du 3MF d'origine (ou dans Téléchargements s'il venait d'un dossier temporaire ou d'un glisser-déposer). Un nom déjà pris n'est jamais écrasé : `(2)`, `(3)`… sont ajoutés.
+**Convertir** (le message de suivi s'affiche juste en dessous) écrit le fichier dans le dossier choisi ([§ 4.1](#41-mémoriser-tes-réglages-une-seule-fois)) : par défaut à côté du 3MF d'origine (ou dans Téléchargements s'il venait d'un dossier temporaire ou d'un glisser-déposer). Un nom déjà pris n'est jamais écrasé : `(2)`, `(3)`… sont ajoutés.
 
 Ensuite dans Orca : **Fichier › Ouvrir un projet (Ctrl+O)**, colle le chemin (bouton « Copier le chemin ») et valide. Tes réglages et les couleurs sont déjà dans le projet.
 
@@ -159,7 +163,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.3.0** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). L'onglet et l'analyse de la 0.2.0 ont tourné dans un vrai Orca 2.5.1 ; la conversion à plus de 4 filaments reste à essayer.
+- **Version 0.4.0** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). La 0.3.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, langues) ; la conversion à plus de 4 filaments reste à essayer.
 - Fichiers **PrusaSlicer** (Printables) : pas encore gérés. Orca les ouvre déjà en gardant la forme et la peinture.
 - Fichiers **déjà tranchés** (`.gcode.3mf`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si aucun de tes profils n'a la matière du modèle (PETG, TPU…), le plugin te prévient mais ne crée pas de profil.
@@ -177,6 +181,8 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | L'onglet n'est pas dans la bonne langue | Choisis-la dans la liste en haut à droite de l'onglet (**Auto** suit la langue d'Orca). |
 | « fichier PrusaSlicer », « déjà tranché » | Voir [§ 7](#7-limites-connues). |
 | L'onglet n'apparaît pas | Vérifie dans la fenêtre Plugins que Mange-3MF est chargé et activé. S'il y a beaucoup d'onglets de plugins, les derniers passent dans le menu ▾ au bout de la barre (le nombre visible se règle dans les préférences d'Orca). |
+| Noms de profils à rallonge « …(un projet.3mf) » | Ce sont des copies qu'Orca crée quand les réglages d'un projet diffèrent de tes préréglages. Depuis la 0.4.0, le plugin écrit les valeurs de tes préréglages d'Orca : Orca les reconnaît. Pour nettoyer tes réglages mémorisés, ouvre un de tes projets U1 propres (ou choisis tes préréglages dans Orca), puis « Mémoriser les réglages actuels d'Orca ». |
+| « Dossier introuvable » | Le chemin collé dans « Fichiers convertis » n'existe pas : vérifie-le (sans guillemets ni nom de fichier au bout). |
 | Couleurs ou pièces bizarres dans le projet converti | Ouvre une [issue sur GitHub](https://github.com/Dragg30000/mange-3mf/issues) avec le lien du modèle (MakerWorld…) et une capture de l'onglet. Le plugin note les erreurs dans `erreurs.log`, dans son dossier de stockage (sous `%APPDATA%\OrcaSlicer\orca_plugins\`). |
 
 ## 9. Contenu du dossier

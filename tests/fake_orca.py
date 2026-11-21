@@ -40,7 +40,7 @@ def template_3mf_bytes(cfg):
 
 def install(storage, template_cfg, current=None):
     orca = types.ModuleType("orca")
-    state = {"windows": [], "notes": [], "perms": [], "caps": [], "exports": 0, "language": "fr_FR"}
+    state = {"windows": [], "notes": [], "perms": [], "caps": [], "exports": 0, "language": "fr_FR", "presets": []}
     cur = dict(current or template_cfg)
     def ser(v):
         if isinstance(v, list):
@@ -53,8 +53,15 @@ def install(storage, template_cfg, current=None):
     class Preset:
         def __init__(s, name, cfg): s.name = name; s._c = cfg
         def config_value(s, k): v = s._c.get(k); return None if v is None else ser(v)
+    class Collection:
+        """Comme PresetCollection d'Orca : prereglages de filament (state["presets"], FakePreset)."""
+        def size(s): return len(state["presets"])
+        def preset(s, i): return state["presets"][i]
+        def find_preset(s, name): return next((p for p in state["presets"] if p.name == name), None)
+
     class Bundle:
-        def current_printer_preset(s): return Preset(cur.get("printer_settings_id"), cur)
+        filaments = Collection()
+        def current_printer_preset(s): return Preset(state.get("printer") or cur.get("printer_settings_id"), cur)
         def current_process_preset(s): return Preset(cur.get("print_settings_id"), cur)
         def current_filament_preset_names(s): return list(cur.get("filament_settings_id", []))
         def full_config_value(s, k):
@@ -100,3 +107,80 @@ def install(storage, template_cfg, current=None):
     orca.LifecycleEvent = types.SimpleNamespace(ProjectOpened="ProjectOpened", NewProject="NewProject")
     sys.modules["orca"] = orca
     return orca, state, cur
+
+
+# --------------------------------------------------------------------------- prereglages de filament
+
+STRINGS = {"filament_type", "filament_vendor", "default_filament_colour", "filament_settings_id", "filament_start_gcode",
+           "filament_end_gcode", "filament_notes", "compatible_printers", "compatible_prints", "filament_extruder_variant",
+           "filament_ramming_parameters", "filament_colour", "filament_multi_colour", "filament_colour_type"}
+
+
+def orca_serialize(values, strings):
+    """Comme ConfigOption::serialize d'Orca : textes separes par « ; » (entre guillemets si besoin),
+    le reste par « , »."""
+    if not strings:
+        return ",".join(values)
+    out = []
+    for x in values:
+        if (len(values) == 1 and x == "") or any(c in x for c in ' ;\t\\"\r\n'):
+            x = '"' + x.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r") + '"'
+        out.append(x)
+    return ";".join(out)
+
+
+class FakePreset:
+    """Comme un Preset d'Orca vu par un plugin."""
+
+    def __init__(self, name, values, user=True, embedded=False, compatible=True, system=False, default=False):
+        self.name = name
+        self._v = dict(values)
+        self.is_project_embedded = embedded
+        self.is_compatible = compatible
+        self.is_system = system
+        self.is_default = default
+        self._user = user
+
+    def is_user(self):
+        return self._user
+
+    def config_keys(self):
+        return list(self._v)
+
+    def config_value(self, key):
+        return self._v.get(key)
+
+
+def preset_from(cfg, slot, name, variants=("Direct Drive Standard", "Direct Drive High Flow"), changes=None,
+                inherits="", condition="", prints_condition="", filament_id=None):
+    """Prereglage fait d'une case de reglages de projet (une valeur par variante de buse), modifie par
+    changes {cle: liste de valeurs}."""
+    import mange_3mf_any as m
+    total = len(cfg["filament_colour"])
+    rows = [r for r, fi in enumerate(cfg.get("filament_self_index", [])) if int(fi) == slot + 1]
+    vals = {}
+    for key, v in cfg.items():
+        if not isinstance(v, list) or key in ("filament_self_index", "filament_colour", "filament_multi_colour",
+                                                "filament_colour_type", "filament_settings_id", "filament_ids"):
+            continue
+        if key not in m.FILAMENT_PRESET_KEYS and not key.startswith("filament_"):
+            continue
+        if rows and len(v) == len(cfg["filament_self_index"]) and len(v) != total:
+            got = [v[r] for r in rows][:len(variants)]
+            got += [got[-1]] * (len(variants) - len(got))
+        elif len(v) == total:
+            got = [v[slot]]
+        else:
+            continue
+        vals[key] = got
+    vals["filament_extruder_variant"] = list(variants)
+    for k, v in (changes or {}).items():
+        vals[k] = list(v)
+    raw = {k: orca_serialize(v, k in STRINGS or any("," in x or " " in x or "\n" in x for x in v)) for k, v in vals.items()}
+    raw["filament_settings_id"] = orca_serialize([name], True)
+    raw["inherits"] = inherits
+    raw["compatible_printers_condition"] = condition
+    raw["compatible_prints_condition"] = prints_condition
+    if filament_id is not None:
+        raw["filament_id"] = filament_id
+    return raw

@@ -8,6 +8,7 @@ TESTS = [
     ("test_template.py", "réglages Orca 2.5.1 : variantes de buse, purge, profils de base"),
     ("test_variants.py", "Snapmaker Orca, plateau plus grand, 3MF sans réglages, fichiers refusés, profil changé"),
     ("test_origin.py", "origine des fichiers : projets d'OrcaSlicer 2.5.1, Bambu Studio, Snapmaker Orca"),
+    ("test_presets.py", "préréglages d'Orca, couleur choisie, dossier des fichiers convertis"),
     ("test_lang.py", "langues : textes français et anglais, page de l'onglet, retraduction"),
     ("test_plugin.py", "plugin dans un faux OrcaSlicer : onglet, messages, écriture, notifications, langue"),
 ]

@@ -42,6 +42,7 @@ print("== textes demandes par le code et par la page")
 code = SRC[:SRC.index("TEXTS = {")] + SRC[SRC.index("DEFAULT_LANG = "):SRC.index('PAGE = r"""')] + SRC[SRC.index("def page_html"):]
 used = set(re.findall(r'\btr\(\s*"(\w+)"', code))
 used |= set(re.findall(r'"((?:err|w|n|p|out|cap)_\w+)"', code))
+used -= {"out_dir"}   # cle des options, pas un texte
 missing = sorted(k for k in used if k not in ref and not k.endswith("_"))   # "col_" + nom : plus bas
 ok(len(used) > 40 and not missing, "%d textes utilises par le plugin, tous traduits (manquants %s)" % (len(used), missing))
 page = m.PAGE

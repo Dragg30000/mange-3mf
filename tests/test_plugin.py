@@ -169,6 +169,52 @@ w.posts = [p for p in w.posts if p["command"] != "error"]
 tab.on_message({"command": "lang", "lang": "fr"})
 ok([p for p in w.posts if p["command"] == "state"][-1]["lang"] == "fr", "retour au francais")
 
+print("== prereglages d'Orca et dossier des fichiers convertis")
+st["presets"] = [
+    fake_orca.FakePreset("JAYO PETG", fake_orca.preset_from(tcfg, 0, "JAYO PETG", changes={"filament_type": ["PETG"]})),
+    fake_orca.FakePreset("Rose Bonbon", fake_orca.preset_from(tcfg, 0, "Rose Bonbon", changes={"default_filament_colour": ["#FF3EC8"]})),
+    fake_orca.FakePreset("Copie(projet.3mf)", fake_orca.preset_from(tcfg, 0, "Copie(projet.3mf)"), embedded=True)]
+n_an = count("analysis")
+tab.on_message({"command": "analyze", "path": os.path.join(dl, "cute baby dragon.3mf"), "template": "saved"})
+an5 = w.wait("analysis", n_an + 1)
+user = [p for p in an5["profiles"] if p["group"] == "user"]
+ok([p["name"] for p in user] == ["JAYO PETG", "Rose Bonbon"], "tes prereglages proposes : %s" % [p["name"] for p in user])
+ok(user[1]["cname"] == m.color_name("#FF3EC8"), "avec leur couleur : %s" % user[1]["cname"])
+n_state = count("state")
+tab.on_message({"command": "outdir", "mode": "folder", "dir": os.path.join(home, "absent")})
+state = w.wait("state", n_state + 1)
+ok(state["out"]["error"] and "absent" in state["out"]["msg"] and state["out"]["mode"] == "beside",
+   "dossier introuvable refuse : %s" % state["out"]["msg"])
+outdir = os.path.join(home, "Sorties")
+os.makedirs(outdir)
+n_an = count("analysis")
+tab.on_message({"command": "outdir", "mode": "folder", "dir": '"%s"' % outdir})
+state = w.wait("state", n_state + 2)
+ok(state["out"]["mode"] == "folder" and state["out"]["dir"] == outdir and not state["out"]["error"],
+   "dossier choisi : %s (%s)" % (state["out"]["dir"], state["out"]["msg"]))
+an6 = w.wait("analysis", n_an + 1)
+ok(an6.get("relabel") and an6["dest_hint"] == "dans Sorties", "analyse renvoyee : %s" % an6["dest_hint"])
+opts = json.load(open(os.path.join(storage, "options.json")))
+ok(opts.get("out") == "folder" and opts.get("out_dir") == outdir, "choix garde : %s" % opts)
+files = plan(an5)
+real = next(i for i, s in enumerate(an5["files"][0]["slots"]) if not s["pad"])
+rose = next(i for i, p in enumerate(an5["profiles"]) if p["name"] == "Rose Bonbon")
+files[0]["slots"][real]["base"] = rose
+files[0]["slots"][real]["color"] = "#123456"
+n_built, n_res = count("built"), count("result")
+tab.on_message({"command": "convert", "token": an5["token"], "template": "saved", "files": files})
+b5 = w.wait("built", n_built + 1); tab.on_message({"command": "write", "token": b5["token"]})
+res5 = w.wait("result", n_res + 1)
+p5 = res5["files"][0]["path"]
+ok(os.path.dirname(p5) == outdir and os.path.isfile(p5), "ecrit dans le dossier choisi : %s" % p5)
+import zipfile
+pc = json.loads(zipfile.ZipFile(p5).read("Metadata/project_settings.config"))
+ok(pc["filament_settings_id"][real] == "Rose Bonbon" and pc["filament_colour"][real].upper().startswith("#123456"),
+   "prereglage et couleur choisis : %s, %s" % (pc["filament_settings_id"][real], pc["filament_colour"][real]))
+tab.on_message({"command": "outdir", "mode": "beside", "dir": ""})
+ok(json.load(open(os.path.join(storage, "options.json"))).get("out") == "beside", "retour : a cote du 3MF")
+st["presets"] = []
+
 print("== erreurs")
 tab.on_message({"command": "analyze", "path": os.path.join(dl, "absent.3mf"), "template": "saved"})
 time.sleep(0.2)
