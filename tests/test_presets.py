@@ -55,6 +55,7 @@ tpl.attach(pr)
 prof = tpl.profiles
 ok([p["group"] for p in prof] == ["slot"] * 5 + ["user", "user", "other"], "groupes : %s" % [p["group"] for p in prof])
 ok(prof[1]["name"] == "PLA Noir" and prof[0]["name"] == "PLA Blanc", "noms propres dans la liste : %s" % prof[1]["name"])
+ok(prof[1]["user"] and not prof[0]["user"], "case 2 = un de tes prereglages (affiche aussi dans « Tes prereglages ») ; case 1 non")
 ok(prof[6]["name"] == "Rose Bonbon" and prof[6]["cname"] == m.color_name("#FF3EC8") and prof[5]["cname"] == "",
    "couleur des prereglages : %r / %r" % (prof[6]["cname"], prof[5]["cname"]))
 summ = tpl.summary()
@@ -124,6 +125,22 @@ pc = json.loads(z.read("Metadata/project_settings.config"))
 ok(pc["filament_colour"][real].upper() == "#123456", "couleur choisie ecrite : %s" % pc["filament_colour"][real])
 ok(pc["filament_settings_id"][real] == "Rose Bonbon", "prereglage choisi : %s" % pc["filament_settings_id"][real])
 ok("(" not in "".join(pc["filament_settings_id"]), "aucun nom de projet dans les profils : %s" % pc["filament_settings_id"])
+print("== un meme profil pour plusieurs couleurs")
+reals = [i for i, s in enumerate(f0["slots"]) if not s["pad"]]
+for base in (6, 2):                                  # un de tes prereglages, puis une case de tes reglages
+    same = [{"plates": f0["plates"], "slots": [{"src": s["src"], "base": base if not s["pad"] else s["base"], "color": None}
+                                              for s in f0["slots"]]}]
+    pc2 = json.loads(zipfile.ZipFile(__import__("io").BytesIO(m.convert(src, tpl, same)[0]["data"])).read("Metadata/project_settings.config"))
+    want = [m.norm_color(f0["slots"][i]["color"]) for i in reals]
+    got = [m.norm_color(pc2["filament_colour"][i][:7]) for i in reals]
+    ok(len(set(pc2["filament_settings_id"][i] for i in reals)) == 1 and len(reals) > 2,
+       "%d couleurs avec le meme profil « %s »" % (len(reals), pc2["filament_settings_id"][reals[0]]))
+    ok(got == want, "chaque filament garde la couleur du modele : %s" % got)
+mix = [{"plates": f0["plates"], "slots": [{"src": s["src"], "base": 6 if not s["pad"] else s["base"],
+                                           "color": "#00AA55" if i == reals[1] else None} for i, s in enumerate(f0["slots"])]}]
+pc3 = json.loads(zipfile.ZipFile(__import__("io").BytesIO(m.convert(src, tpl, mix)[0]["data"])).read("Metadata/project_settings.config"))
+ok(pc3["filament_colour"][reals[1]][:7].upper() == "#00AA55" and pc3["filament_colour"][reals[0]][:7].upper() != "#00AA55",
+   "meme profil, une couleur changee pour un seul filament")
 bad = [{"plates": f0["plates"], "slots": [dict(s, base=99) for s in plan[0]["slots"]]}]
 try:
     m.convert(src, tpl, bad); ok(False, "profil inconnu refuse")

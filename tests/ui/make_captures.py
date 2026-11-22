@@ -26,7 +26,7 @@ def captures(lang, out):
     st["language"] = {"fr": "fr_FR", "en": "en_US"}[lang]     # langue de l'interface d'Orca
     st["presets"] = [fake_orca.FakePreset(n, fake_orca.preset_from(cfg, 0, n, changes=ch)) for n, ch in (
         ("JAYO PETG", {"filament_type": ["PETG"]}), ("JAYO PLA Rose", {"default_filament_colour": ["#FF3EC8"]}),
-        ("SUNLU PLA Violet", {"default_filament_colour": ["#7B1FA2"]}))]
+        ("SUNLU PLA Violet", {"default_filament_colour": ["#7B1FA2"]}), ("Anycubic PLA", {}))]   # Anycubic PLA : aussi dans tes reglages
     sys.modules.pop("mange_3mf_any", None)
     m = importlib.import_module("mange_3mf_any")
     st["plugin"]().register_capabilities()

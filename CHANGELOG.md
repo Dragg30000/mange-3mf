@@ -1,5 +1,22 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.5.0 — 22/11/2026
+
+- **Nouvelle interface**, dans le même style que multiACE Bridge : fond sombre, cartes T1 à T4 pour les têtes, bobines rondes pour les filaments, et une seule couleur turquoise, celle de l'action suivante. L'onglet a 4 vues :
+  - **accueil** : à gauche la U1 qui a faim (glisse un 3MF sur elle, clique dessus ou colle un chemin) ; à droite les derniers 3MF de tes Téléchargements et tes réglages, montrés comme sur l'imprimante : une carte par tête avec sa buse (High flow ou Standard) et la couleur de sa bobine, les filaments en plus « via multiACE » ;
+  - **analyse en cours** : la U1 mâche, la page dit où elle en est ;
+  - **analyse** : le fichier avec ses couleurs en titre, les plaques en vignettes, « Avant de convertir » (ce qu'il faut savoir, case « Un fichier par plaque ») et le tableau « Couleurs et filaments ». **Convertir** reste en bas de l'onglet ;
+  - **fichier prêt** : « L'ouvrir dans Orca : 3 gestes » (copier le chemin, Fichier › Ouvrir un projet, coller et valider), puis « Revenir aux couleurs » ou « Convertir un autre 3MF ». La U1 montre la pièce imprimée.
+- **Fenêtre Réglages** (bouton en haut de l'onglet, ou « Modifier » sur l'accueil) : réglages mémorisés ou réglages actuels d'Orca, « Mémoriser les réglages actuels d'Orca », dossier des fichiers convertis. Échap ou Fermer la referme.
+- Toutes les actions et animations de la 0.4 sont gardées : glisser-déposer, clic sur la U1, Parcourir, chemin collé, Analyser, profil ou couleur choisis pour chaque filament, un fichier par plaque, langue, Copier le lien Ko-fi ; la U1 avale, mâche, rote les couleurs et recrache ce qui n'est pas un 3MF.
+- **Un même profil pour plusieurs couleurs**, plus clair à l'écran : la liste des profils n'affiche plus la couleur de tes bobines (« 1 · Elegoo PLA · PLA » au lieu de « … (noir) ») et la pastille du profil a disparu. Chaque filament garde la couleur du modèle (ou celle que tu choisis en cliquant sur sa pastille), quel que soit le profil, et un profil peut servir pour autant de couleurs que tu veux. C'était déjà le cas à la conversion, l'écran laissait croire le contraire.
+- **Tous tes préréglages** dans « Tes préréglages », dans l'ordre alphabétique comme dans Orca : ceux qui sont aussi dans tes réglages (par exemple Anycubic PLA) n'en sont plus retirés. Les choisir dans un groupe ou dans l'autre donne le même profil.
+- Bouton **Annuler** à côté de Convertir : retour à l'accueil sans rien écrire. Pendant l'analyse, il l'abandonne (le résultat qui arrive ensuite est ignoré). Grisé pendant la conversion.
+- Buses nommées « High flow » et « Standard », comme dans multiACE Bridge.
+- Titres en Inter Display (licence SIL Open Font License), seulement les caractères de l'onglet (22 Ko) : le plugin reste un seul fichier.
+- Onglet lisible dans une petite fenêtre (une seule colonne sous 860 px de large).
+- Tests : 335 vérifications, dont un même profil pour toutes les couleurs (chacune garde la sienne) ; la page rendue dans Chrome passe par les 4 vues, la fenêtre Réglages, le bouton Annuler et la liste complète de tes préréglages, en français et en anglais, et vérifie qu'une fenêtre étroite ne défile pas sur le côté. Nouvelle capture `5_reglages.png`.
+
 ## 0.4.2 — 22/11/2026
 
 - **Numéro de version corrigé** : la 0.4.1 annonçait encore « 0.4.0 » à Orca (fenêtre Plugins, mises à jour d'Orca Cloud) alors que l'onglet affichait 0.4.1. L'en-tête du plugin et l'onglet disent maintenant tous les deux 0.4.2, et un test vérifie qu'ils restent pareils.

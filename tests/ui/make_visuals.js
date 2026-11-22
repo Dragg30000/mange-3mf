@@ -11,7 +11,7 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(path.join(HERE, 'assets'));
 fs.copyFileSync(require.resolve('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2'),
                 path.join(HERE, 'assets', 'bricolage.woff2'));
-for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png'])
+for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png', '5_reglages.png'])
   fs.copyFileSync(path.join(ROOT, 'docs', 'captures', 'en', f), path.join(HERE, 'assets', f));
 fs.copyFileSync(path.join(ROOT, 'docs', 'captures', '1_reglages_et_fichiers.png'), path.join(HERE, 'assets', 'fr_1_reglages_et_fichiers.png'));
 
@@ -136,9 +136,9 @@ ${extraCss || ''}
 function crop(file, x, y, w, h, width) {   // morceau d'une capture, affiche a la largeur voulue
   const s = width / w;
   return `<div class="crop" style="width:${width}px;height:${Math.round(h * s)}px;overflow:hidden;position:relative">
-<img src="assets/${file}" style="position:absolute;left:${-x * s}px;top:${-y * s}px;width:${1650 * 0 + imgW[file] * s}px;max-width:none"></div>`;
+<img src="assets/${file}" style="position:absolute;left:${-x * s}px;top:${-y * s}px;width:${imgW[file] * s}px;max-width:none"></div>`;
 }
-const imgW = { '1_reglages_et_fichiers.png': 1800, 'fr_1_reglages_et_fichiers.png': 1800, '2_analyse.png': 1650, '3_resultat.png': 1650 };
+const imgW = { '1_reglages_et_fichiers.png': 1920, 'fr_1_reglages_et_fichiers.png': 1920, '2_analyse.png': 1920, '3_resultat.png': 1920, '5_reglages.png': 1920 };
 
 function colorsPage() {
   return shot('Exactly the model’s colors',
@@ -148,15 +148,15 @@ function colorsPage() {
 function settingsPage() {
   return shot('Your settings, saved in one click',
     'Printer, nozzles, process and plate come from your Orca, not from the model’s author.',
-    frame(crop('1_reglages_et_fichiers.png', 0, 0, 1800, 905, 1120)));
+    frame(crop('5_reglages.png', 150, 72, 1620, 1056, 1120)));
 }
 function readyPage() {
   const right = frame(`<img src="assets/3_resultat.png">`) +
-    `<div class="langs"><div><span>English</span><div class="lang">${crop('1_reglages_et_fichiers.png', 46, 16, 1708, 100, 1118)}</div></div>
-     <div><span>Français</span><div class="lang">${crop('fr_1_reglages_et_fichiers.png', 46, 16, 1708, 100, 1118)}</div></div></div>`;
+    `<div class="langs"><div><span>English</span><div class="lang">${crop('1_reglages_et_fichiers.png', 0, 70, 1000, 142, 550)}</div></div>
+     <div><span>Français</span><div class="lang">${crop('fr_1_reglages_et_fichiers.png', 0, 70, 1000, 142, 550)}</div></div></div>`;
   return shot('Ready to open, in your language',
     'The project lands next to the original: open it in Orca and print. The tab follows Orca’s language, English or French.',
-    right, `.langs{display:flex;flex-direction:column;gap:18px}
+    right, `.langs{display:flex;gap:18px}
 .langs span{display:block;margin:0 0 10px 4px;font-size:26px;font-weight:700;color:#22b3a5}
 .lang{position:relative;border-radius:14px;overflow:hidden;border:1px solid #2c3747;background:#262629}`);
 }

@@ -33,10 +33,11 @@ It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real O
 
 - 🎨 **Exactly the model's colors**: one file, one filament per color. 7 colors give 7 filaments, nothing split or merged.
 - 🖌️ **Everything kept**: painting, per-object and per-part colors, modifiers, layer ranges, per-layer color changes, per-feature filaments, plates and their names.
-- ⚙️ **Your settings**: printer, High Flow / Standard nozzles, process and plate, saved once from your Orca. Nothing comes from the author's settings.
-- 🧵 **Your filament presets**: each color gets the closest of your profiles in the same material, or any of your Orca filament presets, with its color. Orca recognizes them when it opens the project: no more "…(project.3mf)" copies.
+- ⚙️ **Your settings**: printer, High flow / Standard nozzles, process and plate, saved once from your Orca and shown like on the printer, one card per head. Nothing comes from the author's settings.
+- 🧵 **Your filament presets**: each color gets the closest of your profiles in the same material, or any of your Orca filament presets, which Orca recognizes when it opens the project: no more "…(project.3mf)" copies. One profile can serve several colors: each filament keeps the model's color.
 - 🎯 **Your call**: change a filament's color in a click, and choose where the converted files go.
 - 🌍 **English or French**: the tab follows Orca's language, or pick one at the top right.
+- 🖥️ **A clean tab**, in the same style as multiACE Bridge: home, analysis, file ready, and a Settings window.
 - 😋 **A hungry U1**: drop a 3MF on the tab and the U1 swallows it, chews during the analysis, then burps the model's colors. Converted files are signed `… - U1-by-Dragg.3mf`.
 
 ![Exactly the model's colors](docs/visuals/02_colors.jpg)
@@ -50,9 +51,9 @@ It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real O
 
 **Use**
 
-1. Set Orca to your usual U1 settings once, then click **Save Orca's current settings** in the tab.
+1. Set Orca to your usual U1 settings once, then in the tab click **Settings › Save Orca's current settings**.
 2. Drop a 3MF on the tab, or click **Analyze** next to a file of your Downloads.
-3. Check the colors and profiles, click **Convert**, then open the new project with **File › Open Project (Ctrl+O)**.
+3. Check the colors and profiles, click **Convert**, then follow the 3 steps: **Copy path**, **File › Open Project (Ctrl+O)**, paste and confirm.
 
 Everything else (what is kept, limits, troubleshooting) is in the **[full user guide](GUIDE.md)**.
 
@@ -69,7 +70,7 @@ Orca keeps at least 4 filaments on the U1 (one per head) and can paint 16 filame
 
 ## 🧪 Status
 
-Beta **0.4.2**. 329 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab and the analysis have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
+Beta **0.5.0** (new interface). 335 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab, the analysis and the new 0.5.0 interface have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
 
 ## 🌍 Translations
 
@@ -81,7 +82,7 @@ Open an [issue](../../issues/new/choose) with your plugin and Orca versions, a l
 
 ## ☕ Support
 
-Mange-3MF is free. If it saves you time, you can [buy Dragg a coffee on Ko-fi](https://ko-fi.com/dragg). The link is also at the bottom of the tab.
+Mange-3MF is free. If it saves you time, you can [buy Dragg a coffee on Ko-fi](https://ko-fi.com/dragg). The **Copy link** button is also at the top of the tab.
 
 ## 🔒 Privacy
 
