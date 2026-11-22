@@ -222,6 +222,39 @@ tab.on_message({"command": "outdir", "mode": "beside", "dir": ""})
 ok(json.load(open(os.path.join(storage, "options.json"))).get("out") == "beside", "retour : a cote du 3MF")
 st["presets"] = []
 
+print("== fichier glisse, envoye par morceaux (gros fichiers)")
+import base64
+raw = open(os.path.join(dl, "cute baby dragon.3mf"), "rb").read()
+cut = [raw[:len(raw) // 3], raw[len(raw) // 3:2 * len(raw) // 3], raw[2 * len(raw) // 3:]]
+for i in (2, 0, 1):                                   # dans le desordre : le plugin les remet en place
+    tab.on_message({"command": "upload_part", "id": "u1", "i": i, "n": 3, "data": base64.b64encode(cut[i]).decode()})
+ok(m.CONVERTER.uploads["u1"]["size"] == len(raw), "3 morceaux recus (%d octets)" % m.CONVERTER.uploads["u1"]["size"])
+n_an = count("analysis")
+tab.on_message({"command": "analyze", "upload_id": "u1", "name": "cute baby dragon.3mf", "template": "saved"})
+an7 = w.wait("analysis", n_an + 1)
+ok(an7["file"] == "cute baby dragon.3mf" and [f["color"] for f in an7["filaments"]] == [f["color"] for f in an5["filaments"]],
+   "fichier recolle et analyse comme depuis le disque (%d couleurs)" % len(an7["filaments"]))
+ok("u1" not in m.CONVERTER.uploads, "morceaux liberes apres l'analyse")
+tab.on_message({"command": "upload_part", "id": "u2", "i": 0, "n": 2, "data": base64.b64encode(cut[0]).decode()})
+tab.on_message({"command": "upload_part", "id": "u3", "i": 0, "n": 2, "data": base64.b64encode(cut[0]).decode()})
+ok(list(m.CONVERTER.uploads) == ["u3"], "un nouvel envoi remplace l'ancien")
+tab.on_message({"command": "analyze", "upload_id": "u3", "name": "x.3mf", "template": "saved"})
+time.sleep(0.1)
+errs = [p for p in w.posts if p["command"] == "error"]
+ok(errs and "en entier" in errs[-1]["text"], "morceau manquant : %s" % (errs[-1]["text"] if errs else None))
+tab.on_message({"command": "upload_part", "id": "u4", "i": 0, "n": 2, "data": base64.b64encode(cut[0]).decode()})
+tab.on_message({"command": "upload_drop", "id": "u4"})
+ok(not m.CONVERTER.uploads, "Annuler : morceaux oublies")
+keep = m.UPLOAD_MAX; m.UPLOAD_MAX = len(cut[0]) + 10
+tab.on_message({"command": "upload_part", "id": "u5", "i": 0, "n": 3, "data": base64.b64encode(cut[0]).decode()})
+tab.on_message({"command": "upload_part", "id": "u5", "i": 1, "n": 3, "data": base64.b64encode(cut[1]).decode()})
+m.UPLOAD_MAX = keep
+errs = [p for p in w.posts if p["command"] == "error"]
+ok(errs and "trop gros" in errs[-1]["text"] and "u5" not in m.CONVERTER.uploads, "au-dela de la limite : %s" % errs[-1]["text"])
+ok(m.UPLOAD_MAX == 500 * 1048576 and m.UPLOAD_CHUNK == 16 * 1048576 and "CHUNK:16*1048576,MAXUP:500*1048576" in html,
+   "limites : 500 Mo, morceaux de 16 Mo (memes valeurs dans la page)")
+w.posts = [p for p in w.posts if p["command"] != "error"]
+
 print("== erreurs")
 tab.on_message({"command": "analyze", "path": os.path.join(dl, "absent.3mf"), "template": "saved"})
 time.sleep(0.2)

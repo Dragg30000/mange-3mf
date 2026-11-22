@@ -7,7 +7,7 @@
 **Eats any 3MF and spits out an OrcaSlicer project ready for your Snapmaker U1.**
 MakerWorld / Bambu Studio projects, Snapmaker Orca, OrcaSlicer and its forks: exactly the model's colors (one filament per color), the painting and the plates are kept, and **your** settings are used.
 
-- Version: **0.5.0** (2026-11-22) — see [CHANGELOG.md](CHANGELOG.md) (in French)
+- Version: **0.5.1** (2026-11-22) — see [CHANGELOG.md](CHANGELOG.md) (in French)
 - For: OrcaSlicer 2.5 (Python plugins), Snapmaker U1 (4-head profile)
 - Languages: English or French (Orca's language by default, selectable in the tab)
 - Author: Dragg with his friend Claude — GPL-3.0 license ([LICENSE](LICENSE))
@@ -98,7 +98,7 @@ Still in the Settings window, **Converted files** sets where they are written: *
 - the home view lists the **latest 3MFs of your Downloads**, with their origin (Bambu Studio, Snapmaker Orca, OrcaSlicer…), their printer and their number of colors ("to convert" or "already for the U1"): click **Analyze** on the line;
 - or **drop a 3MF** on the tab: the U1 drawn in "The 3MF to eat" opens its mouth, swallows it, chews during the analysis, then burps the model's colors (a file that is not a 3MF gets spat out). Clicking it opens a file picker. A click during the show skips it; animations stop if Windows is set to reduce animations;
 - or paste the path of a 3MF under the U1 (in File Explorer: right-click the file › "Copy as path"), then **Analyze**;
-- or **Browse…** (drag and drop and Browse: files up to 80 MB);
+- or **Browse…** (drag and drop and Browse: files up to 500 MB; a large file is read in pieces, the page shows "Reading … (3/7)");
 - if you open a foreign 3MF directly in Orca, a **notification** offers "Prepare the conversion in the Mange-3MF tab". One click starts the analysis, and a second notification tells you when it is ready: just open the tab (a plugin cannot bring its tab to the front by itself).
 
 ![The U1 is hungry: "Yum! Drop it…"](docs/captures/en/4_glouton.png)
@@ -161,7 +161,7 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 
 ## 7. Known limits
 
-- **Version 0.5.0**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice). Conversion with more than 4 filaments is still to be tried.
+- **Version 0.5.1**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice). Conversion with more than 4 filaments is still to be tried.
 - **PrusaSlicer** files (Printables): not supported yet. Orca already opens them and keeps the shape and the painting.
 - **Already sliced** files (`.gcode.3mf`): refused, they don't contain the model.
 - **Materials**: if none of your profiles has the model's material (PETG, TPU…), the plugin warns you but doesn't create a profile.
@@ -175,7 +175,8 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 | "I need your U1 settings…" | Select your U1 and your profiles in Orca (or open one of your U1 projects), then **Settings** › **Save Orca's current settings**. |
 | "the reference project must come from OrcaSlicer" | Version 0.2.0 or older: update to 0.2.1 or later (OrcaSlicer 2.5.1 signs its projects "BambuStudio-02.08.01.55"). |
 | "Access denied by Orca: …" | The file is outside Downloads and the permission was refused. Put the file in Downloads, drop it on the tab, accept Orca's request, or manage permissions in the **Plugins** window (plugin details). |
-| "File too large to be read here" | Put the file in Downloads or paste its path. |
+| "File too large to be read here" | A file over 500 MB was dropped or picked with Browse: put it in Downloads or paste its path (no limit in those two cases). |
+| "The file did not arrive in full" | Reading a dropped file was interrupted: drop it again. |
 | The tab is in the wrong language | Pick it in the list at the top right of the tab (**Auto** follows Orca's language). |
 | "PrusaSlicer file", "already sliced file" | See [§ 7](#7-known-limits). |
 | The tab doesn't show | Check in the Plugins window that Mange-3MF is loaded and enabled. With many plugin tabs, the last ones go into the ▾ menu at the end of the bar (the number of visible tabs is set in Orca's preferences). |

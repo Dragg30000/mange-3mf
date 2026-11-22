@@ -5,7 +5,7 @@
 # name = "Mange-3MF (Snapmaker U1)"
 # description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
 # author = "Dragg avec son ami Claude"
-# version = "0.5.0"
+# version = "0.5.1"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -49,7 +49,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.5.0"
+VERSION = "0.5.1"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -193,6 +193,9 @@ PRESET_GROUP_KEYS = ("inherits_group", "compatible_machine_expression_group",
                      "compatible_process_expression_group", "different_settings_to_system")
 # Orca ne sait peindre que 16 filaments (EnforcerBlockerType::Extruder16).
 MAX_PAINT_FILAMENTS = 16
+UPLOAD_CHUNK = 16 * 1048576     # un fichier glisse arrive par morceaux de 16 Mo au plus (page : CHUNK)
+UPLOAD_MAX = 500 * 1048576      # taille maxi d'un fichier glisse ou choisi avec « Parcourir » (page : MAXUP)
+UPLOAD_PARTS_MAX = -(-UPLOAD_MAX // UPLOAD_CHUNK) + 1
 
 LOGICAL_PART_PLATE_GAP = 1.0 / 5.0
 
@@ -291,7 +294,8 @@ TEXTS = {
                      "Tes réglages et les couleurs sont déjà dedans.",
         "not_3mf": "Ce n'est pas un fichier 3MF : {0}",
         "too_big": "Fichier trop gros pour être lu ici ({0}) : mets-le dans Téléchargements ou colle son chemin.",
-        "reading": "Lecture de {0}…",
+        "reading": "Lecture de {0} ({1}/{2})…",
+        "err_upload": "Le fichier n'est pas arrivé en entier : glisse-le à nouveau.",
         "grp_slots": "Dans tes réglages",
         "grp_user": "Tes préréglages",
         "grp_other": "Pour une autre imprimante",
@@ -515,7 +519,8 @@ TEXTS = {
                      "Your settings and the colors are already in it.",
         "not_3mf": "This is not a 3MF file: {0}",
         "too_big": "File too large to be read here ({0}): put it in Downloads or paste its path.",
-        "reading": "Reading {0}…",
+        "reading": "Reading {0} ({1}/{2})…",
+        "err_upload": "The file did not arrive in full: drop it again.",
         "grp_slots": "In your settings",
         "grp_user": "Your presets",
         "grp_other": "For another printer",
@@ -736,6 +741,13 @@ def orca_language():
         return str(orca.host.app_info().get("language") or "")
     except Exception:
         return ""
+
+
+def human_size(n):
+    """Taille lisible pour les messages (même forme que la page : « 112.3 Mo »)."""
+    if n >= 1048576:
+        return "%.1f %s" % (n / 1048576.0, tr("mb"))
+    return "%d %s" % (max(1, round(n / 1024.0)), tr("kb"))
 
 
 def message_of(error):
@@ -3367,7 +3379,7 @@ var nav=(navigator.languages&&navigator.languages[0])||navigator.language||"";
 var lang="__LANG__";if(!L[lang]){lang=nav.slice(0,2).toLowerCase();if(!L[lang])lang="en"}
 function t(k){var a=arguments,s=L[lang]&&L[lang][k];if(s==null)s=L.en&&L.en[k];if(s==null)s=k;
  return String(s).replace(/\{(\d+)\}/g,function(_,i){var v=a[+i+1];return v==null?"":v})}
-var S={tpl:null,cur:null,choice:"saved",an:null,res:null,rec:null,opened:null,token:null,busy:false,conv:false,onePer:false,langChoice:"auto",copied:false,busyName:"",busyText:"",skip:0};
+var S={tpl:null,cur:null,choice:"saved",an:null,res:null,rec:null,opened:null,token:null,busy:false,conv:false,onePer:false,langChoice:"auto",copied:false,busyName:"",busyText:"",skip:0,upId:null};
 function $(id){return document.getElementById(id)}
 function esc(x){var d=document.createElement("span");d.textContent=x==null?"":String(x);return d.innerHTML}
 function send(m){orca.postMessage(m)}
@@ -3440,8 +3452,9 @@ function top(){try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){window.sc
 function skeleton(){var h='<div class="th"><span></span><span>'+esc(t("th_color"))+'</span><span>'+esc(t("th_plates"))+'</span><span>'+esc(t("th_profile"))+'</span></div>';
  for(var i=0;i<5;i++)h+='<div class="tr"><span class="sk" style="width:24px;height:24px"></span><div class="cn"><span class="sk" style="width:22px;height:22px;border-radius:50%"></span><span class="sk" style="width:55%;height:12px"></span></div><span class="sk" style="width:34px;height:11px"></span><span class="sk" style="height:36px"></span></div>';
  $("skel").innerHTML=h}
-function analyze(src){if(S.busy)return;S.conv=false;src.command="analyze";src.template=S.choice;src.one_per_plate=S.onePer;S.busy=true;
- S.busyName=src.name||String(src.path||"").split(/[\\\/]/).pop();S.busyText=t("analysing");status();skeleton();view("busy");top();send(src)}
+function busyStart(name,text){S.conv=false;S.busy=true;S.busyName=name;S.busyText=text;status();skeleton();view("busy");top()}
+function analyze(src,cont){if(S.busy&&!cont)return;src.command="analyze";src.template=S.choice;src.one_per_plate=S.onePer;
+ var name=src.name||String(src.path||"").split(/[\\\/]/).pop();if(cont){S.busyText=t("analysing");renderHead()}else busyStart(name,t("analysing"));send(src)}
 /* ---- analysis ---- */
 function profLabel(p){var ty=p.type&&p.type!="?"&&p.type!=p.name?' · '+p.type:'';return (p.n?p.n+' · ':'')+(p.name||p.type)+ty}
 function profOpts(sel){var groups={slot:[],user:[],other:[]};
@@ -3498,7 +3511,7 @@ function copy(x){try{navigator.clipboard.writeText(x)}catch(e){}var ta=document.
 $("back").onclick=function(){if(S.an)view("an")};
 $("again").onclick=function(){S.res=null;view("home");top()};
 /* Annuler : retour a l'accueil sans convertir ; une analyse en cours est ignoree a son arrivee */
-$("cancel").onclick=function(){if(S.conv)return;if(V()=="busy"&&S.busy){S.skip++;S.busy=false;eatHide()}S.an=null;S.token=null;S.res=null;status();view("home");top()};
+$("cancel").onclick=function(){if(S.conv)return;if(S.upId){send({command:"upload_drop",id:S.upId});S.upId=null;S.busy=false;eatHide()}else if(V()=="busy"&&S.busy){S.skip++;S.busy=false;eatHide()}S.an=null;S.token=null;S.res=null;status();view("home");top()};
 /* ---- converted files folder ---- */
 function renderOut(){var o=S.out||{mode:"beside",dir:"",msg:""};each('input[name=out]',function(r){r.checked=r.value==o.mode});
  if(document.activeElement!==$("outDir"))$("outDir").value=o.dir||"";$("outMsg").textContent=o.msg||"";$("outMsg").className=o.error?"err small":"muted small";
@@ -3527,7 +3540,7 @@ orca.onMessage(function(m){if(!m||!m.command)return;
   if(m.relabel){if(S.res)renderResult(m);return}
   S.busy=false;status();S.conv=false;$("cancel").disabled=false;S.copied=false;renderResult(m);view("res");top()}
  else if(m.command=="progress"){if(S.skip>0&&!S.conv)return;S.busy=true;if(V()=="busy"&&!S.conv){S.busyText=m.text;renderHead()}else status("info",esc(m.text),true)}
- else if(m.command=="error"){if(S.skip>0&&!S.conv){S.skip--;return}var wasConv=S.conv;S.busy=false;S.conv=false;$("cancel").disabled=false;if(V()=="busy")view(S.an&&S.token?"an":"home");status("err",esc(m.text));if(U.on)eatSpit(t("u1_sick"));else u1Flash(U.small,"spit",1700)}});
+ else if(m.command=="error"){if(S.skip>0&&!S.conv&&!S.upId){S.skip--;return}S.upId=null;var wasConv=S.conv;S.busy=false;S.conv=false;$("cancel").disabled=false;if(V()=="busy")view(S.an&&S.token?"an":"home");status("err",esc(m.text));if(U.on)eatSpit(t("u1_sick"));else u1Flash(U.small,"spit",1700)}});
 $("go").onclick=function(){var p=$("path").value.trim().replace(/^"|"$/g,"");if(p)analyze({path:p})};
 $("path").onkeydown=function(e){if(e.key=="Enter")$("go").click()};
 $("refresh").onclick=function(){$("recent").innerHTML='<div class="muted small">'+esc(t("searching"))+'</div>';send({command:"recent"})};
@@ -3556,10 +3569,21 @@ function eatStart(){eatClear();if(RM){eatHide();return}U.on=true;U.t0=Date.now()
 function eatSpit(cap){eatClear();if(RM){eatHide();return}U.on=true;$("eat").classList.add("click");eatShow("spit",cap);eatLater(1700,eatHide)}
 function eatBurp(m){if(!U.on)return;var cols=modelCols(m);
  eatClear();eatLater(Math.max(0,1000-(Date.now()-U.t0)),function(){burpDots(U.big,cols);eatShow("burp",t("u1_burp",colors(cols.length)));eatLater(1800,eatHide)})}
+/* Fichier glisse ou choisi : la page ne connait pas son chemin, elle envoie son contenu.
+   Par morceaux de CHUNK (16 Mo) pour ne pas figer Orca avec un seul enorme message ; le plugin les recolle. */
+var UP=window.M3D_UP={CHUNK:16*1048576,MAXUP:500*1048576};   /* aussi reglable par les tests */
 function readFile(f){if(!/\.3mf$/i.test(f.name||"")){status("err",esc(t("not_3mf",f.name)));eatSpit(t("u1_spit"));return}
- if(f.size>80*1048576){status("err",esc(t("too_big",size(f.size))));eatSpit(t("u1_sick"));return}
+ if(f.size>UP.MAXUP){status("err",esc(t("too_big",size(f.size))));eatSpit(t("u1_sick"));return}
  if(S.busy)return;
- var rd=new FileReader();eatStart();rd.onload=function(){var b=String(rd.result);analyze({upload:b.slice(b.indexOf(",")+1),name:f.name})};rd.onerror=function(){eatSpit(t("u1_sick"))};rd.readAsDataURL(f)}
+ var n=Math.max(1,Math.ceil(f.size/UP.CHUNK)),id="u"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),i=0;
+ eatStart();S.upId=id;busyStart(f.name,n>1?t("reading",f.name,0,n):t("analysing"));
+ function fail(){if(S.upId!==id)return;S.upId=null;S.busy=false;send({command:"upload_drop",id:id});view("home");status("err",esc(t("err_upload")));eatSpit(t("u1_sick"))}
+ (function next(){if(S.upId!==id)return;
+  if(i>=n){S.upId=null;analyze({upload_id:id,name:f.name},true);return}
+  var rd=new FileReader();rd.onerror=fail;
+  rd.onload=function(){if(S.upId!==id)return;var b=String(rd.result);send({command:"upload_part",id:id,i:i,n:n,data:b.slice(b.indexOf(",")+1)});i++;
+   if(n>1){S.busyText=t("reading",f.name,i,n);renderHead()}setTimeout(next,0)};
+  rd.readAsDataURL(f.slice(i*UP.CHUNK,Math.min(f.size,(i+1)*UP.CHUNK)))})()}
 $("file").onchange=function(){var f=$("file").files[0];if(f)readFile(f);$("file").value=""};
 U.small=u1New($("u1small"));U.small.setAttribute("viewBox","0 -50 260 286");U.big=u1New($("eatU"));U.mini=u1New($("mini"));U.mini.setAttribute("viewBox","0 -60 260 296");
 $("logo").innerHTML=$("icon").innerHTML;$("logo2").innerHTML=$("icon").innerHTML;
@@ -3606,6 +3630,7 @@ class Converter:
         self.jobs = {}          # jeton -> {"src", "path", "dest", ...}
         self.built = {}         # jeton -> resultats a ecrire
         self.counter = 0
+        self.uploads = {}       # fichier glisse envoye par morceaux : id -> {"n", "parts", "size"}
         self.opened = None      # projet ouvert dans Orca s'il vient d'ailleurs
         self.cap_key = ""       # dernier message de « Memoriser » (cle de TEXTS)
         self.replay = {}        # derniers messages "progress" / "analysis" / "result" (textes a traduire)
@@ -3746,6 +3771,11 @@ class Converter:
                 save_template(t)
                 self.cap_key = "cap_saved"
                 self.send_state(choice="saved")
+            elif cmd == "upload_part":
+                self.upload_part(msg)
+            elif cmd == "upload_drop":
+                with self.lock:
+                    self.uploads.pop(str(msg.get("id")), None)
             elif cmd == "analyze":
                 self.start_analyze(msg)
             elif cmd == "replan":
@@ -3842,8 +3872,36 @@ class Converter:
             return None
         return tr("need_u1")
 
+    def upload_part(self, msg):
+        """Un morceau d'un fichier glisse ou choisi dans la page (la page ne connait pas son chemin).
+        Un gros fichier arrive en plusieurs messages de 16 Mo au plus, pour ne pas figer Orca ;
+        un seul envoi a la fois (un nouveau remplace l'ancien)."""
+        uid = str(msg.get("id") or "")
+        i, n = int(msg.get("i", -1)), int(msg.get("n", 0))
+        if not uid or not 0 <= i < n <= UPLOAD_PARTS_MAX:
+            return
+        part = base64.b64decode(msg.get("data") or "")
+        with self.lock:
+            up = self.uploads.get(uid)
+            if up is None or up["n"] != n:
+                self.uploads = {uid: {"n": n, "parts": {}, "size": 0}}
+                up = self.uploads[uid]
+            up["size"] += len(part) - len(up["parts"].get(i, b""))
+            up["parts"][i] = part
+            if up["size"] > UPLOAD_MAX:
+                self.uploads.pop(uid, None)
+                raise ConvertError(tr("too_big", human_size(up["size"])))
+
     def start_analyze(self, msg, on_done=None):
-        if msg.get("upload"):
+        if msg.get("upload_id"):
+            with self.lock:
+                up = self.uploads.pop(str(msg["upload_id"]), None)
+            if not up or len(up["parts"]) != up["n"]:
+                raise ConvertError(tr("err_upload"))
+            data = b"".join(up["parts"][i] for i in range(up["n"]))
+            name = os.path.basename(msg.get("name") or "projet.3mf")
+            path = ""
+        elif msg.get("upload"):
             data = base64.b64decode(msg["upload"])
             name = os.path.basename(msg.get("name") or "projet.3mf")
             path = ""

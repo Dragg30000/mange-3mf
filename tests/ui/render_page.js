@@ -142,11 +142,12 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
     document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
     const chomp = big();
     await new Promise(r => setTimeout(r, 1200));
-    return { hungry, chomp, chew: big(), cap: document.getElementById('eatCap').textContent, sent: window.__sent.slice(-1)[0], view: document.body.getAttribute('data-v'), title: document.getElementById('hTitle').textContent };
+    return { hungry, chomp, chew: big(), cap: document.getElementById('eatCap').textContent, sent: window.__sent.slice(-1)[0], parts: window.__sent.filter(m => m.command === 'upload_part'), view: document.body.getAttribute('data-v'), title: document.getElementById('hTitle').textContent };
   });
   if (!dropped.hungry.shown || !/hungry/.test(dropped.hungry.cls) || dropped.hungry.cap !== T.drop || !/chomp/.test(dropped.chomp)
       || !/chew/.test(dropped.chew) || dropped.cap !== T.u1_chew || dropped.view !== 'busy' || dropped.title !== 'glisse.3mf'
-      || !dropped.sent || dropped.sent.command !== 'analyze' || dropped.sent.name !== 'glisse.3mf' || !dropped.sent.upload) fail('glisser-deposer incorrect', dropped);
+      || !dropped.sent || dropped.sent.command !== 'analyze' || dropped.sent.name !== 'glisse.3mf' || dropped.parts.length !== 1
+      || dropped.parts[0].n !== 1 || dropped.sent.upload_id !== dropped.parts[0].id || atob(dropped.parts[0].data).length !== 7) fail('glisser-deposer incorrect', dropped);
   // analyse recue : la U1 rote les couleurs du modele, puis le grand cadre se ferme
   const nCols = new Set(an.filaments.map(f => String(f.color).slice(0, 7))).size;
   await recv(an);
@@ -155,6 +156,46 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   if (!/burp/.test(burp.cls) || burp.dots !== Math.min(nCols, 8) || !burp.cap.startsWith('Burp')) fail('rot incorrect', [burp, nCols]);
   await page.waitForTimeout(2000);
   if (!(await page.evaluate(() => document.getElementById('eat').classList.contains('hidden')))) fail('grande U1 pas fermee apres le rot');
+  // gros fichier : envoye par morceaux (ici morceaux de 4 octets), le texte suit la lecture
+  const big = await page.evaluate(async () => {
+    window.__sent.length = 0; const keep = M3D_UP.CHUNK; M3D_UP.CHUNK = 4;
+    const dt = new DataTransfer(); dt.items.add(new File([new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])], 'gros.3mf'));
+    const texts = []; const ob = new MutationObserver(() => texts.push(document.getElementById('hSub').textContent));
+    ob.observe(document.getElementById('hSub'), { childList: true, subtree: true, characterData: true });
+    document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    await new Promise(r => setTimeout(r, 400)); ob.disconnect(); M3D_UP.CHUNK = keep;
+    return { sent: window.__sent.map(m => ({ c: m.command, i: m.i, n: m.n, id: m.id || m.upload_id, len: m.data ? atob(m.data).length : 0 })), texts };
+  });
+  const parts = big.sent.filter(m => m.c === 'upload_part');
+  if (parts.length !== 3 || parts.map(m => m.i).join() !== '0,1,2' || parts.map(m => m.len).join() !== '4,4,2' || parts.some(m => m.n !== 3 || m.id !== parts[0].id)
+      || big.sent.slice(-1)[0].c !== 'analyze' || big.sent.slice(-1)[0].id !== parts[0].id) fail('envoi par morceaux incorrect', big.sent);
+  if (!big.texts.some(x => x.includes('(2/3)')) || !big.texts.some(x => x.includes('(3/3)'))) fail('lecture par morceaux non affichee', big.texts);
+  await recv(an);
+  await page.waitForTimeout(2100);
+  // Annuler pendant l'envoi : plus de morceaux, le plugin oublie ceux recus
+  const stop = await page.evaluate(async () => {
+    window.__sent.length = 0; const keep = M3D_UP.CHUNK; M3D_UP.CHUNK = 1;
+    const dt = new DataTransfer(); dt.items.add(new File([new Uint8Array(4000)], 'long.3mf'));
+    document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    await new Promise(r => setTimeout(r, 60));
+    document.getElementById('cancel').click();
+    const n = window.__sent.length; await new Promise(r => setTimeout(r, 300)); M3D_UP.CHUNK = keep;
+    return { n, after: window.__sent.length, last: window.__sent.slice(-1)[0].command, analyze: window.__sent.some(m => m.command === 'analyze'), view: document.body.getAttribute('data-v') };
+  });
+  if (stop.n !== stop.after || stop.last !== 'upload_drop' || stop.analyze || stop.view !== 'home' || stop.n > 3999) fail('Annuler pendant l envoi incorrect', stop);
+  // trop gros (au-dela de MAXUP) : recrache, rien envoye
+  const huge = await page.evaluate(async () => {
+    window.__sent.length = 0; const keep = M3D_UP.MAXUP; M3D_UP.MAXUP = 5;
+    const dt = new DataTransfer(); dt.items.add(new File([new Uint8Array(10)], 'enorme.3mf'));
+    document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    M3D_UP.MAXUP = keep; const err = document.querySelector('#status .msg.err');
+    await new Promise(r => setTimeout(r, 1900));
+    return { sent: window.__sent.length, err: err && err.textContent };
+  });
+  if (huge.sent || !huge.err || !huge.err.startsWith(T.too_big.split('{0}')[0])) fail('fichier trop gros mal refuse', huge);
+  await page.evaluate(() => { document.getElementById('status').innerHTML = ''; });
+  await recv(an);                                   // retour aux couleurs pour la suite
+  await page.waitForTimeout(300);
   // pas un 3MF : recrache, avec le message d'erreur
   const spit = await page.evaluate(async () => {
     const dt = new DataTransfer(); dt.items.add(new File(['x'], 'photo.png'));

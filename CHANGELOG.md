@@ -1,5 +1,10 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.5.1 — 22/11/2026
+
+- **Gros fichiers en glisser-déposer et avec Parcourir** : jusqu'à 500 Mo au lieu de 80 Mo. La page lit le fichier par morceaux de 16 Mo et les envoie l'un après l'autre (« Lecture de … (3/7) »), le plugin les recolle puis analyse comme d'habitude. Orca ne se fige pas, et Annuler arrête la lecture. Les fichiers de Téléchargements et les chemins collés étaient déjà lus directement sur le disque, sans limite.
+- Tests : 343 vérifications (morceaux dans le désordre, morceau manquant, Annuler, limite) ; la page vérifie l'envoi par morceaux, le texte de lecture, Annuler pendant l'envoi et le refus au-delà de la limite.
+
 ## 0.5.0 — 22/11/2026
 
 - **Nouvelle interface**, dans le même style que multiACE Bridge : fond sombre, cartes T1 à T4 pour les têtes, bobines rondes pour les filaments, et une seule couleur turquoise, celle de l'action suivante. L'onglet a 4 vues :

@@ -16,7 +16,7 @@
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
-- Version : **0.5.0** (22/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
+- Version : **0.5.1** (22/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), Snapmaker U1 (profil à 4 têtes)
 - Langues : français ou anglais (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
@@ -107,7 +107,7 @@ Toujours dans la fenêtre Réglages, **« Fichiers convertis »** choisit où le
 - l'accueil liste les **derniers 3MF de tes Téléchargements**, avec leur origine (Bambu Studio, Snapmaker Orca, OrcaSlicer…), leur imprimante et leur nombre de couleurs (« à convertir » ou « déjà pour la U1 ») : clique **Analyser** sur la ligne ;
 - ou **glisse un 3MF** sur l'onglet : la U1 dessinée dans « Le 3MF à manger » ouvre la bouche, l'avale, le mâche pendant l'analyse, puis rote les couleurs du modèle (un fichier qui n'est pas un 3MF, elle le recrache). Un clic sur elle ouvre le choix d'un fichier. Un clic pendant le spectacle le coupe ; les animations s'arrêtent si Windows est réglé pour réduire les animations ;
 - ou colle le chemin d'un 3MF sous la U1 (dans l'Explorateur : clic droit sur le fichier › « Copier en tant que chemin d'accès »), puis **Analyser** ;
-- ou **Parcourir…** (glisser-déposer et Parcourir : fichiers jusqu'à 80 Mo) ;
+- ou **Parcourir…** (glisser-déposer et Parcourir : fichiers jusqu'à 500 Mo ; un gros fichier est lu par morceaux, la page affiche « Lecture de … (3/7) ») ;
 - si tu ouvres directement dans Orca un 3MF venu d'ailleurs, une **notification** propose « Préparer la conversion dans l'onglet Mange-3MF ». Un clic lance l'analyse, et une deuxième notification te dit quand elle est prête : il ne reste qu'à ouvrir l'onglet (un plugin ne peut pas l'afficher tout seul).
 
 ![La U1 a faim : « Miam ! Lâche-le… »](docs/captures/4_glouton.png)
@@ -170,7 +170,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.5.0** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils). La conversion à plus de 4 filaments reste à essayer.
+- **Version 0.5.1** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils). La conversion à plus de 4 filaments reste à essayer.
 - Fichiers **PrusaSlicer** (Printables) : pas encore gérés. Orca les ouvre déjà en gardant la forme et la peinture.
 - Fichiers **déjà tranchés** (`.gcode.3mf`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si aucun de tes profils n'a la matière du modèle (PETG, TPU…), le plugin te prévient mais ne crée pas de profil.
@@ -184,7 +184,8 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | « Il me faut tes réglages U1… » | Choisis ta U1 et tes profils dans Orca (ou ouvre un de tes projets U1), puis **Réglages** › « Mémoriser les réglages actuels d'Orca ». |
 | « le projet de référence doit venir d'OrcaSlicer » | Version 0.2.0 ou plus ancienne : passe à la 0.2.1 (OrcaSlicer 2.5.1 signe ses projets « BambuStudio-02.08.01.55 »). |
 | « Accès refusé par Orca : … » | Le fichier est hors de Téléchargements et l'autorisation a été refusée. Mets le fichier dans Téléchargements, glisse-le dans l'onglet, accepte la demande d'Orca, ou gère les droits dans la fenêtre **Plugins** (fiche du plugin). |
-| « Fichier trop gros pour être lu ici » | Mets le fichier dans Téléchargements ou colle son chemin. |
+| « Fichier trop gros pour être lu ici » | Fichier de plus de 500 Mo glissé ou choisi avec Parcourir : mets-le dans Téléchargements ou colle son chemin (pas de limite dans ces deux cas). |
+| « Le fichier n'est pas arrivé en entier » | La lecture d'un fichier glissé a été interrompue : glisse-le à nouveau. |
 | L'onglet n'est pas dans la bonne langue | Choisis-la dans la liste en haut à droite de l'onglet (**Auto** suit la langue d'Orca). |
 | « fichier PrusaSlicer », « déjà tranché » | Voir [§ 7](#7-limites-connues). |
 | L'onglet n'apparaît pas | Vérifie dans la fenêtre Plugins que Mange-3MF est chargé et activé. S'il y a beaucoup d'onglets de plugins, les derniers passent dans le menu ▾ au bout de la barre (le nombre visible se règle dans les préférences d'Orca). |
