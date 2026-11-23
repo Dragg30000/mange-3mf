@@ -149,6 +149,57 @@ except m.ConvertError as e:
 odd = [{"plates": f0["plates"], "slots": [dict(s, color="red") for s in plan[0]["slots"]]}]
 ok(m.check_plan(src, tpl, odd)[0]["slots"][real]["pick"] is None, "couleur invalide ignoree")
 
+print("== couleurs en plus (pas utilisees par le modele) et cases libres")
+io_ = __import__("io")
+def settings_of(res):
+    return json.loads(zipfile.ZipFile(io_.BytesIO(res[0]["data"])).read("Metadata/project_settings.config"))
+def model_files(res):
+    zz = zipfile.ZipFile(io_.BytesIO(res[0]["data"]))
+    return {n: zz.read(n) for n in zz.namelist() if n.endswith(".model") or n == "Metadata/model_settings.config"}
+base_slots = [{"src": s["src"], "base": s["base"], "color": None} for s in f0["slots"]]
+n0 = len(base_slots)
+extras = [{"src": [], "base": 4, "color": None, "extra": True},            # une case de tes reglages : sa couleur
+          {"src": [], "base": 5, "color": None, "extra": True},            # prereglage sans couleur : case la plus proche
+          {"src": [], "base": 6, "color": "#00AA55", "extra": True},       # couleur choisie
+          {"src": [], "base": 6, "color": "#FF3EC8", "extra": True}]       # couleur du prereglage (envoyee par la page)
+plain = m.convert(src, tpl, [{"plates": f0["plates"], "slots": base_slots}])
+more = m.convert(src, tpl, [{"plates": f0["plates"], "slots": base_slots + extras}])
+pcx = settings_of(more)
+ok(len(m.check_plan(src, tpl, [{"plates": f0["plates"], "slots": base_slots + extras}])[0]["slots"]) == n0 + 4,
+   "les couleurs en plus ne sont pas retirees du plan")
+ok(len(pcx["filament_colour"]) == n0 + 4 and more[0]["filaments"] == n0 + 4 and more[0]["colors"] == plain[0]["colors"],
+   "%d filaments dont 4 en plus (%d couleurs du modele)" % (more[0]["filaments"], more[0]["colors"]))
+cols = [c[:7].upper() for c in pcx["filament_colour"][n0:]]
+ok(cols == ["#2E7D32", "#E53935", "#00AA55", "#FF3EC8"], "couleurs des filaments en plus : %s" % cols)
+ok(pcx["filament_settings_id"][n0:] == ["PLA Vert", "JAYO PETG", "Rose Bonbon", "Rose Bonbon"],
+   "profils des filaments en plus : %s" % pcx["filament_settings_id"][n0:])
+ok(settings_of(plain)["filament_colour"] == pcx["filament_colour"][:n0], "couleurs du modele inchangees")
+ok(model_files(plain) == model_files(more), "pieces et peinture identiques : aucune piece sur les couleurs en plus")
+mult = pcx.get("flush_multiplier") or ["1"]
+ok(len(pcx["flush_volumes_matrix"]) == (n0 + 4) ** 2 * len(mult), "purge calculee pour %d filaments" % (n0 + 4))
+ok(set(more[0]["map"].values()) <= set(range(1, n0 + 1)), "filaments du modele : memes numeros (%s)" % more[0]["map"])
+full = [{"src": [], "base": i % 5, "color": None, "extra": True} for i in range(m.MAX_PAINT_FILAMENTS - n0)]
+ok(m.convert(src, tpl, [{"plates": f0["plates"], "slots": base_slots + full}])[0]["filaments"] == m.MAX_PAINT_FILAMENTS,
+   "jusqu'a %d filaments" % m.MAX_PAINT_FILAMENTS)
+try:
+    m.convert(src, tpl, [{"plates": f0["plates"], "slots": base_slots + full + extras[:1]}])
+    ok(False, "trop de couleurs en plus refuse")
+except m.ConvertError as e:
+    ok("couleurs en plus" in str(e), "au-dela : %s" % e)
+two = m.Source3MF(open(make_samples.bambu_multiplate(os.path.join(OUT, "two.3mf"), part_ext={"5": [1, 3, 1, 3], "6": [3, 1, 3, 1]},
+                                                     paint_obj8=False, plate_count=1), "rb").read(), "two.3mf")
+fa = m.analyze(two, tpl, with_thumbs=False)["files"][0]
+pads = [i for i, s in enumerate(fa["slots"]) if s["pad"]]
+ok(len(pads) >= 1, "modele a %d couleurs : %d case(s) libre(s)" % (len(fa["slots"]) - len(pads), len(pads)))
+sl2 = [{"src": s["src"], "base": s["base"], "color": "#ABCDEF" if i == pads[0] else None} for i, s in enumerate(fa["slots"])]
+sl2[pads[-1]]["base"] = 6
+pc4 = settings_of(m.convert(two, tpl, [{"plates": fa["plates"], "slots": sl2}]))
+ok(pc4["filament_colour"][pads[0]][:7].upper() == "#ABCDEF", "case libre : couleur choisie (%s)" % pc4["filament_colour"][pads[0]])
+ok(pc4["filament_settings_id"][pads[-1]] == "Rose Bonbon", "case libre : profil choisi (%s)" % pc4["filament_settings_id"][pads[-1]])
+untouched = settings_of(m.convert(two, tpl, [{"plates": fa["plates"], "slots": [{"src": s["src"], "base": s["base"], "color": None} for s in fa["slots"]]}]))
+ok(untouched["filament_colour"][pads[0]] == tpl.config["filament_colour"][fa["slots"][pads[0]]["base"]],
+   "case libre sans changement : ta bobine, comme avant (%s)" % untouched["filament_colour"][pads[0]])
+
 print("== dossier des fichiers convertis")
 import shutil
 base = tempfile.mkdtemp(dir=os.path.expanduser("~"), prefix=".mange3mf_test_")   # hors de /tmp (dossier temporaire)

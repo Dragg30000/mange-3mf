@@ -7,7 +7,7 @@
 **Eats any 3MF and spits out an OrcaSlicer project ready for your Snapmaker U1.**
 MakerWorld / Bambu Studio projects, Snapmaker Orca, OrcaSlicer and its forks: exactly the model's colors (one filament per color), the painting and the plates are kept, and **your** settings are used.
 
-- Version: **0.5.1** (2026-11-22) — see [CHANGELOG.md](CHANGELOG.md) (in French)
+- Version: **0.5.2** (2026-11-23) — see [CHANGELOG.md](CHANGELOG.md) (in French)
 - For: OrcaSlicer 2.5 (Python plugins), Snapmaker U1 (4-head profile)
 - Languages: English or French (Orca's language by default, selectable in the tab)
 - Author: Dragg with his friend Claude — GPL-3.0 license ([LICENSE](LICENSE))
@@ -112,6 +112,8 @@ During the analysis the U1 chews and the page tells you how far it is. Then the 
 - **Before converting**: things to know (more than 4 filaments, mixed colors, unreadable painting…);
 - **Colors and filaments**: for each filament, the model's color, the plates where it is used, and **the filament profile** used. The list has two parts: **In your settings** (the slots of your saved settings) and **Your presets** (all your Orca filament presets, in alphabetical order as in Orca, including those that are also in your settings; those made for another printer are listed apart). A warning shows when the profile's material is not the model's;
 - **one profile can be used for several colors**: each filament keeps the model's color, whatever profile you pick;
+- the **free slots** (the U1 slots the model doesn't use): their color and profile are up to you, like the other rows;
+- **+ Add a color**: an extra filament in the project that the model doesn't use, to paint or recolor a part in Orca later (handy, as Orca doesn't let you add a filament to the project). By default, the next spool of your settings that isn't in the table yet; pick its color and profile, the cross removes it, 16 filaments at most per file. An extra color doesn't change the G-code as long as no part uses it;
 - the **color swatch** of each filament: click it to pick another color ("color changed", with a link back to the model's color);
 - the unused slots, when the model has fewer than 4 colors (Orca keeps at least one slot per head);
 - the **One file per plate** box (under "Before converting"), if you prefer one file per plate, each with only its plate's colors.
@@ -161,7 +163,7 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 
 ## 7. Known limits
 
-- **Version 0.5.1**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice). Conversion with more than 4 filaments is still to be tried.
+- **Version 0.5.2**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice). Conversion with more than 4 filaments is still to be tried.
 - **PrusaSlicer** files (Printables): not supported yet. Orca already opens them and keeps the shape and the painting.
 - **Already sliced** files (`.gcode.3mf`): refused, they don't contain the model.
 - **Materials**: if none of your profiles has the model's material (PETG, TPU…), the plugin warns you but doesn't create a profile.

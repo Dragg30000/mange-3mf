@@ -55,6 +55,62 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   await page.setViewportSize({ width: 1280, height: fullH });
   await page.screenshot({ path: path.join(outDir, '2_analyse.png') });
   await page.setViewportSize({ width: 1280, height: 800 });
+  // case libre de la U1 (pas de couleur du modele) : couleur et profil modifiables
+  const padAn = load('analysis.json'); padAn.token = 'pads'; padAn.files[0].slots.push({ n: 8, src: [], base: 4, pad: true });
+  await recv(padAn);
+  const pad = await page.evaluate(() => { const r = document.querySelector('#analysis .tr.pad'); return r && { name: r.querySelector('b').textContent,
+    sel: r.querySelector('select') && r.querySelector('select').value, col: r.querySelector('input.pick') && r.querySelector('input.pick').value,
+    pl: r.querySelector('.pl').textContent, num: r.querySelector('.num').className }; });
+  if (!pad || pad.name !== T.pad_name || pad.sel !== '4' || pad.col !== String(an.profiles[4].fill).slice(0, 7).toLowerCase() || pad.pl !== '—' || !/gr/.test(pad.num)
+      || !(await page.textContent('#analysis')).includes(T.pads_one.replace('{0}', 8))) fail('case libre incorrecte', pad);
+  await page.evaluate(() => { window.__sent.length = 0; });
+  await page.locator('#analysis .tr.pad select').selectOption('6');
+  if (await page.locator('#analysis .tr.pad input.pick').inputValue() !== String(an.profiles[6].fill).slice(0, 7).toLowerCase()) fail('case libre : la couleur ne suit pas le profil');
+  await recv(load('analysis.json'));
+  // couleurs en plus : la prochaine case de tes reglages, couleur au choix, retrait, limite, gardees d'un plan a l'autre
+  const exRows = () => page.evaluate(() => [...document.querySelectorAll('#analysis .tr.ex')].map(r => ({ n: +r.querySelector('.num').textContent,
+    base: +r.querySelector('select').value, col: r.querySelector('input.pick').value, name: r.querySelector('b').textContent,
+    pl: r.querySelector('.pl').textContent, reset: !!r.querySelector('a.reset') })));
+  const before = await page.evaluate(() => [...document.querySelectorAll('#analysis select[data-f="0"]')].map(x => +x.value));
+  const slotIdx = an.profiles.map((p, i) => p.group === 'slot' ? i : -1).filter(i => i >= 0);
+  const freeSlot = slotIdx.find(i => !before.includes(i));
+  const want = freeSlot !== undefined ? freeSlot : before[before.length - 1];
+  if ((await page.textContent('button.addc[data-af="0"]')) !== T.add_color) fail('bouton « Ajouter une couleur » absent');
+  await page.click('button.addc[data-af="0"]');
+  let ex = await exRows();
+  if (ex.length !== 1 || ex[0].n !== before.length + 1 || ex[0].base !== want || ex[0].col !== String(an.profiles[want].fill).slice(0, 7).toLowerCase()
+      || ex[0].name !== T.extra_name || ex[0].pl !== '—') fail('couleur en plus mal ajoutee', { ex, want });
+  if (!(await page.textContent('#analysis')).includes(T.extras_note)) fail('explication des couleurs en plus absente');
+  if (await page.locator('#legend span').count() !== an.files[0].slots.filter(x => !x.pad).length) fail('couleur en plus dans la legende du modele');
+  const exIdx = before.length;
+  await page.evaluate(i => { const x = document.querySelector('input.pick[data-cf="0"][data-cs="' + i + '"]'); x.value = '#aa00aa'; x.dispatchEvent(new Event('change')); }, exIdx);
+  ex = await exRows();
+  if (ex[0].col !== '#aa00aa' || !ex[0].reset) fail('couleur de la couleur en plus non gardee', ex);
+  if (!(await page.textContent('#analysis')).includes(T.color_reset_prof)) fail('« remettre celle du profil » absent');
+  await page.click('button.addc[data-af="0"]');
+  await page.click('button.rmc[data-rs="' + (exIdx + 1) + '"]');
+  ex = await exRows();
+  if (ex.length !== 1 || ex[0].col !== '#aa00aa' || ex[0].n !== exIdx + 1) fail('retrait d une couleur en plus incorrect', ex);
+  const maxF = an.max_filaments;
+  for (let k = before.length + 1; k < maxF; k++) await page.click('button.addc[data-af="0"]');
+  if (!(await page.locator('button.addc[data-af="0"]').isDisabled()) || (await exRows()).length !== maxF - before.length
+      || !(await page.textContent('#analysis')).includes(T.max_colors.replace('{0}', maxF))) fail('limite de filaments non respectee', (await exRows()).length);
+  while ((await exRows()).length > 1) await page.locator('#analysis .tr.ex button.rmc').last().click();
+  // nouvelle langue (meme plan) : choix et couleurs en plus gardes
+  await page.locator('select[data-f="0"][data-s="6"]').selectOption('0');
+  await recv(Object.assign(load('analysis.json'), { relabel: true }));
+  ex = await exRows();
+  if (ex.length !== 1 || ex[0].col !== '#aa00aa' || ex[0].base !== want || await page.locator('select[data-f="0"][data-s="6"]').inputValue() !== '0')
+    fail('changement de langue : choix perdus', ex);
+  // nouveau plan du meme fichier (un fichier par plaque, puis un seul) : la couleur en plus suit
+  const two = load('analysis.json'); two.files = [JSON.parse(JSON.stringify(two.files[0])), JSON.parse(JSON.stringify(two.files[0]))];
+  await recv(two);
+  ex = await exRows();
+  if (ex.length !== 2 || ex.some(e => e.col !== '#aa00aa' || e.base !== want)) fail('nouveau plan : couleurs en plus perdues', ex);
+  await recv(load('analysis.json'));
+  ex = await exRows();
+  if (ex.length !== 1 || ex[0].col !== '#aa00aa') fail('retour a un fichier : couleur en plus en double ou perdue', ex);
+  await page.waitForTimeout(1900);
   // autre profil pour la 5e couleur : garde apres le nouveau rendu et envoye a la conversion
   const sel = page.locator('select[data-f="0"][data-s="4"]');
   const choice = +(await sel.locator('option').last().getAttribute('value'));   // le dernier profil propose
@@ -87,6 +143,9 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   const conv = (await sent()).slice(-1)[0];
   if (conv.command !== 'convert' || conv.files[0].slots[4].base !== choice || conv.files[0].slots[3].base !== choice
       || conv.files[0].slots[3].color !== null || conv.files[0].slots[0].color !== '#123456' || conv.files[0].slots[1].color !== null) fail('plan envoye incorrect', conv);
+  const exSent = conv.files[0].slots[an.files[0].slots.length];
+  if (conv.files[0].slots.length !== an.files[0].slots.length + 1 || !exSent.extra || exSent.src.length || exSent.color !== '#AA00AA'
+      || exSent.base !== want || conv.files[0].slots.slice(0, -1).some(x => x.extra)) fail('couleur en plus mal envoyee', conv.files[0].slots);
   if (!(await page.locator('#cstatus .msg').count())) fail('pas de message pres de Convertir');
   if (!(await page.locator('#cancel').isDisabled())) fail('Annuler possible pendant la conversion');
 

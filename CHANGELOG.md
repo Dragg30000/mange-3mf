@@ -1,5 +1,12 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.5.2 — 23/11/2026
+
+- **Couleurs en plus** : bouton « + Ajouter une couleur » sous « Couleurs et filaments ». Chaque couleur en plus devient un filament du projet que le modèle n'utilise pas, prêt pour peindre ou changer la couleur d'une pièce dans Orca (Orca ne laisse pas ajouter de filament au projet). Couleur et profil au choix, croix pour la retirer ; par défaut, la prochaine bobine de tes réglages qui n'est pas encore dans le tableau. 16 filaments au plus par fichier. Elles restent quand la langue change ou quand tu coches « Un fichier par plaque ».
+- **Cases libres modifiables** : les cases de la U1 que le modèle n'utilise pas (« case libre ») ont maintenant une pastille et une liste de profils, comme les autres lignes. Sans changement, elles gardent ta bobine, comme avant.
+- Une couleur en plus ne sert à aucune pièce : les pièces, la peinture et le G-code ne changent pas tant que tu ne l'utilises pas.
+- Tests : 357 vérifications (couleurs en plus dans le projet, pièces et peinture identiques, limite de 16, cases libres) ; la page vérifie l'ajout, la couleur, le retrait, la limite, la légende, le changement de langue et de plan.
+
 ## 0.5.1 — 22/11/2026
 
 - **Gros fichiers en glisser-déposer et avec Parcourir** : jusqu'à 500 Mo au lieu de 80 Mo. La page lit le fichier par morceaux de 16 Mo et les envoie l'un après l'autre (« Lecture de … (3/7) »), le plugin les recolle puis analyse comme d'habitude. Orca ne se fige pas, et Annuler arrête la lecture. Les fichiers de Téléchargements et les chemins collés étaient déjà lus directement sur le disque, sans limite.

@@ -5,7 +5,7 @@
 # name = "Mange-3MF (Snapmaker U1)"
 # description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
 # author = "Dragg avec son ami Claude"
-# version = "0.5.1"
+# version = "0.5.2"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -49,7 +49,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.5.1"
+VERSION = "0.5.2"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -276,12 +276,20 @@ TEXTS = {
         "n_filaments": "{0} filaments",
         "th_color": "Couleur du modèle",
         "th_profile": "Profil de filament",
-        "pad_row": "pas de couleur du modèle : reste ta bobine actuelle ({0}, {1})",
+        "pad_name": "case libre",
+        "pad_sub": "pas de couleur du modèle",
+        "extra_name": "couleur en plus",
+        "extra_sub": "pas utilisée par le modèle",
+        "extras_note": "Les couleurs en plus ne servent à aucune pièce : elles seront dans le projet, prêtes pour peindre ou changer la couleur d'une pièce dans Orca.",
+        "add_color": "+ Ajouter une couleur",
+        "remove_color": "Retirer cette couleur",
+        "max_colors": "{0} filaments au plus",
+        "color_reset_prof": "remettre celle du profil",
         "warn_material": "le modèle veut du {0}, ce profil est du {1}",
         "mixed": "couleur mélangée",
         "same_n": "{0} filaments identiques",
-        "pads_one": "Orca garde au moins une case par tête de la U1 : la case {0} ne sert pas.",
-        "pads_many": "Orca garde au moins une case par tête de la U1 : les cases {0} et {1} ne servent pas.",
+        "pads_one": "Orca garde au moins une case par tête de la U1 : la case {0} ne sert pas au modèle, sa couleur et son profil sont au choix.",
+        "pads_many": "Orca garde au moins une case par tête de la U1 : les cases {0} et {1} ne servent pas au modèle, leur couleur et leur profil sont au choix.",
         "to_know": "À savoir",
         "convert": "Convertir",
         "convert_n": "Convertir en {0} fichiers",
@@ -399,6 +407,7 @@ TEXTS = {
         "err_no_part": "aucune pièce dans ce 3MF",
         "err_profile": "profil {0} inconnu : refais l'analyse",
         "err_no_slot": "filament {0} sans case : refais l'analyse",
+        "err_too_many_extra": "trop de couleurs en plus : {0} filaments au plus par fichier",
         "err_plates_missing": "plaque(s) {0} oubliée(s) dans le plan",
         "err_not_found": "fichier introuvable : {0}",
         "err_lost": "analyse perdue : relance l'analyse du fichier",
@@ -501,12 +510,20 @@ TEXTS = {
         "n_filaments": "{0} filaments",
         "th_color": "Model color",
         "th_profile": "Filament profile",
-        "pad_row": "no model color: keeps your current spool ({0}, {1})",
+        "pad_name": "free slot",
+        "pad_sub": "no model color",
+        "extra_name": "extra color",
+        "extra_sub": "not used by the model",
+        "extras_note": "Extra colors are not used by any part: they will be in the project, ready to paint or to recolor a part in Orca.",
+        "add_color": "+ Add a color",
+        "remove_color": "Remove this color",
+        "max_colors": "{0} filaments at most",
+        "color_reset_prof": "back to the profile's color",
         "warn_material": "the model wants {0}, this profile is {1}",
         "mixed": "mixed color",
         "same_n": "{0} identical filaments",
-        "pads_one": "Orca keeps at least one slot per U1 head: slot {0} is not used.",
-        "pads_many": "Orca keeps at least one slot per U1 head: slots {0} and {1} are not used.",
+        "pads_one": "Orca keeps at least one slot per U1 head: slot {0} is not used by the model, its color and profile are up to you.",
+        "pads_many": "Orca keeps at least one slot per U1 head: slots {0} and {1} are not used by the model, their colors and profiles are up to you.",
         "to_know": "Good to know",
         "convert": "Convert",
         "convert_n": "Convert into {0} files",
@@ -624,6 +641,7 @@ TEXTS = {
         "err_no_part": "no part in this 3MF",
         "err_profile": "unknown profile {0}: analyze the file again",
         "err_no_slot": "filament {0} has no slot: analyze the file again",
+        "err_too_many_extra": "too many extra colors: {0} filaments at most per file",
         "err_plates_missing": "plate(s) {0} left out of the plan",
         "err_not_found": "file not found: {0}",
         "err_lost": "analysis lost: analyze the file again",
@@ -1906,12 +1924,13 @@ class Template:
         prereglages de l'utilisateur (avec leur couleur par defaut s'ils en ont une)."""
         out = []
         for i, (c, t) in enumerate(zip(self.slot_colors, self.slot_types)):
-            out.append({"n": i + 1, "color": c, "cname": color_name(c), "type": t or "?", "base": base_type(t),
+            out.append({"n": i + 1, "color": c, "fill": c, "cname": color_name(c), "type": t or "?", "base": base_type(t),
                         "name": self.profile(i)[0], "group": "slot",
                         "user": bool(getattr(self.slot_presets.get(i), "user", False))})
         for p in self.presets:
             c = p.color
-            out.append({"n": None, "color": c, "cname": color_name(c) if c else "", "type": p.type or "?",
+            out.append({"n": None, "color": c, "fill": c or self.slot_colors[self.closest_slot(p)],
+                        "cname": color_name(c) if c else "", "type": p.type or "?",
                         "base": base_type(p.type), "name": p.name, "group": "other" if p.other else "user"})
         return out
 
@@ -2473,7 +2492,7 @@ def build_output(src, template, group, slots, report):
     cfg_slots = []
     for s in slots:
         name, _t, preset, base = template.profile(s["base"])
-        color = (s.get("pick") or src.filament(s["src"][0])["color"]) if s["src"] else None
+        color = s.get("pick") or (src.filament(s["src"][0])["color"] if s["src"] else None)
         cfg_slots.append({"base": base, "preset": preset, "color": color})
     cfg = build_project_config(template, cfg_slots)
     # tour d'essuyage : a la place choisie par l'auteur, deplacee comme les pieces
@@ -2747,6 +2766,7 @@ def analyze(src, template, one_per_plate=False, with_thumbs=True):
         "files": files,
         "profiles": template.profiles,
         "heads": template.head_count,
+        "max_filaments": MAX_PAINT_FILAMENTS,
         "warnings": warnings,
     }
 
@@ -2782,14 +2802,19 @@ def check_plan(src, template, files):
                 raise ConvertError(tr("err_profile", base + 1))
             pick = s.get("color")
             pick = pick.upper() if isinstance(pick, str) and re.fullmatch(r"#[0-9A-Fa-f]{6}", pick) else None
-            slots.append({"src": srcs, "base": base, "pick": pick if srcs else None})
+            # sans couleur du modele : case libre de la U1, ou couleur en plus ajoutee dans l'onglet
+            # (pas utilisee par le modele, prete pour peindre ou reattribuer une piece dans Orca)
+            slots.append({"src": srcs, "base": base, "pick": pick, "extra": bool(s.get("extra")) and not srcs})
         missing = needed - got
         if missing:
             raise ConvertError(tr("err_no_slot", ", ".join(str(x) for x in sorted(missing))))
-        while len(slots) > heads and not slots[-1]["src"]:
+        extras = sum(1 for s in slots if s["extra"])
+        if extras and len(slots) > max(MAX_PAINT_FILAMENTS, len(slots) - extras):
+            raise ConvertError(tr("err_too_many_extra", MAX_PAINT_FILAMENTS))
+        while len(slots) > heads and not slots[-1]["src"] and not slots[-1]["extra"]:
             slots.pop()
         while len(slots) < heads:
-            slots.append({"src": [], "base": len(slots) if len(slots) < k else 0})
+            slots.append({"src": [], "base": len(slots) if len(slots) < k else 0, "pick": None, "extra": False})
         clean.append({"plates": plates, "slots": slots})
     missing_plates = [p.id for p in src.plates if p.instances and p.index not in seen]
     if missing_plates:
@@ -3167,7 +3192,9 @@ main{flex:1;display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr)
 .tr .cn .tx div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr .cn .sub{color:var(--muted);font-size:12.5px}
 .tr .pl{color:var(--muted);font-size:13px}
-.tr.pad{opacity:.75}
+.tr.pad .tx,.tr.ex .tx{color:var(--muted)}
+.addrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+button.rmc{width:34px;padding:0;flex:none;font-size:18px;font-weight:500;color:var(--muted)}button.rmc:hover{color:var(--coral);border-color:var(--coral)}
 input.pick{-webkit-appearance:none;appearance:none;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);transition:box-shadow .15s}
 input.pick:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 0 0 3px var(--edge2)}input.pick:focus-visible{outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 0 0 3px var(--teal)}
 input.pick::-webkit-color-swatch-wrapper{padding:0}input.pick::-webkit-color-swatch{border:none;border-radius:50%}
@@ -3410,7 +3437,7 @@ function bed(x){return x.bed_type?(BEDS[x.bed_type]?t(BEDS[x.bed_type]):x.bed_ty
 function docIcon(band,label){return '<svg width="30" height="35" viewBox="0 0 40 46" aria-hidden="true"><path d="M3 4a3 3 0 0 1 3-3h20l11 11v29a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" fill="#E9EAEC"/><path d="M26 1v11h11" fill="#C9CBCF"/><rect x="3" y="26" width="34" height="11" fill="'+band+'"/><text x="20" y="34.6" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="'+(label.length>3?7:9)+'" fill="#fff">'+label+'</text><path d="M20 8l6 3.4-6 3.4-6-3.4z" fill="#2B7BE4"/><path d="M14 11.4l6 3.4v6.6l-6-3.4z" fill="#E53935"/><path d="M26 11.4l-6 3.4v6.6l6-3.4z" fill="#F2C230"/></svg>'}
 /* ---- head ---- */
 function legendHtml(){var a=S.an;if(!a||!a.files.length)return"";var seen={},h="";
- a.files[0].slots.forEach(function(sl){if(sl.pad||seen[sl.n])return;seen[sl.n]=1;h+='<span><em>'+sl.n+'</em>'+dot(sl.pick||sl.color)+esc(cap1(sl.name))+'</span>'});return h}
+ a.files[0].slots.forEach(function(sl){if(sl.pad||sl.extra||seen[sl.n])return;   /* les couleurs du modele seulement */seen[sl.n]=1;h+='<span><em>'+sl.n+'</em>'+dot(sl.pick||sl.color)+esc(cap1(sl.name))+'</span>'});return h}
 function thumbHtml(){var a=S.an;if(!a)return"";var p=a.plates.length==1&&a.plates[0].thumb?a.plates[0]:null;
  if(p)return '<img src="'+p.thumb+'" alt="">';return '<div style="display:flex;flex-wrap:wrap;gap:3px;width:46px;justify-content:center">'+a.filaments.slice(0,9).map(function(f){return dot(f.color,12)}).join("")+'</div>'}
 function renderHead(){var v=V(),title="",sub="",leg="",th="";
@@ -3467,21 +3494,27 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
  a.files.forEach(function(f,fi){
   h+='<div class="grp"'+(fi?' style="margin-top:18px"':'')+'>'+(a.files.length>1?'<h3>'+esc(t("file_n",fi+1))+esc(f.name)+' <span>'+esc(colors(f.colors))+' → '+esc(t("n_filaments",f.slots.length))+'</span></h3>':'');
   h+='<div class="th"><span></span><span>'+esc(t("th_color"))+'</span><span>'+esc(t("th_plates"))+'</span><span>'+esc(t("th_profile"))+'</span></div>';
-  var pads=[];
-  f.slots.forEach(function(sl,si){var p=a.profiles[sl.base]||{};
-   if(sl.pad){pads.push(sl.n);h+='<div class="tr pad"><span class="num gr">'+sl.n+'</span><div class="cn" style="grid-column:2/5">'+dot(p.color,22)+'<span class="muted small">'+esc(t("pad_row",p.name||p.type,p.cname))+'</span></div></div>';return}
-   var warn=(sl.ftype&&sl.ftype!="?"&&p.base&&p.base!="?"&&p.base!=sl.ftype)?'<div class="warn"><i class="mk"></i>'+esc(t("warn_material",sl.ftype,p.base))+'</div>':'';
-   var col=sl.pick||sl.color,extra=[];if(sl.mixed)extra.push(esc(t("mixed")));if(sl.same>1)extra.push(esc(t("same_n",sl.same)));
-   if(sl.pick)extra.push('<span class="changed">'+esc(t("color_changed"))+'</span> (<a class="reset" data-rf="'+fi+'" data-rs="'+si+'">'+esc(t("color_reset"))+'</a>)');
-   h+='<div class="tr"><span class="num">'+sl.n+'</span><div class="cn"><input type="color" class="pick" data-cf="'+fi+'" data-cs="'+si+'" value="'+esc(String(col).slice(0,7))+'" title="'+esc(t("pick_color"))+'"><div class="tx"><div><b>'+esc(sl.name)+'</b> <span class="sub">'+esc([sl.type,sl.preset].filter(Boolean).join(", "))+'</span></div>'+(extra.length?'<div class="sub">'+extra.join(", ")+'</div>':'')+'</div></div>'
-    +'<span class="pl">'+esc(sl.plates.join(", "))+'</span><div><div class="prof"><select data-f="'+fi+'" data-s="'+si+'" aria-label="'+esc(t("th_profile"))+'">'+profOpts(sl.base)+'</select></div>'+warn+'</div></div>'});
+  var pads=[],nex=0,maxF=a.max_filaments||16;
+  /* une ligne par filament du projet : couleur du modele, case libre de la U1 (pad) ou couleur en plus (extra) */
+  f.slots.forEach(function(sl,si){var p=a.profiles[sl.base]||{},free=sl.pad||sl.extra;
+   var warn=(!free&&sl.ftype&&sl.ftype!="?"&&p.base&&p.base!="?"&&p.base!=sl.ftype)?'<div class="warn"><i class="mk"></i>'+esc(t("warn_material",sl.ftype,p.base))+'</div>':'';
+   var col=slotCol(a,sl),extra=[];if(sl.pad)pads.push(sl.n);if(sl.extra)nex++;
+   if(!free){if(sl.mixed)extra.push(esc(t("mixed")));if(sl.same>1)extra.push(esc(t("same_n",sl.same)))}
+   if(sl.pick)extra.push('<span class="changed">'+esc(t("color_changed"))+'</span> (<a class="reset" data-rf="'+fi+'" data-rs="'+si+'">'+esc(t(free?"color_reset_prof":"color_reset"))+'</a>)');
+   var nm=free?t(sl.pad?"pad_name":"extra_name"):sl.name,sub=free?t(sl.pad?"pad_sub":"extra_sub"):[sl.type,sl.preset].filter(Boolean).join(", ");
+   h+='<div class="tr'+(sl.pad?' pad':'')+(sl.extra?' ex':'')+'"><span class="num'+(free?' gr':'')+'">'+sl.n+'</span><div class="cn"><input type="color" class="pick" data-cf="'+fi+'" data-cs="'+si+'" value="'+esc(String(col).slice(0,7))+'" title="'+esc(t("pick_color"))+'"><div class="tx"><div><b>'+esc(nm)+'</b> <span class="sub">'+esc(sub)+'</span></div>'+(extra.length?'<div class="sub">'+extra.join(", ")+'</div>':'')+'</div></div>'
+    +'<span class="pl">'+(free?'—':esc(sl.plates.join(", ")))+'</span><div><div class="prof"><select data-f="'+fi+'" data-s="'+si+'" aria-label="'+esc(t("th_profile"))+'">'+profOpts(sl.base)+'</select>'
+    +(sl.extra?'<button class="rmc" data-rf="'+fi+'" data-rs="'+si+'" title="'+esc(t("remove_color"))+'" aria-label="'+esc(t("remove_color"))+'">×</button>':'')+'</div>'+warn+'</div></div>'});
   if(pads.length)h+='<div class="muted small" style="margin-top:6px">'+esc(pads.length>1?t("pads_many",pads.slice(0,-1).join(", "),pads[pads.length-1]):t("pads_one",pads[0]))+'</div>';
+  if(nex)h+='<div class="muted small" style="margin-top:6px">'+esc(t("extras_note"))+'</div>';
+  var full=f.slots.length>=maxF;
+  h+='<div class="addrow"><button class="addc" data-af="'+fi+'"'+(full?' disabled':'')+'>'+esc(t("add_color"))+'</button>'+(full?'<span class="muted small">'+esc(t("max_colors",maxF))+'</span>':'')+'</div>';
   h+='</div>'});
  $("analysis").innerHTML=h;
  /* left column: the U1 burps, the plates, what to know, one file per plate */
  var ncol=a.filaments.length;$("miniSay").textContent=t("u1_burp",colors(ncol));
  $("plates").innerHTML=a.plates.map(function(p){return '<div class="plate"><div class="pv">'+(p.thumb?'<img src="'+p.thumb+'" alt="">':p.filaments.map(function(i){return dot(fil(i).color,20)}).join(""))+'</div><div class="pl"><span class="num gr">'+p.id+'</span><span>'+esc(/^(plaque|plate)\s*\d+$/i.test(p.name||"")?"":p.name||"")+'</span><span class="ds">'+(p.thumb?p.filaments.map(function(i){return dot(fil(i).color,10)}).join(""):'')+'</span></div></div>'}).join("");
- var nn="",maxf=0;a.files.forEach(function(f){maxf=Math.max(maxf,f.slots.filter(function(s){return!s.pad}).length)});
+ var nn="",maxf=0;a.files.forEach(function(f){maxf=Math.max(maxf,f.slots.filter(function(s){return!s.pad&&!s.extra}).length)});
  if(maxf>4)nn+='<div><i class="mk"></i><span>'+esc(t("need_ace",maxf))+'</span></div>'+(a.plates.length>1&&!S.onePer?'<div><i class="mk grey"></i><span>'+esc(t("need_ace2"))+'</span></div>':'');
  a.warnings.forEach(function(w){nn+='<div><i class="mk"></i><span>'+esc(w)+'</span></div>'});
  if(a.not_ready)nn+='<div><i class="mk coral"></i><span>'+esc(a.not_ready)+'</span></div>';
@@ -3493,11 +3526,28 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
  if(V()=="an")renderHead();if(fresh)top();
  var op=$("onePer");if(op)op.onchange=function(){S.onePer=op.checked;send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})};
  each("select[data-f]",function(sel){sel.onchange=function(){a.files[+sel.getAttribute("data-f")].slots[+sel.getAttribute("data-s")].base=+sel.value;renderAnalysis(a)}});
- each("input.pick",function(inp){inp.onchange=function(){var sl=a.files[+inp.getAttribute("data-cf")].slots[+inp.getAttribute("data-cs")],v=inp.value.toUpperCase();if(v==String(sl.color).slice(0,7).toUpperCase())delete sl.pick;else sl.pick=v;renderAnalysis(a)}});
+ each("input.pick",function(inp){inp.onchange=function(){var sl=a.files[+inp.getAttribute("data-cf")].slots[+inp.getAttribute("data-cs")],v=inp.value.toUpperCase(),was=sl.pick;delete sl.pick;if(v!=String(slotCol(a,sl)).slice(0,7).toUpperCase())sl.pick=v;else if(!was)return;renderAnalysis(a)}});
+ each("button.addc",function(b){b.onclick=function(){var f=a.files[+b.getAttribute("data-af")];if(f.slots.length>=(a.max_filaments||16))return;
+  f.slots.push({n:f.slots.length+1,src:[],extra:true,base:nextBase(a,f),pick:null});renderAnalysis(a)}});
+ each("button.rmc",function(b){b.onclick=function(){var f=a.files[+b.getAttribute("data-rf")];f.slots.splice(+b.getAttribute("data-rs"),1);f.slots.forEach(function(s,i){s.n=i+1});renderAnalysis(a)}});
  each("a.reset",function(x){x.onclick=function(){delete a.files[+x.getAttribute("data-rf")].slots[+x.getAttribute("data-rs")].pick;renderAnalysis(a)}})}
-function keepBases(old,a){if(old.files.length!=a.files.length)return;a.files.forEach(function(f,fi){var o=old.files[fi];if(o.slots.length!=f.slots.length)return;f.slots.forEach(function(sl,si){sl.base=o.slots[si].base;if(o.slots[si].pick)sl.pick=o.slots[si].pick})})}
+/* couleur d'une ligne : choisie, sinon celle du modele, sinon (case libre, couleur en plus) celle que donne le profil */
+function slotCol(a,sl){return sl.pick||(sl.pad||sl.extra?((a.profiles[sl.base]||{}).fill||"#808080"):sl.color)}
+/* couleur envoyee au plugin : rien pour garder celle du modele ou de la case des reglages */
+function sendCol(a,sl){if(sl.pick)return sl.pick;if(!(sl.pad||sl.extra))return null;var p=a.profiles[sl.base]||{};return p.group!="slot"&&p.color?String(p.color).slice(0,7):null}
+/* couleur en plus : prend la premiere case de tes reglages pas encore dans le fichier */
+function nextBase(a,f){var used={};f.slots.forEach(function(s){used[s.base]=1});for(var i=0;i<a.profiles.length;i++)if(a.profiles[i].group=="slot"&&!used[i])return i;return f.slots.length?f.slots[f.slots.length-1].base:0}
+/* nouveau plan ou nouvelle langue pour le meme fichier : les couleurs en plus restent (profil retrouve par son nom) */
+function carryExtras(old,a){var ex=[];
+ old.files.forEach(function(f,fi){f.slots.forEach(function(s){if(!s.extra)return;var p=old.profiles[s.base]||{},e={name:p.name,group:p.group,pick:s.pick||null};
+  if(fi&&ex.some(function(x){return x.name==e.name&&x.group==e.group&&x.pick==e.pick}))return;ex.push(e)})});
+ a.files.forEach(function(f){ex.forEach(function(e){if(f.slots.length>=(a.max_filaments||16))return;var b=-1;
+  a.profiles.forEach(function(p,i){if(b<0&&p.name==e.name&&p.group==e.group)b=i});
+  f.slots.push({n:f.slots.length+1,src:[],extra:true,base:b<0?nextBase(a,f):b,pick:e.pick})})})}
+function keepBases(old,a){if(old.files.length==a.files.length)a.files.forEach(function(f,fi){var o=old.files[fi].slots.filter(function(s){return!s.extra});if(o.length!=f.slots.length)return;
+ f.slots.forEach(function(sl,si){sl.base=o[si].base;if(o[si].pick)sl.pick=o[si].pick})});carryExtras(old,a)}
 $("convert").onclick=function(){var a=S.an;if(S.busy||!a)return;S.busy=true;S.conv=true;$("cancel").disabled=true;status("info",esc(t("converting")),true);
- send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base,color:sl.pick||null}})}})})};
+ send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base,color:sendCol(a,sl),extra:!!sl.extra}})}})})};
 /* ---- result: open it in Orca in 3 steps ---- */
 function renderResult(r){S.res=r;var c=S.copied,h='<div class="gest">';
  h+='<div class="g'+(c?' done':' on')+'"><div class="hd"><span class="num'+(c?' gr':' teal')+'">'+(c?'✓':'1')+'</span><span class="h">'+esc(t("step_copy"))+'</span></div>';
@@ -3533,6 +3583,7 @@ orca.onMessage(function(m){if(!m||!m.command)return;
  else if(m.command=="analysis"){
   if(m.relabel){if(S.an&&S.an.token==m.token){keepBases(S.an,m);renderAnalysis(m,false)}return}
   if(S.skip>0){S.skip--;return}
+  if(S.an&&S.an.token==m.token)carryExtras(S.an,m);   /* nouveau plan du meme fichier */
   S.busy=false;S.copied=false;S.res=null;status();renderAnalysis(m,true);view("an");burpDots(U.mini,modelCols(m));
   if(U.on){u1Set(U.mini,"idle full");eatBurp(m)}else u1Flash(U.mini,"burp",1800)}
  else if(m.command=="built"){send({command:"write",token:m.token})}
