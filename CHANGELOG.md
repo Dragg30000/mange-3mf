@@ -1,5 +1,15 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.5.3 — 24/11/2026
+
+- **La U1 à côté du plateau** : quand Orca ouvre un 3MF qui n'est pas réglé pour la U1, elle apparaît dans un panneau à droite du plateau, dans Préparer et Aperçu : « Miam ! Ce 3MF n'est pas réglé pour ta U1 ». **Le manger** lance l'analyse avec tes réglages, et le panneau montre une ligne par filament : pastille pour changer la couleur, profil au choix parmi tes réglages et tes préréglages, cases libres, « + Ajouter une couleur », alertes. **Convertir** écrit le fichier, puis « C'est prêt ! » avec **Copier le chemin**. **Pas maintenant** ou la croix la rangent ; elle revient au prochain 3MF pas réglé pour la U1.
+- **Un 3MF glissé sur le panneau** (ou choisi en cliquant « Dépose un 3MF ici ») suit le même chemin, sans passer par l'onglet (500 Mo au plus, lu par morceaux).
+- **Même travail que l'onglet** : l'analyse lancée dans le panneau s'affiche aussi dans l'onglet (plaques, « Un fichier par plaque »…), et un profil, une couleur ou une couleur en plus changés d'un côté se retrouvent de l'autre.
+- **Réglage** en bas du panneau (« Quand un 3MF n'est pas réglé : je viens ici / une notification / rien ») ou dans la fenêtre Réglages (« Quand Orca ouvre un 3MF pas réglé pour ta U1 »), avec le bouton « Mettre la U1 dans Préparer ». « Une notification » garde le fonctionnement d'avant. Si la U1 mâche déjà un 3MF, ou si cet Orca ne sait pas afficher de panneau (il faut la 2.5.1), c'est aussi une notification.
+- **Bobines redessinées** dans les cartes des têtes (accueil et fenêtre Réglages) : pleines, dessinées en SVG, nettes à toutes les tailles.
+- **Annuler** pendant une analyse ne bloque plus l'analyse suivante : chaque analyse a un numéro, et la page ignore celle qui a été annulée.
+- Tests : 437 vérifications, dont 74 pour le panneau (Miam, Pas maintenant, glisser, conversion, plan partagé avec l'onglet, réglage, langue, Orca sans panneaux) ; le panneau est rendu dans Chrome en français et en anglais. Nouvelle capture `6_panneau.png`, nouveau visuel `05_prepare.jpg`.
+
 ## 0.5.2 — 23/11/2026
 
 - **Couleurs en plus** : bouton « + Ajouter une couleur » sous « Couleurs et filaments ». Chaque couleur en plus devient un filament du projet que le modèle n'utilise pas, prêt pour peindre ou changer la couleur d'une pièce dans Orca (Orca ne laisse pas ajouter de filament au projet). Couleur et profil au choix, croix pour la retirer ; par défaut, la prochaine bobine de tes réglages qui n'est pas encore dans le tableau. 16 filaments au plus par fichier. Elles restent quand la langue change ou quand tu coches « Un fichier par plaque ».

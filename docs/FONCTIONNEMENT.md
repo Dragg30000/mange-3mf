@@ -1,6 +1,6 @@
 # Fonctionnement de Mange-3MF
 
-Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.4.2). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
+Notes pour reprendre ou corriger le code de `mange_3mf_any.py` (version 0.5.3). Le comportement côté OrcaSlicer a été vérifié dans les sources d'**OrcaSlicer 2.5.1** (références en fin de document).
 
 ## 1. Organisation du fichier
 
@@ -19,6 +19,7 @@ Un seul fichier Python, sans dépendance hors bibliothèque standard, en section
 | construction | `build_project_config` (réglages du projet pour N filaments) et `build_output` (3MF converti) |
 | API | `analyze`, `check_plan`, `convert` (utilisées par l'onglet et les tests) |
 | onglet | page HTML (`PAGE` : 4 vues, accueil, analyse en cours, analyse, fichier prêt, et la fenêtre Réglages, voir § 9 quinquies ; `page_html` y met `TEXTS` et la langue), icône de l'onglet (`ICON_SVG` : la U1 au trait, 24 × 24, une seule couleur `#FEFEFE` ; même dessin que `docs/visuals/logo/mange3mf_tab_icon.svg`) et `Converter` |
+| panneau | page du panneau de Préparer (`PANEL_PAGE`, voir § 9 sexies ; `panel_html` y met les textes qu'elle utilise, la police et la U1 de l'onglet) et `Panel` (`PANEL`) |
 | enregistrement | capacité « onglet » (`orca.pages.PagesPluginCapabilityBase`) et déclaration des droits |
 
 Le cœur (jusqu'à l'API) n'utilise pas `orca` : il tourne et se teste hors d'OrcaSlicer.
@@ -31,8 +32,9 @@ Le cœur (jusqu'à l'API) n'utilise pas `orca` : il tourne et se teste hors d'Or
 - L'analyse et la conversion tournent dans un **fil à part** ; elles travaillent en mémoire et renvoient leurs résultats par `post_message` (qu'Orca fait passer par le fil de l'interface).
 - Orca ne construit la page d'un onglet qu'**à la première ouverture** de l'onglet (`LazyPage`), et un message envoyé avant est perdu. `Converter` garde donc les derniers messages `analysis`, `result` et `progress` et les renvoie quand la page envoie `init`.
 - Écriture en deux temps : le fil de conversion envoie `built`, la page répond `write`, et l'écriture se fait dans le fil de l'interface.
+- Le panneau de Préparer (0.5.3) reçoit lui aussi ses messages dans le fil de l'interface (`on_message` donné à `create_dock_panel`), et ses envois passent par `UiDockPanel.post`.
 - Droits déclarés au chargement : lecture / écriture de `~/Downloads/*` et fils d'exécution. Le dossier de stockage du plugin est toujours autorisé par Orca.
-- Les noms de fichiers du plugin évitent les mots bloqués par Orca (`config`, `conf`, `secret`, `cert`…) : `reglages_memorises.json`, `capture_reglages.3mf`, `options.json` (langue choisie), `erreurs.log`.
+- Les noms de fichiers du plugin évitent les mots bloqués par Orca (`config`, `conf`, `secret`, `cert`…) : `reglages_memorises.json`, `capture_reglages.3mf`, `options.json` (langue, dossier des fichiers convertis, panneau), `erreurs.log`.
 
 ## 3. Les réglages mémorisés (`Template`)
 
@@ -139,8 +141,13 @@ Orca garde au moins un filament par tête (`PresetBundle::min_filament_count`) :
 
 Capacité « onglet » avec `on_lifecycle_event` :
 
-- `ProjectOpened` : si le fichier est dans Téléchargements, lecture rapide (`sniff_3mf`, qui lit aussi l'étiquette `OrcaSlicer`) : à convertir si ce n'est pas un projet OrcaSlicer pour une U1. Ailleurs, on ne lit pas le fichier (pas de demande d'autorisation à chaque ouverture) : à convertir si l'imprimante sélectionnée par Orca n'est pas une U1. Si oui, notification « Préparer la conversion dans l'onglet Mange-3MF » : le clic lance l'analyse (fil de l'interface pour la lecture), puis une notification « prête » est envoyée depuis le fil d'analyse (`push_notification` passe par le fil de l'interface). Un plugin ne peut pas afficher son onglet : l'utilisateur l'ouvre.
-- `NewProject` : oubli du projet ouvert.
+- `ProjectOpened` : si le fichier est dans Téléchargements, lecture rapide (`sniff_3mf`, qui lit aussi l'étiquette `OrcaSlicer`) : à convertir si ce n'est pas un projet OrcaSlicer pour une U1. Ailleurs, on ne lit pas le fichier (pas de demande d'autorisation à chaque ouverture) : à convertir si l'imprimante sélectionnée par Orca n'est pas une U1. Si oui, selon le réglage (`panel_mode`, depuis la 0.5.3) :
+  - `panel` (par défaut) : la U1 le réclame dans le panneau de Préparer (`Panel.offer_file`, § 9 sexies) ;
+  - `notif`, ou si le panneau ne peut pas (il mâche déjà un 3MF, ou cet Orca n'a pas `create_dock_panel`) : notification « Préparer la conversion dans l'onglet Mange-3MF ». Le clic lance l'analyse (fil de l'interface pour la lecture), puis une notification « prête » est envoyée depuis le fil d'analyse (`push_notification` passe par le fil de l'interface). Un plugin ne peut pas afficher son onglet : l'utilisateur l'ouvre ;
+  - `off` : rien.
+
+  Projet réglé pour la U1 : un panneau qui proposait un 3MF ou montrait un fichier prêt se range (`Panel.project_changed`).
+- `NewProject` : oubli du projet ouvert ; le panneau se range de la même façon.
 
 ## 9. Messages entre la page et le plugin
 
@@ -156,6 +163,11 @@ Capacité « onglet » avec `on_lifecycle_event` :
 | `replan {token, template, one_per_plate}` | `analysis` |
 | `convert {token, template, files}` | `progress`, puis `built {token}` |
 | `write {token}` | `result {files}` |
+| `plan {token, files}` | rien : gardé avec le travail (`job["plan"]`) et envoyé au panneau s'il suit ce travail. La page l'envoie à chaque changement de profil, de couleur ou de couleur en plus (`planSync`) |
+| `panel_mode {mode: "panel" \| "notif" \| "off"}` | `state` (`panel`) ; le panneau reçoit `hello` avec le nouveau réglage |
+| `panel_show` | rien, ou `error` (`err_panel`) si cet Orca ne sait pas faire de panneau |
+
+**Jetons** : chaque analyse a un jeton (`a1`, `a2`…) que portent tous ses messages (`progress`, `analysis`, `plan`, `built`, `result`, `error`). Annuler marque le jeton de l'analyse en cours comme abandonné (`S.dead`) : ses messages sont ignorés. Avant la 0.5.3, la page sautait le prochain message d'analyse, qui pouvait être celui de l'analyse suivante. Un travail par origine (`jobs[token]["origin"]` = `tab` ou `panel`) : une nouvelle analyse de l'onglet remplace celle de l'onglet, sans toucher à celle du panneau, et l'inverse.
 
 ## 9 bis. Langues
 
@@ -190,11 +202,36 @@ Capacité « onglet » avec `on_lifecycle_event` :
   - `an` : plaques (`#plates`, vignette si le 3MF en a une, sinon les couleurs), « Avant de convertir » (`#notes`), case « Un fichier par plaque » (`#opWrap`), tableau « Couleurs et filaments » (`renderAnalysis`), boutons Annuler et Convertir et message de suivi (`#cstatus`) en bas. Annuler (`#cancel`, aussi en `busy`, grisé pendant la conversion) revient à `home` ; pendant une analyse, `S.skip` fait ignorer le message `analysis` ou `error` qui arrivera.
   - Couleurs en plus (0.5.2) : bouton « + Ajouter une couleur » (`button.addc`) par fichier, ligne `.tr.ex` (pastille, profil, croix `button.rmc`) ; profil par défaut = première case des réglages pas encore utilisée (`nextBase`) ; cases libres (`.tr.pad`) modifiables de la même façon. `carryExtras` garde les couleurs en plus quand le plugin renvoie l'analyse du même fichier (nouvelle langue avec `keepBases`, nouveau plan : copiées dans chaque fichier, profil retrouvé par son nom). Hors de la légende du modèle et du compte « besoin de multiACE ».
   - `res` : 3 gestes (`renderResult`) ; « Copier le chemin » passe la couleur d'action au geste 2 (`S.copied`). `#back` revient à `an`, `#again` à `home`.
-- **Fenêtre Réglages** (`#dlg`, boutons `#openSet` et `#editSet`) : choix des réglages (radios `tc`), `capture`, dossier des fichiers convertis (radios `out`, `#outDir`, `#outOk`), aperçu des têtes (`#dlgRig`). Échap, la croix ou Fermer la referment.
+- **Fenêtre Réglages** (`#dlg`, boutons `#openSet` et `#editSet`) : choix des réglages (radios `tc`), `capture`, dossier des fichiers convertis (radios `out`, `#outDir`, `#outOk`), aperçu des têtes (`#dlgRig`), et depuis la 0.5.3 « Quand Orca ouvre un 3MF pas réglé pour ta U1 » (radios `pmode` → `panel_mode`, bouton `#pshow` → `panel_show`). Échap, la croix ou Fermer la referment.
+- **Bobines** (0.5.3) : dessinées en SVG (`spool()`), pleines et nettes à toutes les tailles, dans les cartes des têtes de l'accueil et de la fenêtre Réglages.
 - **Police des titres** : Inter Display ExtraBold (Copyright 2016 The Inter Project Authors, SIL Open Font License 1.1), réduite aux caractères de l'onglet (nom, copyright et licence gardés dans la police) et intégrée en base64 (`@font-face` « M3D », environ 22 Ko) : aucun fichier à côté du plugin. Le texte courant reste dans la police du système (Segoe UI sous Windows).
 - **Fenêtre étroite** : sous 1 100 px le texte Ko-fi se cache (le bouton reste), sous 860 px les deux colonnes passent l'une sous l'autre.
 - **Fichier glissé ou choisi avec Parcourir** : la page ne connaît pas son chemin (sécurité des pages web), elle lit son contenu. Depuis la 0.5.1 elle le lit par tranches de 16 Mo (`M3D_UP.CHUNK`, `File.slice` + `FileReader`) et envoie un message `upload_part` par tranche, l'une après l'autre (`setTimeout` entre deux : Orca reste réactif), en affichant « Lecture de … (i/n) » ; puis `analyze {upload_id}`. Le plugin garde les morceaux (`Converter.uploads`, limite `UPLOAD_MAX` = 500 Mo) et les recolle. Avant, tout le fichier partait en un seul message (limite 80 Mo). Annuler pendant l'envoi arrête la lecture et envoie `upload_drop`.
 - `tests/ui/render_page.js` passe par toutes les vues, la fenêtre Réglages, le changement de langue (la vue reste la même) et une fenêtre de 760 px sans défilement sur le côté.
+
+## 9 sexies. Le panneau de Préparer (0.5.3)
+
+- **API d'Orca 2.5.1** : `orca.host.ui.create_dock_panel(html, title, width, height, on_message, on_close, dock)` ouvre une page HTML dans un panneau du plateau (gestionnaire wxAUI du `Plater`) et rend un `UiDockPanel` (`post`, `show`, `hide`, `close`, `is_open`). La page parle avec `orca.postMessage`, `orca.onMessage` et `orca.close`. Le panneau n'existe que dans Préparer et Aperçu, les deux vues du plateau ; aucun événement ne signale le passage de l'une à l'autre, il ne peut donc pas se limiter à l'une des deux. Orca garde sa place et sa taille (disposition wxAUI). Un message envoyé avant que la page ait fini de charger peut être perdu : la page envoie `init`, et `Panel.push` lui renvoie tout ce qu'elle doit montrer.
+- **`Panel`** (un seul, `PANEL`, relié au `Converter` par `conv.panel`) : `open` crée le panneau (340 × 620, à droite) ou le remontre ; `hide` ; `on_close` pour la croix (Orca détruit le panneau, il est recréé au prochain 3MF pas réglé pour la U1 ou par « Mettre la U1 dans Préparer ») ; `send` passe les textes par `relocalize`. Il suit un seul travail (`token`), garde ses derniers messages (`last` : `analysis`, `plan`, `progress`, `result`) et le 3MF proposé (`offer`, remis si l'analyse est annulée).
+- **Proposition** : `Converter.on_project_opened` → `Panel.offer_file` quand le réglage est `panel`. Elle échoue (notification à la place) si le panneau mâche déjà (`view` vaut `busy` ou `conv`) ou si `create_dock_panel` échoue. L'analyse se fait avec les réglages mémorisés, sinon les réglages actuels d'Orca.
+
+| Page du panneau → plugin | Plugin → page du panneau |
+|---|---|
+| `init` | `hello {lang, mode, version}`, puis `offer {file, replay}` ou les derniers `analysis`, `plan`, `result`, `progress` (avec `replay`), sinon `rest` |
+| `view {v}` | rien : l'écran affiché (le plugin ne propose pas de 3MF à un panneau qui mâche) |
+| `eat` | analyse du 3MF proposé : `progress`, puis `analysis` ou `error` |
+| `later` | rien : le panneau se range |
+| `upload_part`, `upload_drop`, `analyze {upload_id, name}` | comme l'onglet (morceaux de 16 Mo, 500 Mo au plus) |
+| `cancel` | rien : l'analyse en cours est abandonnée (`drop_job`), le 3MF proposé revient (`offer`) |
+| `plan {token, files}` | rien ; l'onglet reçoit `plan` |
+| `convert {token, files}` | `progress`, puis `built {token}` |
+| `write {token}` | `result {files}` |
+| `panel_mode {mode}` | `hello` ; l'onglet reçoit `state` |
+
+- **Même travail que l'onglet** : le panneau lance `Converter.start_analyze(…, origin="panel")` et `start_convert(…, origin="panel")`. `Converter.post` envoie à l'onglet et, pour le travail qu'il suit, au panneau (`Panel.relay`). L'onglet reçoit l'analyse et le résultat du panneau (pour changer un profil, cocher « Un fichier par plaque », revoir le fichier prêt), mais pas sa progression ni ses erreurs. `built` va à la page qui a lancé la conversion (à l'onglet si le panneau est fermé), qui répond `write`. Les plans vont dans les deux sens (`set_plan`) : la page qui reçoit `plan` l'applique (`applyPlan` dans l'onglet, `fromPlan` dans le panneau) sans le renvoyer. Si l'onglet convertit ce que montre le panneau, le panneau passe en `conv` puis montre le résultat.
+- **Page** (`PANEL_PAGE`, `panel_html`) : même style que l'onglet, avec sa police, son CSS de la U1 et son `<template id="u1t">` (repris de `PAGE` par `_page_part`) ; seuls les textes qu'elle utilise sont mis dans la page. Écrans (`P.v`, attribut `data-v` du `body`) : `rest` (la U1 a faim, zone « Dépose un 3MF ici »), `drag`, `offer` (« Miam ! », carte du fichier, Le manger / Pas maintenant), `busy` (« Je mâche… », barre, Annuler), `an` (« Burp ! », une ligne par filament avec `rowsHtml`, cases libres repliées, couleurs en plus, alertes `notesHtml`, Convertir), `conv`, `done` (« C'est prêt ! », chemin, Copier le chemin), `err` (« Pouah ! », OK) et `bye`. `PARTS` dit quels blocs chaque écran montre. Chaque changement de ligne envoie `plan` (`edited`), et Convertir envoie le plan affiché (`planOf`).
+- **Réglage** (`options.json` : `panel` = `panel`, `notif` ou `off` ; `panel_mode()`, `panel` par défaut) : en bas des écrans `rest` et `offer` (`#pmode`), ou dans la fenêtre Réglages de l'onglet. Choisir « une notification » ou « rien » dans le panneau affiche `bye`, puis le ferme (`orca.close`) au bout de 2,6 s.
+- **Tests** : `tests/test_panel.py` (faux panneau `FakePanel` de `tests/fake_orca.py`) ; `tests/ui/check_panel.py` et `render_panel.js` (la page du panneau dans Chrome, en français et en anglais) ; `tests/ui/make_panel_captures.py` fait `docs/captures/6_panneau.png`.
 
 ## 10. Références (OrcaSlicer 2.5.1)
 
@@ -208,7 +245,7 @@ Capacité « onglet » avec `on_lifecycle_event` :
 - `src/libslic3r/Preset.cpp` (`s_Preset_filament_options`) et `src/libslic3r/PrintConfig.cpp` (`filament_options_with_variant`, `filament_map`, `filament_colour_type`, couleurs mélangées).
 - `resources/profiles/Snapmaker/machine/` : profils U1 (variantes de buse, G-code de changement d'outil).
 - `src/slic3r/plugin/host/PluginPages.cpp`, `src/slic3r/plugin/pluginTypes/pages/` : onglets des plugins (page construite à la première ouverture, `post_message`, icône).
-- `src/slic3r/plugin/host/PluginHostUi.cpp` : notifications (`push_notification`, niveaux).
+- `src/slic3r/plugin/host/PluginHostUi.cpp` : notifications (`push_notification`, niveaux) et panneaux (`create_dock_panel`, `UiDockPanel`) ; `src/slic3r/GUI/Plater.cpp` : `add_dock_pane`, `show_dock_pane` (gestionnaire wxAUI du plateau).
 - `src/slic3r/plugin/host/PluginHostPresets.cpp` : préréglages (`preset_bundle().filaments`, `Preset.config_value` = `opt_serialize`) ; `src/libslic3r/PresetBundle.cpp` (`load_config_file_config`) et `src/libslic3r/Preset.cpp` (`load_external_config`, `load_external_preset`, `profile_print_params_same`) : préréglages d'un projet à l'ouverture.
 - `src/slic3r/plugin/host/PluginHostApp.cpp` : `app_info()` (langue de l'interface, fil de l'interface seulement) ; `src/slic3r/GUI/WebPanel.cpp` : page d'un onglet (`SetPage`, liens ouverts dans la page).
 - `src/slic3r/plugin/` et `docs/HLSD/plugin-permissions.md` : API des plugins et droits.

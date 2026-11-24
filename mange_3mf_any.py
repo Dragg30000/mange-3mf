@@ -5,7 +5,7 @@
 # name = "Mange-3MF (Snapmaker U1)"
 # description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
 # author = "Dragg avec son ami Claude"
-# version = "0.5.2"
+# version = "0.5.3"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -26,8 +26,11 @@ Ce que fait la conversion :
 * les couleurs vont si possible dans les cases dont la bobine actuelle est la plus proche.
 
 L'interface est un onglet « Mange-3MF » d'Orca, en francais ou en anglais (langue d'Orca, ou au
-choix dans l'onglet ; tous les textes sont dans TEXTS). Le fichier converti s'ouvre ensuite avec
-Fichier > Ouvrir (Ctrl+O) : un plugin ne peut pas ouvrir un projet lui-meme.
+choix dans l'onglet ; tous les textes sont dans TEXTS). Quand Orca ouvre un 3MF pas regle pour la U1,
+la U1 apparait aussi dans un panneau a cote du plateau (Preparer et Apercu) : elle le mange, propose
+tes profils et le convertit (au choix dans les Reglages : panneau, notification seule ou rien). Le
+fichier converti s'ouvre ensuite avec Fichier > Ouvrir (Ctrl+O) : un plugin ne peut pas ouvrir un
+projet lui-meme.
 
 Plugin communautaire, non officiel. Licence GPL-3.0.
 """
@@ -49,7 +52,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.5.2"
+VERSION = "0.5.3"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -364,6 +367,42 @@ TEXTS = {
         "out_h": "Fichiers convertis",
         "dlg_foot": "Tes choix sont gardés pour la prochaine fois.",
         "close": "Fermer",
+        # --- panneau de Preparer
+        "pn_rest2": "Glisse un 3MF sur moi, ou ouvre-le dans Orca : je te dis s'il faut le convertir.",
+        "pn_rest2b": "Glisse un 3MF sur moi : je le prépare pour ta U1.",
+        "pn_zone": "Dépose un 3MF ici",
+        "pn_drag": "Lâche-le !",
+        "pn_drag2": "Je le prends ici, pas besoin d'aller dans l'onglet.",
+        "pn_zone_drag": "Lâche ton 3MF",
+        "pn_offer": "Miam !",
+        "pn_offer2": "Ce 3MF n'est pas réglé pour ta U1.",
+        "pn_eat": "Le manger",
+        "pn_later": "Pas maintenant",
+        "pn_offer_hint": "Tu pourras changer les profils et ajouter des couleurs avant de convertir.",
+        "pn_chew": "Je mâche…",
+        "pn_an_hint": "Clique une pastille pour changer la couleur. Tout se règle aussi dans l'onglet Mange-3MF.",
+        "pn_pads_edit": "Choisir le filament de ces cases",
+        "pn_pads": "cases libres",
+        "pn_keep_1": "ta bobine",
+        "pn_keep_n": "tes bobines",
+        "pn_conv": "Je prépare ton projet…",
+        "pn_done": "C'est prêt !",
+        "pn_done_hint": "Puis {0} (Ctrl+O), colle le chemin et valide.",
+        "pn_menu": "Fichier › Ouvrir un projet",
+        "pn_err": "Pouah !",
+        "pn_ok": "OK",
+        "pn_h": "Quand Orca ouvre un 3MF pas réglé pour ta U1",
+        "pn_mode_panel": "la U1 apparaît à côté du plateau (Préparer et Aperçu)",
+        "pn_mode_notif": "une notification seulement",
+        "pn_mode_off": "rien",
+        "pn_show": "Mettre la U1 dans Préparer",
+        "pn_shown": "Elle t'attend dans Préparer et Aperçu.",
+        "pn_mode_label": "Quand un 3MF n'est pas réglé :",
+        "pn_opt_panel": "je viens ici",
+        "pn_opt_notif": "une notification",
+        "pn_opt_off": "rien",
+        "pn_bye": "D'accord, je me cache.",
+        "pn_bye2": "Pour me remettre : onglet Mange-3MF, Réglages.",
         # --- messages du plugin
         "when_saved": "mémorisés le {0:02d}/{1:02d} à {3:02d}:{4:02d}",
         "cap_saved": "Réglages mémorisés.",
@@ -408,6 +447,8 @@ TEXTS = {
         "err_profile": "profil {0} inconnu : refais l'analyse",
         "err_no_slot": "filament {0} sans case : refais l'analyse",
         "err_too_many_extra": "trop de couleurs en plus : {0} filaments au plus par fichier",
+        "err_gone": "plus de 3MF ouvert : rouvre-le dans Orca, ou glisse-le sur moi",
+        "err_panel": "cet OrcaSlicer ne sait pas afficher le panneau (il faut la version 2.5.1 ou plus)",
         "err_plates_missing": "plaque(s) {0} oubliée(s) dans le plan",
         "err_not_found": "fichier introuvable : {0}",
         "err_lost": "analyse perdue : relance l'analyse du fichier",
@@ -598,6 +639,42 @@ TEXTS = {
         "out_h": "Converted files",
         "dlg_foot": "Your choices are kept for next time.",
         "close": "Close",
+        # --- Prepare panel
+        "pn_rest2": "Drop a 3MF on me, or open it in Orca: I'll tell you if it needs converting.",
+        "pn_rest2b": "Drop a 3MF on me: I'll get it ready for your U1.",
+        "pn_zone": "Drop a 3MF here",
+        "pn_drag": "Drop it!",
+        "pn_drag2": "I'll take it right here, no need for the tab.",
+        "pn_zone_drag": "Let go of your 3MF",
+        "pn_offer": "Yum!",
+        "pn_offer2": "This 3MF isn't set up for your U1.",
+        "pn_eat": "Eat it",
+        "pn_later": "Not now",
+        "pn_offer_hint": "You can change the profiles and add colors before converting.",
+        "pn_chew": "Chewing…",
+        "pn_an_hint": "Click a dot to change the color. Everything can also be set in the Mange-3MF tab.",
+        "pn_pads_edit": "Choose the filament for these slots",
+        "pn_pads": "free slots",
+        "pn_keep_1": "your spool",
+        "pn_keep_n": "your spools",
+        "pn_conv": "Making your project…",
+        "pn_done": "It's ready!",
+        "pn_done_hint": "Then {0} (Ctrl+O), paste the path and confirm.",
+        "pn_menu": "File › Open Project",
+        "pn_err": "Yuck!",
+        "pn_ok": "OK",
+        "pn_h": "When Orca opens a 3MF not set up for your U1",
+        "pn_mode_panel": "the U1 shows up beside the plate (Prepare and Preview)",
+        "pn_mode_notif": "a notification only",
+        "pn_mode_off": "nothing",
+        "pn_show": "Put the U1 in Prepare",
+        "pn_shown": "She's waiting in Prepare and Preview.",
+        "pn_mode_label": "When a 3MF isn't set up:",
+        "pn_opt_panel": "I show up here",
+        "pn_opt_notif": "a notification",
+        "pn_opt_off": "nothing",
+        "pn_bye": "OK, I'll hide.",
+        "pn_bye2": "To bring me back: Mange-3MF tab, Settings.",
         # --- plugin messages
         "when_saved": "saved {2:04d}-{1:02d}-{0:02d} {3:02d}:{4:02d}",
         "cap_saved": "Settings saved.",
@@ -642,6 +719,8 @@ TEXTS = {
         "err_profile": "unknown profile {0}: analyze the file again",
         "err_no_slot": "filament {0} has no slot: analyze the file again",
         "err_too_many_extra": "too many extra colors: {0} filaments at most per file",
+        "err_gone": "no 3MF open any more: open it again in Orca, or drop it on me",
+        "err_panel": "this OrcaSlicer can't show the panel (version 2.5.1 or later needed)",
         "err_plates_missing": "plate(s) {0} left out of the plan",
         "err_not_found": "file not found: {0}",
         "err_lost": "analysis lost: analyze the file again",
@@ -2975,6 +3054,14 @@ def save_options(options):
 
 
 OUT_MODES = ("beside", "downloads", "folder")
+PANEL_MODES = ("panel", "notif", "off")     # 3MF pas regle pour la U1 : panneau, notification, rien
+
+
+def panel_mode(options=None):
+    """Quand Orca ouvre un 3MF pas regle pour la U1 : la U1 dans le panneau de Preparer (par defaut),
+    une notification seulement, ou rien."""
+    o = options if options is not None else load_options()
+    return o.get("panel") if o.get("panel") in PANEL_MODES else "panel"
 
 
 def output_choice(options=None):
@@ -3163,7 +3250,7 @@ main{flex:1;display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr)
 .sp{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
 .sp .n1{font-weight:650;font-size:12.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .sp .n2{color:var(--muted);font-size:11.5px}
-.spool{width:38px;height:38px;border-radius:50%;margin-top:6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.spool{display:block;width:38px;height:38px;margin-top:6px;flex:none}
 .wire{width:4px;height:12px;margin:0 auto;border-radius:1px}
 .tc{background:var(--raise);border:1px solid var(--edge2);border-radius:9px;padding:8px 10px}
 .tc .t{font-family:"M3D",system-ui;font-weight:800;font-size:20px;line-height:1.1}
@@ -3327,7 +3414,14 @@ body[data-v=home] .vh.grd,body[data-v=busy] .vb.grd,body[data-v=an] .va.grd,body
     <div class="row"><input type="text" id="outDir" data-tp="out_ph"><button id="outOk" data-t="out_ok"></button></div>
     <span id="outMsg" class="muted small"></span></div>
   </div>
-  <div class="col"><div class="sec"><div><h2 id="dlgRigTitle" style="font-size:17px"></h2><p data-t="rig_sub"></p></div></div><div id="dlgRig"></div></div>
+  <div class="col"><div class="sec"><div><h2 id="dlgRigTitle" style="font-size:17px"></h2><p data-t="rig_sub"></p></div></div><div id="dlgRig"></div>
+   <div class="sec" style="margin-top:8px"><h2 data-t="pn_h" style="font-size:17px"></h2></div>
+   <div class="out">
+    <label><input type="radio" name="pmode" value="panel"><span data-t="pn_mode_panel"></span></label>
+    <label><input type="radio" name="pmode" value="notif"><span data-t="pn_mode_notif"></span></label>
+    <label><input type="radio" name="pmode" value="off"><span data-t="pn_mode_off"></span></label>
+    <div class="row" style="flex-wrap:wrap;margin-top:2px"><button id="pshow" data-t="pn_show"></button><span class="muted small" id="pshowMsg"></span></div></div>
+  </div>
  </div>
  <footer style="position:static"><span data-t="dlg_foot"></span><div class="r"><button class="go" id="dlgClose" data-t="close"></button></div></footer>
 </div></div>
@@ -3406,7 +3500,7 @@ var nav=(navigator.languages&&navigator.languages[0])||navigator.language||"";
 var lang="__LANG__";if(!L[lang]){lang=nav.slice(0,2).toLowerCase();if(!L[lang])lang="en"}
 function t(k){var a=arguments,s=L[lang]&&L[lang][k];if(s==null)s=L.en&&L.en[k];if(s==null)s=k;
  return String(s).replace(/\{(\d+)\}/g,function(_,i){var v=a[+i+1];return v==null?"":v})}
-var S={tpl:null,cur:null,choice:"saved",an:null,res:null,rec:null,opened:null,token:null,busy:false,conv:false,onePer:false,langChoice:"auto",copied:false,busyName:"",busyText:"",skip:0,upId:null};
+var S={tpl:null,cur:null,choice:"saved",an:null,res:null,rec:null,opened:null,token:null,busy:false,conv:false,onePer:false,langChoice:"auto",copied:false,busyName:"",busyText:"",skip:0,upId:null,pmode:"panel",runTok:null,dead:{}};
 function $(id){return document.getElementById(id)}
 function esc(x){var d=document.createElement("span");d.textContent=x==null?"":String(x);return d.innerHTML}
 function send(m){orca.postMessage(m)}
@@ -3415,7 +3509,12 @@ function plural(n,one,many){return n>1?many:one}
 function colors(n){return n+" "+plural(n,t("color1"),t("colorN"))}
 function dark(c){c=String(c||"").replace("#","");if(c.length<6)return false;var r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return (r*299+g*587+b*114)/1000<45}
 function dot(c,size){c=String(c||"#808080").slice(0,7);return '<i class="dot'+(dark(c)?' dk':'')+'" style="background:'+esc(c)+(size?';width:'+size+'px;height:'+size+'px':'')+'"></i>'}
-function spool(c){c=String(c||"#808080").slice(0,7);var d=dark(c);return '<span class="spool" style="background:radial-gradient(circle,#111214 0 5px,transparent 5.5px),repeating-radial-gradient(circle,'+(d?'#2a2c30':esc(c))+' 0 3px,'+(d?'#45484e':'rgba(0,0,0,.22)')+' 3px 3.6px)"></span>'}
+/* bobine vue de face, en SVG (cercles lisses ; un degrade CSS en anneaux fins s'affichait en escalier dans Orca) :
+   disque de la couleur du filament, spires a peine marquees, moyeu noir */
+function spool(c){c=String(c||"#808080").slice(0,7);var d=dark(c),h='<svg class="spool" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="'+(d?'#2B2D32':esc(c))+'"/><g fill="none" stroke="'+(d?'rgba(255,255,255,.09)':'rgba(0,0,0,.12)')+'" stroke-width="1">';
+ [15.8,12.9,10.2].forEach(function(r){h+='<circle cx="20" cy="20" r="'+r+'"/>'});
+ return h+'</g><circle cx="20" cy="20" r="7.4" fill="#141518"/><circle cx="20" cy="20" r="2.5" fill="#3D4046"/>'
+  +(d?'<circle cx="20" cy="20" r="18.5" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1"/>':'')+'</svg>'}
 function cap1(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1)}
 function view(v){document.body.setAttribute("data-v",v);renderHead()}
 function V(){return document.body.getAttribute("data-v")}
@@ -3530,11 +3629,25 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
  each("button.addc",function(b){b.onclick=function(){var f=a.files[+b.getAttribute("data-af")];if(f.slots.length>=(a.max_filaments||16))return;
   f.slots.push({n:f.slots.length+1,src:[],extra:true,base:nextBase(a,f),pick:null});renderAnalysis(a)}});
  each("button.rmc",function(b){b.onclick=function(){var f=a.files[+b.getAttribute("data-rf")];f.slots.splice(+b.getAttribute("data-rs"),1);f.slots.forEach(function(s,i){s.n=i+1});renderAnalysis(a)}});
- each("a.reset",function(x){x.onclick=function(){delete a.files[+x.getAttribute("data-rf")].slots[+x.getAttribute("data-rs")].pick;renderAnalysis(a)}})}
+ each("a.reset",function(x){x.onclick=function(){delete a.files[+x.getAttribute("data-rf")].slots[+x.getAttribute("data-rs")].pick;renderAnalysis(a)}});planSync(a)}
 /* couleur d'une ligne : choisie, sinon celle du modele, sinon (case libre, couleur en plus) celle que donne le profil */
 function slotCol(a,sl){return sl.pick||(sl.pad||sl.extra?((a.profiles[sl.base]||{}).fill||"#808080"):sl.color)}
 /* couleur envoyee au plugin : rien pour garder celle du modele ou de la case des reglages */
 function sendCol(a,sl){if(sl.pick)return sl.pick;if(!(sl.pad||sl.extra))return null;var p=a.profiles[sl.base]||{};return p.group!="slot"&&p.color?String(p.color).slice(0,7):null}
+/* plan envoye au plugin : a la conversion, et a chaque changement (le panneau de Preparer montre et convertit le meme) */
+function planOf(a){return a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base,color:sendCol(a,sl),extra:!!sl.extra}})}})}
+var lastPlan="";
+/* plan venu du panneau de Preparer : profils, couleurs choisies, couleurs en plus. false s'il ne va pas avec cette analyse. */
+function applyPlan(a,files){if(!files||files.length!=a.files.length)return false;
+ var next=files.map(function(pf,fi){var model={};a.files[fi].slots.forEach(function(s){if(!s.pad&&!s.extra&&s.src&&s.src.length)model[s.src[0]]=s});
+  return (pf.slots||[]).map(function(ps,i){var src=ps.src||[],c=ps.color?String(ps.color).slice(0,7).toUpperCase():null,p=a.profiles[ps.base]||{};
+   if(src.length){var sl=model[src[0]];if(!sl)return null;return{sl:sl,base:+ps.base,pick:c}}
+   var pc=p.group!="slot"&&p.color?String(p.color).slice(0,7).toUpperCase():null,o={n:i+1,src:[],base:+ps.base,pick:c&&c!=pc?c:null};
+   if(ps.extra)o.extra=true;else o.pad=true;return{sl:o,base:+ps.base,pick:o.pick}})});
+ if(next.some(function(f){return f.some(function(x){return!x})}))return false;
+ a.files.forEach(function(f,fi){f.slots=next[fi].map(function(x,i){var sl=x.sl;sl.base=x.base;if(x.pick)sl.pick=x.pick;else delete sl.pick;if(sl.extra&&sl.pick===undefined)sl.pick=null;sl.n=i+1;return sl})});
+ return true}
+function planSync(a){if(!a||!a.token)return;var p=planOf(a),k=a.token+"|"+JSON.stringify(p);if(k==lastPlan)return;lastPlan=k;send({command:"plan",token:a.token,files:p})}
 /* couleur en plus : prend la premiere case de tes reglages pas encore dans le fichier */
 function nextBase(a,f){var used={};f.slots.forEach(function(s){used[s.base]=1});for(var i=0;i<a.profiles.length;i++)if(a.profiles[i].group=="slot"&&!used[i])return i;return f.slots.length?f.slots[f.slots.length-1].base:0}
 /* nouveau plan ou nouvelle langue pour le meme fichier : les couleurs en plus restent (profil retrouve par son nom) */
@@ -3547,7 +3660,7 @@ function carryExtras(old,a){var ex=[];
 function keepBases(old,a){if(old.files.length==a.files.length)a.files.forEach(function(f,fi){var o=old.files[fi].slots.filter(function(s){return!s.extra});if(o.length!=f.slots.length)return;
  f.slots.forEach(function(sl,si){sl.base=o[si].base;if(o[si].pick)sl.pick=o[si].pick})});carryExtras(old,a)}
 $("convert").onclick=function(){var a=S.an;if(S.busy||!a)return;S.busy=true;S.conv=true;$("cancel").disabled=true;status("info",esc(t("converting")),true);
- send({command:"convert",token:S.token,template:S.choice,files:a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(sl){return{src:sl.src,base:sl.base,color:sendCol(a,sl),extra:!!sl.extra}})}})})};
+ send({command:"convert",token:S.token,template:S.choice,files:planOf(a)})};
 /* ---- result: open it in Orca in 3 steps ---- */
 function renderResult(r){S.res=r;var c=S.copied,h='<div class="gest">';
  h+='<div class="g'+(c?' done':' on')+'"><div class="hd"><span class="num'+(c?' gr':' teal')+'">'+(c?'✓':'1')+'</span><span class="h">'+esc(t("step_copy"))+'</span></div>';
@@ -3560,8 +3673,9 @@ function renderResult(r){S.res=r;var c=S.copied,h='<div class="gest">';
 function copy(x){try{navigator.clipboard.writeText(x)}catch(e){}var ta=document.createElement("textarea");ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}ta.remove()}
 $("back").onclick=function(){if(S.an)view("an")};
 $("again").onclick=function(){S.res=null;view("home");top()};
-/* Annuler : retour a l'accueil sans convertir ; une analyse en cours est ignoree a son arrivee */
-$("cancel").onclick=function(){if(S.conv)return;if(S.upId){send({command:"upload_drop",id:S.upId});S.upId=null;S.busy=false;eatHide()}else if(V()=="busy"&&S.busy){S.skip++;S.busy=false;eatHide()}S.an=null;S.token=null;S.res=null;status();view("home");top()};
+/* Annuler : retour a l'accueil sans convertir ; une analyse en cours est ignoree a son arrivee (reconnue a son
+   jeton, donne par sa progression ; sinon la prochaine qui arrive) */
+$("cancel").onclick=function(){if(S.conv)return;if(S.upId){send({command:"upload_drop",id:S.upId});S.upId=null;S.busy=false;eatHide()}else if(V()=="busy"&&S.busy){if(S.runTok)S.dead[S.runTok]=1;else S.skip++;S.runTok=null;S.busy=false;eatHide()}S.an=null;S.token=null;S.res=null;status();view("home");top()};
 /* ---- converted files folder ---- */
 function renderOut(){var o=S.out||{mode:"beside",dir:"",msg:""};each('input[name=out]',function(r){r.checked=r.value==o.mode});
  if(document.activeElement!==$("outDir"))$("outDir").value=o.dir||"";$("outMsg").textContent=o.msg||"";$("outMsg").className=o.error?"err small":"muted small";
@@ -3573,25 +3687,28 @@ function closeSet(){$("dlg").classList.add("hidden")}
 $("openSet").onclick=openSet;$("editSet").onclick=openSet;$("dlgClose").onclick=closeSet;$("dlgX").onclick=closeSet;
 $("dlg").onclick=function(e){if(e.target===$("dlg"))closeSet()};
 document.addEventListener("keydown",function(e){if(e.key=="Escape"&&!$("dlg").classList.contains("hidden"))closeSet()});
-function relabel(){statics();renderTpl();renderOpened();renderRecent();renderOut();
+function renderPmode(){each('input[name=pmode]',function(r){r.checked=r.value==S.pmode})}
+function relabel(){statics();renderTpl();renderOpened();renderRecent();renderOut();renderPmode();
  if(S.an)renderAnalysis(S.an);if(S.res)renderResult(S.res);if(V()=="busy")skeleton();renderHead()}
-orca.onMessage(function(m){if(!m||!m.command)return;
+orca.onMessage(function(m){if(!m||!m.command)return;if(m.token&&S.dead[m.token])return;
  if(m.command=="state"){$("ver").textContent="v"+m.version;S.tpl=m.saved;S.cur=m.current;if(!S.tpl)S.choice="current";else if(m.choice)S.choice=m.choice;
   if(m.lang_choice)S.langChoice=m.lang_choice;var nl=(m.lang&&L[m.lang])?m.lang:lang;lang=nl;
-  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;if(m.out)S.out=m.out;relabel()}
+  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;if(m.out)S.out=m.out;if(m.panel)S.pmode=m.panel;relabel()}
  else if(m.command=="recent"){S.rec=m;renderRecent()}
  else if(m.command=="analysis"){
   if(m.relabel){if(S.an&&S.an.token==m.token){keepBases(S.an,m);renderAnalysis(m,false)}return}
   if(S.skip>0){S.skip--;return}
+  S.runTok=null;
   if(S.an&&S.an.token==m.token)carryExtras(S.an,m);   /* nouveau plan du meme fichier */
   S.busy=false;S.copied=false;S.res=null;status();renderAnalysis(m,true);view("an");burpDots(U.mini,modelCols(m));
   if(U.on){u1Set(U.mini,"idle full");eatBurp(m)}else u1Flash(U.mini,"burp",1800)}
+ else if(m.command=="plan"){if(S.an&&m.token==S.an.token&&!S.conv&&applyPlan(S.an,m.files)){lastPlan=S.an.token+"|"+JSON.stringify(planOf(S.an));renderAnalysis(S.an)}}
  else if(m.command=="built"){send({command:"write",token:m.token})}
  else if(m.command=="result"){
   if(m.relabel){if(S.res)renderResult(m);return}
   S.busy=false;status();S.conv=false;$("cancel").disabled=false;S.copied=false;renderResult(m);view("res");top()}
- else if(m.command=="progress"){if(S.skip>0&&!S.conv)return;S.busy=true;if(V()=="busy"&&!S.conv){S.busyText=m.text;renderHead()}else status("info",esc(m.text),true)}
- else if(m.command=="error"){if(S.skip>0&&!S.conv&&!S.upId){S.skip--;return}S.upId=null;var wasConv=S.conv;S.busy=false;S.conv=false;$("cancel").disabled=false;if(V()=="busy")view(S.an&&S.token?"an":"home");status("err",esc(m.text));if(U.on)eatSpit(t("u1_sick"));else u1Flash(U.small,"spit",1700)}});
+ else if(m.command=="progress"){if(S.skip>0&&!S.conv)return;if(m.token&&V()=="busy"&&!S.conv)S.runTok=m.token;S.busy=true;if(V()=="busy"&&!S.conv){S.busyText=m.text;renderHead()}else status("info",esc(m.text),true)}
+ else if(m.command=="error"){if(S.skip>0&&!S.conv&&!S.upId){S.skip--;return}S.upId=null;S.runTok=null;var wasConv=S.conv;S.busy=false;S.conv=false;$("cancel").disabled=false;if(V()=="busy")view(S.an&&S.token?"an":"home");status("err",esc(m.text));if(U.on)eatSpit(t("u1_sick"));else u1Flash(U.small,"spit",1700)}});
 $("go").onclick=function(){var p=$("path").value.trim().replace(/^"|"$/g,"");if(p)analyze({path:p})};
 $("path").onkeydown=function(e){if(e.key=="Enter")$("go").click()};
 $("refresh").onclick=function(){$("recent").innerHTML='<div class="muted small">'+esc(t("searching"))+'</div>';send({command:"recent"})};
@@ -3599,6 +3716,8 @@ $("capture").onclick=function(){$("capMsg").textContent="…";send({command:"cap
 $("browse").onclick=function(){$("file").click()};
 each('input[name=out]',function(r){r.onchange=function(){if(r.value!="folder"||$("outDir").value.trim())sendOut(r.value);else $("outDir").focus()}});
 $("outOk").onclick=function(){if($("outDir").value.trim())sendOut("folder")};
+each('input[name=pmode]',function(r){r.onchange=function(){S.pmode=r.value;send({command:"panel_mode",mode:r.value})}});
+$("pshow").onclick=function(){send({command:"panel_show"});$("pshowMsg").textContent=t("pn_shown")};
 $("outDir").onkeydown=function(e){if(e.key=="Enter")$("outOk").click()};
 $("kofi").onclick=function(){var b=$("kofi");copy("https://ko-fi.com/dragg");b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_link")},1500)};
 $("lang").onchange=function(){var v=$("lang").value;S.langChoice=v;if(L[v]&&v!=lang){lang=v;relabel()}send({command:"lang",lang:v,nav:nav})};
@@ -3654,10 +3773,310 @@ send({command:"init",nav:nav});
 """
 
 
+PANEL_PAGE = r"""<!doctype html><html lang="__LANG__"><head><meta charset="utf-8"><style>
+/* Panneau de Mange-3MF dans Preparer et Apercu. La U1 (dessin, animations) et la police des titres viennent de l'onglet. */
+__FONT__
+:root{--ground:#1C1D20;--card:#222428;--edge:#2E3035;--edge2:#3A3D43;--fg:#E9EAEC;--muted:#9C9DA0;--teal:#22B3A5;--teal-ink:#0C2E2A;--teal-card:#1F2A29;--amber:#F0A73C;--coral:#EC6A5E;
+color-scheme:dark;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;color:var(--fg);background:var(--ground)}
+.hidden{display:none!important}
+#pn{min-height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 16px 16px;gap:10px}
+#u{width:min(200px,74%);margin-bottom:-6px}
+#u .u1{width:100%}
+body[data-v=an] #u,body[data-v=done] #u{width:min(150px,56%)}
+.say{font-family:"M3D",system-ui,sans-serif;font-weight:800;font-size:25px;letter-spacing:-.015em;line-height:1.12;word-break:break-word}
+.say2{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4;word-break:break-word}
+.hint{margin:0;color:var(--muted);font-size:12.5px;line-height:1.4}.hint b{color:var(--fg);font-weight:600}
+button{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;font:inherit;font-weight:600;color:var(--fg);background:transparent;border:1px solid var(--edge2);border-radius:8px;height:36px;padding:0 14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button:hover{border-color:#5a5e66}button:disabled{opacity:.4;cursor:default}
+button.go{background:var(--teal);border-color:var(--teal);color:var(--teal-ink);height:42px;font-size:15px}
+button.go:hover{background:#2bc4b5}button.go:disabled:hover{background:var(--teal)}
+button:focus-visible,.zone:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.card{width:100%;display:flex;align-items:center;gap:11px;text-align:left;background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:10px 12px}
+.card svg{flex:none}.card b{display:block;font-size:13.5px;font-weight:650;word-break:break-all}
+.card small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+.zone{width:100%;margin-top:auto;border:2px dashed var(--edge2);border-radius:12px;padding:20px 10px;color:var(--muted);font-size:13.5px;cursor:pointer}
+.zone:hover{border-color:rgba(34,179,165,.7);background:rgba(34,179,165,.04)}
+body[data-v=drag] .zone{border-color:var(--teal);color:var(--fg);background:var(--teal-card)}
+.bar2{width:100%;height:5px;border-radius:3px;background:var(--edge);overflow:hidden;margin-top:auto;flex:none}
+.bar2 i{display:block;height:100%;width:35%;background:var(--teal);border-radius:3px;animation:mv 1.1s infinite ease-in-out}
+@keyframes mv{0%{margin-left:-35%}100%{margin-left:100%}}
+.map{width:100%;display:flex;flex-direction:column;gap:6px;text-align:left;font-size:13.5px}
+.map .fh{margin-top:4px;color:var(--muted);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map .r{display:flex;flex-wrap:wrap;align-items:center;gap:5px 7px;min-width:0;background:var(--card);border:1px solid var(--edge);border-radius:8px;padding:5px 6px 5px 8px}
+.map .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:2.6em;max-width:46%}
+.map select{flex:1 1 0;min-width:78px;margin-left:auto;height:28px;background:#1f2023;color:var(--fg);border:1px solid var(--edge2);border-radius:7px;padding:0 4px;font:inherit;font-size:12.5px}
+.map select:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.pick{-webkit-appearance:none;appearance:none;width:17px;height:17px;padding:0;margin:0;border:0;border-radius:50%;background:none;cursor:pointer;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);transition:box-shadow .15s}
+.pick:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 0 0 3px var(--edge2)}
+.pick:focus-visible{outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 0 0 3px var(--teal)}
+.pick::-webkit-color-swatch-wrapper{padding:0}.pick::-webkit-color-swatch{border:none;border-radius:50%}
+.map button.rmc,.map button.rst{width:26px;height:26px;padding:0;flex:none;border-radius:6px;font-size:16px;font-weight:500;color:var(--muted)}
+.map button.rmc:hover{color:var(--coral);border-color:var(--coral)}.map button.rst{border-color:transparent;font-size:15px}.map button.rst:hover{color:var(--fg);border-color:var(--edge2)}
+.map button.padg{height:auto;font-weight:400;justify-content:flex-start;text-align:left;background:var(--card);border-color:var(--edge);padding:6px 9px 6px 8px}
+.map button.padg:hover{border-color:#5a5e66}.map button.padg .chev{margin-left:6px;font-style:normal;color:var(--muted);font-size:16px;line-height:1}
+.map button.addc{height:34px;border-style:dashed;color:var(--muted);font-size:13.5px}.map button.addc:hover:not(:disabled){color:var(--fg);border-color:var(--teal)}
+.map .full{color:var(--muted);font-size:12px;text-align:center;margin-top:-2px}
+.map em{margin-left:auto;padding-left:6px;font-style:normal;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;text-align:right}
+.map .free .nm{color:var(--muted)}
+.map .w{display:flex;gap:7px;align-items:flex-start;color:#F3C98A;font-size:12px;line-height:1.35;margin:-2px 2px 2px}.map .w .mk{margin-top:3px}
+.num{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 5px;border-radius:5px;background:#E9EAEC;color:#16171A;font-weight:700;font-size:13px;flex:none}
+.num.gr{background:#3A3D43;color:var(--fg)}
+.dot{display:inline-block;width:13px;height:13px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.dot.dk{box-shadow:inset 0 0 0 1.5px #8D9096}
+.ar{font-style:normal;color:var(--muted);font-size:12px;margin:0 -3px}
+.mk{display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--amber);flex:none}.mk.coral{background:var(--coral)}.mk.grey{background:#5A5E66}
+.notes{width:100%;display:flex;flex-direction:column;gap:6px;text-align:left}
+.notes div{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.4}.notes .mk{margin-top:4px}
+body[data-v=done] #notes{order:1}
+.paths{width:100%;display:flex;flex-direction:column;gap:8px}
+code{display:block;width:100%;background:var(--card);border:1px solid var(--edge);border-radius:8px;padding:9px 10px;font:12px/1.4 ui-monospace,Consolas,monospace;word-break:break-all;text-align:left;color:var(--fg)}
+.foot{width:100%;display:flex;flex-direction:column;gap:8px}
+.pmode{width:100%;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 8px;margin-top:auto;padding-top:8px;color:var(--muted);font-size:12px}
+body[data-v=rest] .pmode{margin-top:0}
+.pmode select{height:26px;max-width:100%;background:#1f2023;color:var(--fg);border:1px solid var(--edge2);border-radius:6px;padding:0 4px;font:inherit;font-size:12px}
+.pmode select:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+__U1CSS__
+</style></head><body data-v="rest"><div id="pn">
+<div id="u"></div>
+<div class="say" id="say"></div>
+<p class="say2" id="say2"></p>
+<div class="card hidden" id="card"></div>
+<div class="map hidden" id="map"></div>
+<div class="notes hidden" id="notes"></div>
+<div class="paths hidden" id="paths"></div>
+<div class="zone hidden" id="zone" role="button" tabindex="0"></div>
+<div class="bar2 hidden" id="bar"><i></i></div>
+<div class="foot" id="foot">
+ <button class="go hidden" id="eat" data-t="pn_eat"></button>
+ <button class="hidden" id="later" data-t="pn_later"></button>
+ <button class="go hidden" id="convert"></button>
+ <button class="go hidden" id="copy" data-t="copy_path"></button>
+ <button class="hidden" id="cancel" data-t="cancel"></button>
+ <button class="hidden" id="ok" data-t="pn_ok"></button>
+</div>
+<p class="hint hidden" id="hint"></p>
+<label class="pmode hidden" id="pmode"><span data-t="pn_mode_label"></span><select id="pmodeSel"><option value="panel" data-t="pn_opt_panel"></option><option value="notif" data-t="pn_opt_notif"></option><option value="off" data-t="pn_opt_off"></option></select></label>
+<input type="file" id="file" accept=".3mf" class="hidden">
+</div>
+__U1SVG__
+<script>
+(function(){
+var L=__TEXTS__;
+var nav=(navigator.languages&&navigator.languages[0])||navigator.language||"";
+var lang="__LANG__";if(!L[lang])lang="en";
+function t(k){var a=arguments,s=L[lang]&&L[lang][k];if(s==null)s=L.en&&L.en[k];if(s==null)s=k;
+ return String(s).replace(/\{(\d+)\}/g,function(_,i){var v=a[+i+1];return v==null?"":v})}
+/* v : ecran du panneau. rest (j'ai faim), drag (un fichier passe dessus), offer (Miam : projet ouvert pas regle pour la U1),
+   busy (analyse), an (Burp : couleurs et profils), conv (conversion), done (c'est pret), err (pouah). */
+var P={v:"rest",back:"rest",mode:"panel",offer:null,an:null,files:[],padsOpen:{},res:null,text:"",err:"",upId:null,tok:null,dead:{}};
+var UP=window.M3D_UP={CHUNK:16*1048576,MAXUP:500*1048576};   /* comme l'onglet : morceaux de 16 Mo, 500 Mo au plus */
+var PARTS={rest:["zone","pmode"],drag:["zone"],offer:["card","eat","later","hint","pmode"],busy:["bar","cancel"],an:["map","notes","convert","hint"],
+ conv:["bar"],done:["paths","copy","notes","hint"],err:["ok"],bye:[]};
+var ALL=["card","map","notes","paths","zone","bar","eat","later","convert","copy","cancel","ok","hint","pmode"];
+function $(id){return document.getElementById(id)}
+function esc(x){var d=document.createElement("span");d.textContent=x==null?"":String(x);return d.innerHTML}
+function send(m){orca.postMessage(m)}
+function show(id,on){$(id).classList.toggle("hidden",!on)}
+function cap1(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1)}
+function colors(n){return n+" "+(n>1?t("colorN"):t("color1"))}
+function size(b){return b>1048576?(b/1048576).toFixed(1)+" "+t("mb"):Math.max(1,Math.round(b/1024))+" "+t("kb")}
+function dark(c){c=String(c||"").replace("#","");if(c.length<6)return false;var r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return (r*299+g*587+b*114)/1000<45}
+function dot(c){c=String(c||"#808080").slice(0,7);return '<i class="dot'+(dark(c)?' dk':'')+'" style="background:'+esc(c)+'"></i>'}
+function note(kind,x){return '<div><i class="mk'+(kind?' '+kind:'')+'"></i><span>'+esc(x)+'</span></div>'}
+function docIcon(){return '<svg width="30" height="35" viewBox="0 0 40 46" aria-hidden="true"><path d="M3 4a3 3 0 0 1 3-3h20l11 11v29a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" fill="#E9EAEC"/><path d="M26 1v11h11" fill="#C9CBCF"/><rect x="3" y="26" width="34" height="11" fill="#22B3A5"/><text x="20" y="34.6" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="9" fill="#fff">3MF</text><path d="M20 8l6 3.4-6 3.4-6-3.4z" fill="#2B7BE4"/><path d="M14 11.4l6 3.4v6.6l-6-3.4z" fill="#E53935"/><path d="M26 11.4l-6 3.4v6.6l6-3.4z" fill="#F2C230"/></svg>'}
+function copy(x){try{navigator.clipboard.writeText(x)}catch(e){}var ta=document.createElement("textarea");ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}ta.remove()}
+function flash(b){b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_path")},1500)}
+function statics(){document.documentElement.lang=lang;
+ Array.prototype.forEach.call(document.querySelectorAll("[data-t]"),function(e){e.textContent=t(e.getAttribute("data-t"))});$("zone").setAttribute("title",t("u1_title"))}
+/* ---- la U1 ---- */
+var U=document.importNode($("u1t").content.firstElementChild,true);$("u").appendChild(U);U.setAttribute("viewBox","0 -60 260 296");
+var RM=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function u1Set(st){U.setAttribute("class","u1");void U.getBoundingClientRect();U.setAttribute("class","u1 "+st)}
+function modelCols(a){var cols=[];((a&&a.filaments)||[]).forEach(function(x){var c=String(x.color||"").slice(0,7);if(/^#[0-9a-fA-F]{6}$/.test(c)&&cols.indexOf(c)<0)cols.push(c)});return cols}
+function burpDots(cols){var n=Math.min(cols.length,8),h="";
+ for(var i=0;i<n;i++){var a=i/n*Math.PI*2-Math.PI/2,r=n>1?12:0;h+='<circle cx="'+(130+Math.cos(a)*r).toFixed(1)+'" cy="'+(-26+Math.sin(a)*r).toFixed(1)+'" r="'+(n>6?4.5:6)+'" fill="'+cols[i]+'" stroke="#15171a"/>'}
+ U.querySelector(".u-dots").innerHTML=h;var ls=U.querySelectorAll(".u-pr rect");for(var j=0;j<ls.length&&cols.length;j++)ls[j].setAttribute("fill",cols[j%cols.length])}
+function u1For(v,quiet){
+ if(v=="an"||v=="done")burpDots(modelCols(P.an));
+ if(v=="an"&&!quiet&&!RM){u1Set("burp");setTimeout(function(){if(P.v=="an")u1Set("idle full")},1800);return}
+ if(v=="err"&&!quiet&&!RM){u1Set("spit");setTimeout(function(){if(P.v=="err")u1Set("idle")},1700);return}
+ var want=v=="drag"||v=="offer"?"hungry":v=="busy"||v=="conv"?"chew":v=="an"||v=="done"?"idle full":"idle";
+ if(U.getAttribute("class")!="u1 "+want)u1Set(want)}
+/* ---- ce que montre chaque ecran ---- */
+function fil(a,i){for(var j=0;j<a.filaments.length;j++)if(a.filaments[j].index==i)return a.filaments[j];return{color:"#808080",name:"?",base:"?"}}
+/* Couleurs et profils, memes regles que l'onglet : pick = couleur choisie ; pad = case libre de la U1 ; extra = couleur en plus.
+   Chaque changement part au plugin (« plan »), qui le donne a l'onglet ; ce que l'onglet change revient ici. */
+function fromAnalysis(a){return a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(s){return{src:s.src||[],base:s.base,pick:null,pad:!!s.pad,extra:false}})}})}
+function presetCol(p){return p&&p.group!="slot"&&p.color?String(p.color).slice(0,7):null}
+/* plan de l'onglet -> lignes du panneau (null s'il ne va pas avec cette analyse) */
+function fromPlan(a,files){if(!a||!files||files.length!=a.files.length)return null;var ok=true;
+ var out=files.map(function(pf,fi){var known={};a.files[fi].slots.forEach(function(s){if(s.src&&s.src.length)known[s.src[0]]=1});
+  return{plates:pf.plates||a.files[fi].plates,slots:(pf.slots||[]).map(function(ps){var src=ps.src||[],c=ps.color?String(ps.color).slice(0,7).toUpperCase():null;
+   if(src.length){if(!known[src[0]])ok=false;return{src:src,base:+ps.base,pick:c,pad:false,extra:false}}
+   var pc=presetCol(a.profiles[ps.base]);return{src:[],base:+ps.base,pick:c&&c!=String(pc).toUpperCase()?c:null,pad:!ps.extra,extra:!!ps.extra}})}});
+ return ok?out:null}
+/* couleur d'une ligne : choisie, sinon celle du modele, sinon (case libre, couleur en plus) celle que donne le profil */
+function slotCol(a,s){if(s.pick)return s.pick;if(s.pad||s.extra)return (a.profiles[s.base]||{}).fill||"#808080";return fil(a,s.src[0]).color}
+/* plan envoye au plugin : exactement celui que l'onglet enverrait */
+function planOf(){var a=P.an;return P.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(s){
+ return{src:s.src,base:s.base,color:s.pick?s.pick:(s.pad||s.extra)?presetCol(a.profiles[s.base]):null,extra:!!s.extra}})}})}
+/* couleur en plus : la premiere case de tes reglages pas encore dans le fichier */
+function nextBase(a,f){var used={};f.slots.forEach(function(s){used[s.base]=1});for(var i=0;i<a.profiles.length;i++)if(a.profiles[i].group=="slot"&&!used[i])return i;return f.slots.length?f.slots[f.slots.length-1].base:0}
+/* liste des profils : tes reglages, tes prereglages (tous, comme dans Orca), ceux d'une autre imprimante */
+function profOpts(sel){var a=P.an,groups={slot:[],user:[],other:[]};
+ a.profiles.forEach(function(p,i){var g=groups[p.group||"slot"]||groups.slot;g.push({p:p,i:i,on:i==sel});if(p.group=="slot"&&p.user)groups.user.push({p:p,i:i})});
+ groups.user.sort(function(x,y){return String(x.p.name).toLowerCase()<String(y.p.name).toLowerCase()?-1:1});
+ return [["slot","grp_slots"],["user","grp_user"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'
+  +groups[g[0]].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(o.p.name||o.p.type||"?")+'</option>'}).join("")+'</optgroup>':''}).join("")}
+function range(ns){var seq=ns.every(function(n,i){return!i||n==ns[i-1]+1});return seq&&ns.length>1?ns[0]+"–"+ns[ns.length-1]:ns.join(", ")}
+function rowsHtml(){var a=P.an,maxF=a.max_filaments||16,many=P.files.length>1,h="";
+ P.files.forEach(function(f,fi){var af=a.files[fi]||{},pads=[],at='data-f="'+fi+'" data-s="';
+  if(many)h+='<div class="fh">'+esc(t("file_n",fi+1)+(af.name||""))+'</div>';
+  f.slots.forEach(function(s,si){var n=si+1,p=a.profiles[s.base]||{},free=s.pad||s.extra;
+   /* cases libres gardees telles quelles : une seule ligne « tes bobines », a ouvrir pour les changer */
+   if(s.pad&&!s.pick&&s.base==si&&p.group=="slot"&&!P.padsOpen[fi]){pads.push(n);return}
+   var m=free?null:fil(a,s.src[0]),mc=m?String(m.color||"#808080").slice(0,7):"",col=String(slotCol(a,s)).slice(0,7);
+   var warn=m&&m.base&&m.base!="?"&&p.base&&p.base!="?"&&p.base!=m.base;
+   h+='<div class="r'+(free?' free':'')+'"><span class="num'+(free?' gr':'')+'">'+n+'</span>'
+    +(s.pick&&!free?dot(mc)+'<i class="ar">→</i>':'')
+    +'<input type="color" class="pick" '+at+si+'" value="'+esc(col)+'" title="'+esc(t("pick_color"))+'" aria-label="'+esc(t("pick_color"))+' '+n+'">'
+    +'<span class="nm">'+esc(free?t(s.pad?"pad_name":"extra_name"):cap1(m.name))+'</span>'
+    +(s.pick?'<button class="rst" '+at+si+'" title="'+esc(t(free?"color_reset_prof":"color_reset"))+'" aria-label="'+esc(t(free?"color_reset_prof":"color_reset"))+'">↺</button>':'')
+    +'<select '+at+si+'" aria-label="'+esc(t("th_profile"))+' '+n+'">'+profOpts(s.base)+'</select>'
+    +(s.extra?'<button class="rmc" '+at+si+'" title="'+esc(t("remove_color"))+'" aria-label="'+esc(t("remove_color"))+'">×</button>':'')+'</div>'
+    +(warn?'<div class="w"><i class="mk"></i><span>'+esc(t("warn_material",m.base,p.base))+'</span></div>':'')});
+  if(pads.length)h+='<button class="r free padg" data-f="'+fi+'" title="'+esc(t("pn_pads_edit"))+'"><span class="num gr">'+esc(range(pads))+'</span><span class="nm">'
+   +esc(pads.length>1?t("pn_pads"):t("pad_name"))+'</span><em>'+esc(pads.length>1?t("pn_keep_n"):t("pn_keep_1"))+'</em><i class="chev">›</i></button>';
+  var full=f.slots.length>=maxF;
+  h+='<button class="addc" data-f="'+fi+'"'+(full?' disabled':'')+'>'+esc(t("add_color"))+'</button>'+(full?'<div class="full">'+esc(t("max_colors",maxF))+'</div>':'')});
+ return h}
+function notesHtml(){var a=P.an,h="",maxf=0,ex=0;
+ P.files.forEach(function(f){maxf=Math.max(maxf,f.slots.filter(function(s){return!s.pad&&!s.extra}).length);ex+=f.slots.filter(function(s){return s.extra}).length});
+ if(maxf>4)h+=note("",t("need_ace",maxf));
+ if(ex)h+=note("grey",t("extras_note"));
+ (a.warnings||[]).forEach(function(w){h+=note("",w)});
+ if(a.not_ready)h+=note("coral",a.not_ready);
+ return h}
+function pathsHtml(){var r=P.res,many=r.files.length>1,h="";
+ r.files.forEach(function(f,i){h+='<code>'+esc(f.path)+'</code>'+(many?'<button data-c="'+i+'">'+esc(t("copy_path"))+'</button>':'')});return h}
+function offerInfo(o){return [o.label||cap1(t("another_slicer")),o.printer].filter(Boolean).join(", ")}
+function render(quiet){var v=P.v,a=P.an,say="",say2="",hint="";
+ ALL.forEach(function(id){show(id,PARTS[v].indexOf(id)>=0)});
+ if(v=="rest"){say=t("say_idle");say2=t(P.mode=="panel"?"pn_rest2":"pn_rest2b");$("zone").textContent=t("pn_zone")}
+ else if(v=="drag"){say=t("pn_drag");say2=t("pn_drag2");$("zone").textContent=t("pn_zone_drag")}
+ else if(v=="offer"){var o=P.offer||{};say=t("pn_offer");say2=t("pn_offer2");hint=esc(t("pn_offer_hint"));
+  $("card").innerHTML=docIcon()+'<div style="min-width:0"><b>'+esc(o.name)+'</b><small>'+esc(offerInfo(o))+'</small></div>'}
+ else if(v=="busy"){say=t("pn_chew");say2=P.text||t("analysing")}
+ else if(v=="an"&&a){say=t("u1_burp",colors(a.filaments.length));$("map").innerHTML=rowsHtml();
+  var nh=notesHtml();$("notes").innerHTML=nh;show("notes",!!nh);
+  var c=$("convert");c.textContent=a.files.length>1?t("convert_n",a.files.length):t("convert");c.disabled=!!a.not_ready;hint=esc(t("pn_an_hint"))}
+ else if(v=="conv"){say=t("pn_conv");say2=P.text||t("p_converting")}
+ else if(v=="done"&&P.res){var r=P.res,w=[];say=t("pn_done");$("paths").innerHTML=pathsHtml();show("copy",r.files.length==1);
+  r.files.forEach(function(f){(f.warnings||[]).forEach(function(x){w.push(note("",x))})});$("notes").innerHTML=w.join("");show("notes",w.length>0);
+  var hp=t("pn_done_hint","\u0001").split("\u0001");hint=esc(hp[0])+'<b>'+esc(t("pn_menu"))+'</b>'+esc(hp[1]||"")}
+ else if(v=="err"){say=t("pn_err");say2=P.err}
+ else if(v=="bye"){say=t("pn_bye");say2=t("pn_bye2")}
+ $("pmodeSel").value=P.mode;
+ $("say").textContent=say;$("say2").textContent=say2;show("say2",!!say2);$("hint").innerHTML=hint;if(!hint)show("hint",false);
+ show("foot",["eat","later","convert","copy","cancel","ok"].some(function(id){return!$(id).classList.contains("hidden")}));
+ u1For(v,quiet)}
+function view(v,quiet){var was=P.v;P.v=v;document.body.setAttribute("data-v",v);render(quiet);if(was!=v&&v!="drag")send({command:"view",v:v})}
+/* ---- messages du plugin ---- */
+orca.onMessage(function(m){if(!m||!m.command)return;var c=m.command,v=P.v,mine=!!(m.token&&P.an&&m.token==P.an.token);
+ if(m.token&&P.dead[m.token])return;                 /* travail annule */
+ if(c=="hello"){if(m.lang&&L[m.lang])lang=m.lang;if(m.mode)P.mode=m.mode;statics();render(true)}
+ else if(c=="offer"){P.offer=m.file;if(v!="busy"&&v!="conv"&&!P.upId)view("offer",!!m.replay)}
+ else if(c=="rest"){P.offer=null;if(v!="busy"&&v!="conv"&&!P.upId){P.an=null;P.plan=null;P.res=null;view("rest",true)}}
+ else if(c=="progress"){if(m.token&&(v=="busy"||m.replay))P.tok=m.token;
+  if(m.replay){P.text=m.text;view(P.an?"conv":"busy",true)}
+  else if(v=="busy"||v=="conv"){P.text=m.text;render(true)}
+  else if(mine&&(v=="an"||v=="done")){P.text=m.text;view("conv")}}   /* l'onglet convertit ce que montre le panneau */
+ else if(c=="analysis"){
+  if(m.relabel){if(mine){P.an=m;if(v=="an")render(true)}return}
+  if(m.replay||v=="busy"||mine){P.an=m;P.files=fromAnalysis(m);P.padsOpen={};P.res=null;P.text="";P.tok=m.token;view("an",!!m.replay||(mine&&v=="an"))}}
+ else if(c=="plan"){if(mine){var pf=fromPlan(P.an,m.files);if(pf){P.files=pf;if(v=="an")render(true)}}}
+ else if(c=="built"){send({command:"write",token:m.token})}
+ else if(c=="result"){
+  if(m.relabel){if(P.res){P.res=m;if(v=="done")render(true)}return}
+  if(m.replay||v=="conv"||mine){P.res=m;P.text="";view("done",!!m.replay)}}
+ else if(c=="error"){if(v=="busy"||v=="conv"||P.upId){P.upId=null;P.back=v=="conv"&&P.an?"an":"rest";P.err=m.text;view("err")}}});
+/* ---- gestes ---- */
+$("eat").onclick=function(){P.text=t("analysing");P.tok=null;view("busy");send({command:"eat"})};
+$("later").onclick=function(){P.offer=null;view("rest",true);send({command:"later"})};
+$("cancel").onclick=function(){if(P.upId){send({command:"upload_drop",id:P.upId});P.upId=null}if(P.tok)P.dead[P.tok]=1;P.tok=null;view("rest",true);send({command:"cancel"})};
+$("convert").onclick=function(){var a=P.an;if(!a||a.not_ready||P.v!="an")return;P.text=t("p_converting");view("conv");send({command:"convert",token:a.token,files:planOf()})};
+function slotAt(el){var f=P.files[+el.getAttribute("data-f")];return f&&f.slots[+el.getAttribute("data-s")]}
+function edited(){render(true);send({command:"plan",token:P.an.token,files:planOf()})}
+$("map").addEventListener("change",function(e){var el=e.target,s=slotAt(el);if(!s||P.v!="an")return;
+ if(el.tagName=="SELECT"){s.base=+el.value;edited()}
+ else if(el.classList.contains("pick")){var v=String(el.value).toUpperCase(),was=s.pick;s.pick=null;
+  if(v!=String(slotCol(P.an,s)).slice(0,7).toUpperCase())s.pick=v;else if(!was)return;edited()}});
+$("map").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button");if(!b||P.v!="an")return;var fi=+b.getAttribute("data-f"),f=P.files[fi];if(!f)return;
+ if(b.classList.contains("addc")){if(f.slots.length>=(P.an.max_filaments||16))return;f.slots.push({src:[],base:nextBase(P.an,f),pick:null,pad:false,extra:true});edited()}
+ else if(b.classList.contains("rmc")){f.slots.splice(+b.getAttribute("data-s"),1);edited()}
+ else if(b.classList.contains("rst")){var s=slotAt(b);if(s){s.pick=null;edited()}}
+ else if(b.classList.contains("padg")){P.padsOpen[fi]=1;render(true)}});
+$("copy").onclick=function(){var f=P.res&&P.res.files[0];if(f){copy(f.path);flash($("copy"))}};
+$("paths").onclick=function(e){var b=e.target.closest&&e.target.closest("button[data-c]");if(b&&P.res){copy(P.res.files[+b.getAttribute("data-c")].path);flash(b)}};
+$("ok").onclick=function(){P.err="";view(P.back=="an"&&P.an?"an":"rest",true)};
+/* Reglage, aussi dans l'onglet (Reglages) : la U1 ici, une notification seulement, ou rien. Sans le panneau, il se range. */
+$("pmodeSel").onchange=function(){var v=$("pmodeSel").value;P.mode=v;send({command:"panel_mode",mode:v});
+ if(v!="panel"){view("bye");setTimeout(function(){if(P.v=="bye"&&P.mode!="panel")orca.close()},2600)}};
+$("zone").onclick=function(){if(P.v=="rest")$("file").click()};
+$("zone").onkeydown=function(e){if((e.key=="Enter"||e.key==" ")&&P.v=="rest"){e.preventDefault();$("file").click()}};
+$("zone").onmouseenter=function(){if(P.v=="rest")u1Set("hungry")};$("zone").onmouseleave=function(){if(P.v=="rest")u1Set("idle")};
+$("file").onchange=function(){var f=$("file").files[0];if(f)readFile(f);$("file").value=""};
+/* Fichier glisse ou choisi : la page ne connait pas son chemin, elle l'envoie par morceaux (comme l'onglet, numeros « p… »). */
+function canEat(){return P.v!="busy"&&P.v!="conv"&&!P.upId}
+function readFile(f){if(!/\.3mf$/i.test(f.name||"")){P.err=t("not_3mf",f.name);P.back="rest";view("err");return}
+ if(f.size>UP.MAXUP){P.err=t("too_big",size(f.size));P.back="rest";view("err");return}
+ var n=Math.max(1,Math.ceil(f.size/UP.CHUNK)),id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),i=0;
+ P.upId=id;P.tok=null;P.offer=null;P.text=n>1?t("reading",f.name,0,n):t("analysing");view("busy");
+ function fail(){if(P.upId!==id)return;P.upId=null;send({command:"upload_drop",id:id});P.err=t("err_upload");P.back="rest";view("err")}
+ (function next(){if(P.upId!==id)return;
+  if(i>=n){P.upId=null;send({command:"analyze",upload_id:id,name:f.name});return}
+  var rd=new FileReader();rd.onerror=fail;
+  rd.onload=function(){if(P.upId!==id)return;var b=String(rd.result);send({command:"upload_part",id:id,i:i,n:n,data:b.slice(b.indexOf(",")+1)});i++;
+   if(n>1){P.text=t("reading",f.name,i,n);if(P.v=="busy")render(true)}setTimeout(next,0)};
+  rd.readAsDataURL(f.slice(i*UP.CHUNK,Math.min(f.size,(i+1)*UP.CHUNK)))})()}
+var depth=0;
+document.addEventListener("dragenter",function(e){e.preventDefault();depth++;if(canEat()&&P.v!="drag"){P.back=P.v;view("drag",true)}});
+document.addEventListener("dragover",function(e){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect=canEat()?"copy":"none"});
+document.addEventListener("dragleave",function(){depth=Math.max(0,depth-1);if(!depth&&P.v=="drag")view(P.back,true)});
+document.addEventListener("drop",function(e){e.preventDefault();depth=0;if(P.v=="drag")view(P.back,true);
+ var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f&&canEat())readFile(f)});
+statics();render(true);
+send({command:"init",nav:nav});
+})();
+</script></body></html>
+"""
+
+
 def page_html(lang=None):
     """Page de l'onglet, avec tous les textes et la langue de depart."""
     texts = json.dumps(TEXTS).replace("</", "<\\/")
     return PAGE.replace("__TEXTS__", texts).replace("__LANG__", lang or current_language())
+
+
+def _page_part(start, end, keep_end=False):
+    """Morceau de la page de l'onglet repris tel quel par le panneau (la U1, ses animations, la police)."""
+    a = PAGE.index(start)
+    b = PAGE.index(end, a + len(start))
+    return PAGE[a:b + (len(end) if keep_end else 0)]
+
+
+def panel_html(lang=None):
+    """Page du panneau de Preparer : ses textes dans chaque langue, la U1 et la police de l'onglet."""
+    keys = set(re.findall(r'"(\w+)"', PANEL_PAGE)) & set(TEXTS[DEFAULT_LANG])
+    texts = json.dumps({code: {k: v for k, v in t.items() if k in keys} for code, t in TEXTS.items()})
+    return (PANEL_PAGE.replace("__TEXTS__", texts.replace("</", "<\\/"))
+            .replace("__LANG__", lang or current_language())
+            .replace("__FONT__", _page_part("@font-face{", "}", True))
+            .replace("__U1CSS__", _page_part(".u1{display:block;height:auto}", "</style>"))
+            .replace("__U1SVG__", _page_part('<template id="u1t">', "</template>", True)))
 
 
 ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FEFEFE" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
@@ -3690,13 +4109,23 @@ class Converter:
         self.nav = ""           # langue du navigateur de la page (secours)
         self.out_key = ""       # dernier message du choix de dossier (cle de TEXTS)
         self.out_arg = ""
+        self.panel = None       # la U1 dans le panneau de Preparer (Panel, plus bas)
 
     def attach(self, page):
         if page is not None:
             self.page = page
 
     def post(self, data):
+        """Envoie a l'onglet et, pour le travail qu'il suit, au panneau de Preparer. data["_origin"] : qui
+        a lance l'action (« panel » : le panneau). L'onglet recoit aussi les analyses et les resultats du
+        panneau (pour y changer un profil ou revoir le resultat), mais pas sa progression, ses erreurs
+        ni « built » : c'est le panneau qui ecrit ce qu'il a converti (l'onglet s'il est ferme)."""
+        data = dict(data)
+        origin = data.pop("_origin", None)
         cmd = data.get("command")
+        to_panel = self.panel is not None and self.panel.relay(data, origin)
+        if origin == "panel" and (cmd in ("progress", "error") or (cmd == "built" and to_panel)):
+            return
         with self.lock:
             if cmd == "analysis":
                 self.replay = {"analysis": data}
@@ -3789,6 +4218,8 @@ class Converter:
             again += [self.replay[k] for k in ("progress",) if k in self.replay]
         for m in again:
             self._send(m)
+        if self.panel is not None:
+            self.panel.relabel()
 
     # ---- messages de la page (fil de l'interface)
     def on_message(self, msg):
@@ -3808,7 +4239,7 @@ class Converter:
                 self.send_state()
                 self.list_recent()
                 with self.lock:
-                    replay = [self.replay[k] for k in ("analysis", "result", "progress") if k in self.replay]
+                    replay = [self.replay[k] for k in ("analysis", "plan", "result", "progress") if k in self.replay]
                 for m in replay:
                     self._send(m)
             elif cmd == "lang":
@@ -3825,10 +4256,16 @@ class Converter:
             elif cmd == "upload_part":
                 self.upload_part(msg)
             elif cmd == "upload_drop":
-                with self.lock:
-                    self.uploads.pop(str(msg.get("id")), None)
+                self.drop_upload(msg.get("id"))
             elif cmd == "analyze":
                 self.start_analyze(msg)
+            elif cmd == "plan":
+                self.set_plan(msg)
+            elif cmd == "panel_mode":
+                self.choose_panel_mode(msg.get("mode"))
+            elif cmd == "panel_show":
+                if self.panel is None or not self.panel.open():
+                    raise ConvertError(tr("err_panel"))
             elif cmd == "replan":
                 self.start_replan(msg)
             elif cmd == "convert":
@@ -3875,7 +4312,7 @@ class Converter:
         out_msg = (tr(self.out_key, self.out_arg) if self.out_arg else tr(self.out_key)) if self.out_key else ""
         self.post({"command": "state", "version": VERSION, "saved": saved, "current": cur, "opened": opened,
                    "choice": choice, "cap": tr(self.cap_key) if self.cap_key else "",
-                   "lang": current_language(), "lang_choice": self.language_choice(),
+                   "lang": current_language(), "lang_choice": self.language_choice(), "panel": panel_mode(),
                    "out": {"mode": mode, "dir": folder, "msg": out_msg, "error": self.out_key == "err_out_dir"}})
 
     def list_recent(self):
@@ -3925,8 +4362,8 @@ class Converter:
 
     def upload_part(self, msg):
         """Un morceau d'un fichier glisse ou choisi dans la page (la page ne connait pas son chemin).
-        Un gros fichier arrive en plusieurs messages de 16 Mo au plus, pour ne pas figer Orca ;
-        un seul envoi a la fois (un nouveau remplace l'ancien)."""
+        Un gros fichier arrive en plusieurs messages de 16 Mo au plus, pour ne pas figer Orca ; un
+        envoi a la fois par page (ceux du panneau sont numerotes « p… ») : un nouveau remplace l'ancien."""
         uid = str(msg.get("id") or "")
         i, n = int(msg.get("i", -1)), int(msg.get("n", 0))
         if not uid or not 0 <= i < n <= UPLOAD_PARTS_MAX:
@@ -3935,15 +4372,21 @@ class Converter:
         with self.lock:
             up = self.uploads.get(uid)
             if up is None or up["n"] != n:
-                self.uploads = {uid: {"n": n, "parts": {}, "size": 0}}
-                up = self.uploads[uid]
+                self.uploads = {k: v for k, v in self.uploads.items() if k[:1] != uid[:1]}
+                up = self.uploads[uid] = {"n": n, "parts": {}, "size": 0}
             up["size"] += len(part) - len(up["parts"].get(i, b""))
             up["parts"][i] = part
             if up["size"] > UPLOAD_MAX:
                 self.uploads.pop(uid, None)
                 raise ConvertError(tr("too_big", human_size(up["size"])))
 
-    def start_analyze(self, msg, on_done=None):
+    def drop_upload(self, uid):
+        with self.lock:
+            self.uploads.pop(str(uid), None)
+
+    def start_analyze(self, msg, on_done=None, origin="tab"):
+        """Analyse un 3MF (chemin, ou fichier envoye par la page) dans un fil a part ; renvoie son jeton.
+        Un travail par origine : une analyse de l'onglet n'efface pas celle du panneau, et l'inverse."""
         if msg.get("upload_id"):
             with self.lock:
                 up = self.uploads.pop(str(msg["upload_id"]), None)
@@ -3969,9 +4412,19 @@ class Converter:
         with self.lock:
             self.counter += 1
             token = "a%d" % self.counter
-            self.jobs = {token: {"path": path, "name": name,
-                                 "presets": {"user": template.presets, "slots": template.slot_presets}}}
-        self.post({"command": "progress", "text": tr("p_analysing", name)})
+            for k in [k for k, j in self.jobs.items() if j.get("origin") == origin]:
+                del self.jobs[k]
+                self.built.pop(k, None)
+            self.jobs[token] = {"path": path, "name": name, "origin": origin, "template": msg.get("template"),
+                                "presets": {"user": template.presets, "slots": template.slot_presets}}
+        if origin == "panel" and self.panel is not None:
+            self.panel.follow(token)
+        self.post({"command": "progress", "text": tr("p_analysing", name), "token": token, "_origin": origin})
+
+        def failed(text):
+            # une analyse annulee depuis le panneau se tait ; l'onglet ignore lui-meme ce qu'il a annule
+            if origin != "panel" or self.alive(token):
+                self.post({"command": "error", "text": text, "token": token, "_origin": origin})
 
         def worker():
             ok = False
@@ -3980,22 +4433,69 @@ class Converter:
                 res = analyze(src, template, one)
                 with self.lock:
                     job = self.jobs.get(token)
-                    if job is None:
+                    if job is None:         # annulee, ou remplacee par un autre 3MF
                         return
                     job["src"] = src
+                    job["files"] = res["files"]
                 res.update({"command": "analysis", "token": token, "file": name, "one_per_plate": one,
-                            "dest_hint": self.dest_hint(path), "not_ready": ready})
+                            "dest_hint": self.dest_hint(path), "not_ready": ready, "_origin": origin})
                 self.post(res)
                 ok = True
             except ConvertError as e:
-                self.post({"command": "error", "text": tr("err_in_file", name, message_of(e))})
+                failed(tr("err_in_file", name, message_of(e)))
             except Exception as e:
                 import traceback
                 log_error(traceback.format_exc())
-                self.post({"command": "error", "text": tr("err_analyse", name, e)})
+                failed(tr("err_analyse", name, e))
             if on_done:
                 on_done(name, ok)
         threading.Thread(target=worker, daemon=True).start()
+        return token
+
+    def alive(self, token):
+        with self.lock:
+            return token in self.jobs
+
+    def drop_job(self, token):
+        """Analyse annulee depuis le panneau : son resultat ne sera pas envoye. Une analyse deja
+        terminee reste (l'onglet l'a peut-etre deja)."""
+        with self.lock:
+            job = self.jobs.get(token)
+            if job is not None and "src" not in job:
+                del self.jobs[token]
+
+    def set_plan(self, msg, origin="tab"):
+        """Plan (profils, couleurs choisies, couleurs en plus) envoye a chaque changement par l'onglet ou le
+        panneau : l'autre le montre et convertit la meme chose."""
+        token, files = msg.get("token"), msg.get("files")
+        if not isinstance(files, list):
+            return
+        plan = {"command": "plan", "token": token, "files": files}
+        with self.lock:
+            job = self.jobs.get(token)
+            if job is None:
+                return
+            job["plan"] = files
+            if self.replay.get("analysis", {}).get("token") == token:
+                self.replay["plan"] = plan      # l'onglet le retrouve s'il redemarre
+        if origin == "panel":
+            self._send(plan)
+            if self.panel is not None:
+                self.panel.keep(plan)
+        elif self.panel is not None:
+            self.panel.relay(plan, "tab")
+
+    def choose_panel_mode(self, mode):
+        """Reglage : panneau, notification seule ou rien quand Orca ouvre un 3MF pas regle pour la U1."""
+        options = load_options()
+        options["panel"] = mode if mode in PANEL_MODES else "panel"
+        try:
+            save_options(options)
+        except Exception as e:
+            log_error("options : %s" % e)
+        self.send_state()
+        if self.panel is not None:
+            self.panel.hello()
 
     def _job(self, token):
         with self.lock:
@@ -4010,16 +4510,21 @@ class Converter:
         job["presets"] = {"user": template.presets, "slots": template.slot_presets}
         one = bool(msg.get("one_per_plate"))
         res = analyze(job["src"], template, one)
+        with self.lock:
+            job["template"] = msg.get("template")
+            job["files"] = res["files"]
+            job.pop("plan", None)
         res.update({"command": "analysis", "token": msg.get("token"), "file": job["name"], "one_per_plate": one,
                     "dest_hint": self.dest_hint(job["path"]),
                     "not_ready": self.ready_message(msg.get("template"))})
         self.post(res)
 
     # ---- conversion
-    def start_convert(self, msg):
+    def start_convert(self, msg, origin="tab"):
         token = msg.get("token")
         job = self._job(token)
-        if msg.get("template") == "current" or load_saved_template() is None:
+        choice = msg.get("template") or job.get("template")
+        if choice == "current" or load_saved_template() is None:
             missing = self.ready_message("current")
             if missing:
                 raise ConvertError(missing)
@@ -4031,22 +4536,26 @@ class Converter:
         else:
             template = load_saved_template()
         template.attach(job.get("presets"))
-        files = msg.get("files") or []
-        self.post({"command": "progress", "text": tr("p_converting")})
+        # plan envoye par la page, sinon le dernier de l'onglet, sinon les profils proposes d'office
+        files = msg.get("files") or job.get("plan") or [
+            {"plates": f["plates"], "slots": [{"src": s["src"], "base": s["base"]} for s in f["slots"]]}
+            for f in job.get("files") or []]
+        tag = {"token": token, "_origin": origin}
+        self.post(dict(tag, command="progress", text=tr("p_converting")))
 
         def worker():
             try:
                 results = convert(job["src"], template, files,
-                                  progress=lambda t: self.post({"command": "progress", "text": t}))
+                                  progress=lambda t: self.post(dict(tag, command="progress", text=t)))
                 with self.lock:
                     self.built[token] = results
-                self.post({"command": "built", "token": token})
+                self.post(dict(tag, command="built"))
             except ConvertError as e:
-                self.post({"command": "error", "text": message_of(e)})
+                self.post(dict(tag, command="error", text=message_of(e)))
             except Exception as e:
                 import traceback
                 log_error(traceback.format_exc())
-                self.post({"command": "error", "text": tr("err_convert", e)})
+                self.post(dict(tag, command="error", text=tr("err_convert", e)))
         threading.Thread(target=worker, daemon=True).start()
 
     def write_outputs(self, token):
@@ -4065,7 +4574,7 @@ class Converter:
                           "filaments": r["filaments"], "colors": r["colors"],
                           "warnings": r["report"]["warnings"]})
         self.send_state()
-        self.post({"command": "result", "files": files})
+        self.post({"command": "result", "files": files, "token": token})
 
     # ---- evenements d'Orca
     def notify(self, text, hypertext="", callback=None, level="ImportantNotificationLevel"):
@@ -4096,29 +4605,38 @@ class Converter:
         return True
 
     def on_project_opened(self, path):
+        """Projet ouvert dans Orca. S'il n'est pas regle pour la U1 : la U1 le reclame dans le panneau
+        de Preparer, ou une notification (selon le reglage, ou si le panneau ne peut pas)."""
         self.opened = None
-        if not path or not path.lower().endswith(".3mf"):
-            return
-        info = None
-        if _inside(path, downloads_dir()):
-            info = sniff_3mf(path)
-            foreign = needs_conversion(info)
-        else:
-            try:
-                foreign = not is_u1(current_settings().config.get("printer_model"))
-            except Exception:
-                foreign = False
-            info = {"path": path, "name": os.path.basename(path), "app": "", "printer": ""}
+        foreign = False
+        if path and path.lower().endswith(".3mf"):
+            if _inside(path, downloads_dir()):
+                info = sniff_3mf(path)
+                foreign = needs_conversion(info)
+            else:
+                try:
+                    model = current_settings().config.get("printer_model") or ""
+                    foreign = not is_u1(model)
+                except Exception:
+                    model, foreign = "", False
+                info = {"path": path, "name": os.path.basename(path), "app": "", "printer": model}
         if not foreign:
+            if self.panel is not None:
+                self.panel.project_changed()
             return
         self.opened = info
-        what = source_label(info) if info.get("app") else tr("another_slicer")
-        text = tr("n_foreign", info["name"], what, (" (%s)" % info["printer"]) if info.get("printer") else "")
-        self.notify(text, tr("n_link"), lambda p=path: self.prepare(p))
+        mode = panel_mode()
+        shown = mode == "panel" and self.panel is not None and self.panel.offer_file(info)
+        if not shown and mode != "off":
+            what = source_label(info) if info.get("app") else tr("another_slicer")
+            text = tr("n_foreign", info["name"], what, (" (%s)" % info["printer"]) if info.get("printer") else "")
+            self.notify(text, tr("n_link"), lambda p=path: self.prepare(p))
         self.send_state()
 
     def on_new_project(self):
         self.opened = None
+        if self.panel is not None:
+            self.panel.project_changed()
         self.send_state()
 
 
@@ -4162,6 +4680,256 @@ def _free_path(path):
 
 
 CONVERTER = Converter()
+
+
+class Panel:
+    """La U1 dans un panneau a cote du plateau (onglets Preparer et Apercu ; create_dock_panel
+    d'OrcaSlicer 2.5.1). Elle se montre quand Orca ouvre un 3MF pas regle pour la U1, le mange,
+    propose tes profils et le convertit ; un 3MF glisse sur elle suit le meme chemin. C'est le travail
+    de l'onglet (meme Converter) : l'onglet recoit l'analyse du panneau (pour changer un profil ou
+    ajouter une couleur) et ce qui y change revient ici (« plan »)."""
+
+    WIDTH, HEIGHT = 340, 620    # en DIP ; ensuite, Orca garde la place et la taille choisies
+
+    def __init__(self, conv):
+        self.conv = conv
+        conv.panel = self
+        self.handle = None      # orca.host.ui.UiDockPanel
+        self.lock = threading.Lock()
+        self.token = None       # analyse que suit le panneau
+        self.offer = None       # projet ouvert pas regle pour la U1 : ce que la U1 propose de manger
+        self.eaten = None       # proposition mangee (elle revient si l'analyse est annulee)
+        self.view = "rest"      # ecran de la page (elle le dit a chaque changement)
+        self.last = {}          # derniers messages du travail suivi (renvoyes si la page redemarre)
+
+    # ---- le panneau d'Orca
+    def is_open(self):
+        h = self.handle
+        try:
+            return h is not None and bool(h.is_open())
+        except Exception:
+            return False
+
+    def open(self):
+        """Montre le panneau, cree au besoin (il revient ou l'utilisateur l'avait range). False si cet
+        Orca ne sait pas faire de panneau."""
+        if self.is_open():
+            try:
+                self.handle.show()
+                return True
+            except Exception as e:
+                log_error("panneau : %s" % e)
+                return False
+        try:
+            self.handle = orca.host.ui.create_dock_panel(
+                html=panel_html(), title=PLUGIN_NAME, width=self.WIDTH, height=self.HEIGHT,
+                on_message=self.on_message, on_close=self.on_close, dock="right")
+            return True
+        except Exception as e:
+            log_error("panneau : %s" % e)
+            self.handle = None
+            return False
+
+    def hide(self):
+        if self.is_open():
+            try:
+                self.handle.hide()
+            except Exception as e:
+                log_error("panneau : %s" % e)
+
+    def on_close(self):
+        """Croix du panneau : Orca le detruit. Il revient au prochain 3MF pas regle pour la U1, ou avec
+        le bouton des Reglages de l'onglet."""
+        with self.lock:
+            self.handle = None
+            self.token, self.offer, self.eaten, self.last, self.view = None, None, None, {}, "rest"
+
+    def send(self, data):
+        h = self.handle
+        if h is None:
+            return False
+        try:
+            h.post(relocalize(data))
+            return True
+        except Exception as e:
+            log_error("panneau : %s" % e)
+            return False
+
+    # ---- la page
+    def hello(self):
+        self.send({"command": "hello", "lang": current_language(), "mode": panel_mode(), "version": VERSION})
+
+    def push(self):
+        """Tout ce que montre le panneau, pour une page qui (re)demarre."""
+        self.hello()
+        with self.lock:
+            offer, last = self.offer, dict(self.last)
+        if offer is not None:
+            self.send({"command": "offer", "file": offer, "replay": True})
+        elif "analysis" in last:
+            self.send(dict(last["analysis"], replay=True))
+            if "plan" in last:
+                self.send(last["plan"])
+            if "result" in last:
+                self.send(dict(last["result"], replay=True))
+            elif "progress" in last:
+                self.send(dict(last["progress"], replay=True))
+        elif "progress" in last:
+            self.send(dict(last["progress"], replay=True))
+        else:
+            self.send({"command": "rest"})
+
+    def relabel(self):
+        """Nouvelle langue : textes du panneau, et derniers messages retraduits."""
+        if not self.is_open():
+            return
+        self.hello()
+        with self.lock:
+            last = dict(self.last)
+        for k in ("analysis", "result"):
+            if k in last:
+                self.send(dict(last[k], relabel=True))
+        if "progress" in last:
+            self.send(last["progress"])
+
+    def keep(self, plan):
+        """Plan change dans le panneau : renvoye si la page du panneau redemarre."""
+        with self.lock:
+            if plan.get("token") == self.token:
+                self.last["plan"] = plan
+
+    def relay(self, data, origin):
+        """Message d'un travail (lance par l'onglet ou le panneau) : au panneau s'il suit ce travail.
+        « built » d'une conversion lancee dans l'onglet reste a l'onglet (c'est lui qui ecrit)."""
+        token, cmd = data.get("token"), data.get("command")
+        if token is None or token != self.token or (cmd == "built" and origin != "panel"):
+            return False
+        with self.lock:
+            if cmd == "analysis":
+                self.last = {"analysis": data}
+            elif cmd == "plan":
+                self.last["plan"] = data
+            elif cmd == "progress":
+                self.last["progress"] = data
+            elif cmd == "result":
+                self.last.pop("progress", None)
+                self.last["result"] = data
+            elif cmd == "error":
+                self.last.pop("progress", None)
+        return self.send(data)
+
+    # Appele sur le fil de l'interface quand la page ecrit.
+    def on_message(self, msg):
+        if isinstance(msg, str):
+            try:
+                msg = json.loads(msg)
+            except ValueError:
+                return
+        if not isinstance(msg, dict):
+            return
+        cmd = msg.get("command")
+        conv = self.conv
+        try:
+            if cmd == "init" and msg.get("nav"):
+                conv.nav = str(msg["nav"])
+            conv.refresh_language()
+            if cmd == "init":
+                self.push()
+            elif cmd == "view":
+                self.view = str(msg.get("v") or "rest")
+            elif cmd == "eat":
+                with self.lock:
+                    offer = self.offer
+                path = (offer or {}).get("path") or (conv.opened or {}).get("path")
+                if not path:
+                    raise ConvertError(tr("err_gone"))
+                self.start({"path": path}, eaten=offer)
+            elif cmd == "later":
+                with self.lock:
+                    self.offer, self.eaten, self.view = None, None, "rest"
+                self.hide()
+            elif cmd == "upload_part":
+                conv.upload_part(msg)
+            elif cmd == "upload_drop":
+                conv.drop_upload(msg.get("id"))
+            elif cmd == "analyze":
+                self.start({"upload_id": msg.get("upload_id"), "name": msg.get("name")})
+            elif cmd == "cancel":
+                self.cancel()
+            elif cmd == "plan":
+                conv.set_plan(msg, origin="panel")
+            elif cmd == "panel_mode":
+                conv.choose_panel_mode(msg.get("mode"))
+            elif cmd == "convert":
+                conv.start_convert({"token": msg.get("token"), "files": msg.get("files")}, origin="panel")
+            elif cmd == "write":
+                conv.write_outputs(msg.get("token"))
+        except PermissionError as e:
+            self.send({"command": "error", "text": tr("err_denied", e)})
+        except ConvertError as e:
+            self.send({"command": "error", "text": message_of(e)})
+        except Exception as e:
+            import traceback
+            log_error(traceback.format_exc())
+            self.send({"command": "error", "text": tr("err_generic", e)})
+
+    # ---- le travail du panneau
+    def start(self, msg, eaten=None):
+        """Analyse demandee dans le panneau, avec tes reglages memorises (sinon ceux d'Orca)."""
+        choice = "saved" if load_saved_template() is not None else "current"
+        with self.lock:
+            self.offer, self.eaten = None, eaten
+        self.conv.start_analyze(dict(msg, template=choice), origin="panel")
+
+    def follow(self, token):
+        with self.lock:
+            self.token, self.last, self.offer, self.view = token, {}, None, "busy"
+
+    def cancel(self):
+        """Annuler pendant l'analyse : rien n'arrivera ; le 3MF propose (s'il y en avait un) revient."""
+        with self.lock:
+            token, self.token, self.last = self.token, None, {}
+            eaten, self.eaten = self.eaten, None
+            self.offer, self.view = eaten, "offer" if eaten else "rest"
+        if token:
+            self.conv.drop_job(token)
+        if eaten is not None:
+            self.send({"command": "offer", "file": eaten})
+
+    # ---- projets ouverts dans Orca
+    def offer_file(self, info):
+        """Projet ouvert dans Orca, pas regle pour la U1 : la U1 le reclame. False si elle ne peut pas
+        (elle mache deja un 3MF, ou cet Orca n'a pas de panneaux) : notification a la place."""
+        if self.is_open() and self.view in ("busy", "conv"):
+            return False
+        card = {"path": info.get("path") or "", "name": info.get("name") or "",
+                "label": source_label(info) if info.get("app") else "",
+                "printer": info.get("printer") or "", "colors": info.get("colors") or 0}
+        was_open = self.is_open()
+        with self.lock:
+            self.offer, self.eaten, self.token, self.last, self.view = card, None, None, {}, "offer"
+        if not self.open():
+            with self.lock:
+                self.offer, self.view = None, "rest"
+            return False
+        if was_open:
+            self.send({"command": "offer", "file": card})
+        return True
+
+    def project_changed(self):
+        """Projet regle pour la U1, ou nouveau projet : une proposition ou un travail termine n'a plus
+        lieu d'etre, le panneau se range (il revient au prochain 3MF pas regle pour la U1)."""
+        with self.lock:
+            if self.handle is None or self.view not in ("offer", "done"):
+                return
+            if self.view == "done":
+                self.token, self.last = None, {}
+            self.offer, self.eaten, self.view = None, None, "rest"
+        self.send({"command": "rest"})
+        self.hide()
+
+
+PANEL = Panel(CONVERTER)
 
 
 # --------------------------------------------------------------------------- enregistrement dans Orca

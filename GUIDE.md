@@ -7,7 +7,7 @@
 **Eats any 3MF and spits out an OrcaSlicer project ready for your Snapmaker U1.**
 MakerWorld / Bambu Studio projects, Snapmaker Orca, OrcaSlicer and its forks: exactly the model's colors (one filament per color), the painting and the plates are kept, and **your** settings are used.
 
-- Version: **0.5.2** (2026-11-23) — see [CHANGELOG.md](CHANGELOG.md) (in French)
+- Version: **0.5.3** (2026-11-24) — see [CHANGELOG.md](CHANGELOG.md) (in French)
 - For: OrcaSlicer 2.5 (Python plugins), Snapmaker U1 (4-head profile)
 - Languages: English or French (Orca's language by default, selectable in the tab)
 - Author: Dragg with his friend Claude — GPL-3.0 license ([LICENSE](LICENSE))
@@ -45,7 +45,7 @@ Why: Orca only treats as its own the 3MFs signed by Bambu Studio or OrcaSlicer (
 
 ## 2. What the plugin does
 
-Mange-3MF adds a **Mange-3MF tab** to OrcaSlicer. It reads the original 3MF itself, **without going through Orca's import**, and builds a real OrcaSlicer project:
+Mange-3MF adds a **Mange-3MF tab** to OrcaSlicer, and a **panel beside the plate** (Prepare and Preview) where the U1 asks for the 3MFs that aren't set up for her ([§ 4.6](#46-the-u1-beside-the-plate)). It reads the original 3MF itself, **without going through Orca's import**, and builds a real OrcaSlicer project:
 
 - **exactly the model's colors**: one file with all the plates and **one filament per color** (7 colors give 7 filaments). Nothing is split into several files, no color is merged;
 - **colors**: the filament of each object and each part, the painting (renumbered filament by filament), modifiers, layer ranges, per-layer color or tool changes, per-feature filaments (walls, infill, supports…);
@@ -99,7 +99,7 @@ Still in the Settings window, **Converted files** sets where they are written: *
 - or **drop a 3MF** on the tab: the U1 drawn in "The 3MF to eat" opens its mouth, swallows it, chews during the analysis, then burps the model's colors (a file that is not a 3MF gets spat out). Clicking it opens a file picker. A click during the show skips it; animations stop if Windows is set to reduce animations;
 - or paste the path of a 3MF under the U1 (in File Explorer: right-click the file › "Copy as path"), then **Analyze**;
 - or **Browse…** (drag and drop and Browse: files up to 500 MB; a large file is read in pieces, the page shows "Reading … (3/7)");
-- if you open a foreign 3MF directly in Orca, a **notification** offers "Prepare the conversion in the Mange-3MF tab". One click starts the analysis, and a second notification tells you when it is ready: just open the tab (a plugin cannot bring its tab to the front by itself).
+- or **open it directly in Orca**: the U1 shows up beside the plate and offers to eat it ([§ 4.6](#46-the-u1-beside-the-plate)). If you chose "a notification", a **notification** offers "Prepare the conversion in the Mange-3MF tab" instead: one click starts the analysis, and a second notification tells you when it is ready. Then just open the tab (a plugin cannot bring its tab to the front by itself).
 
 ![The U1 is hungry: "Yum! Drop it…"](docs/captures/en/4_glouton.png)
 
@@ -138,6 +138,22 @@ Before printing, check in Orca:
 
 The tab follows Orca's language: French if Orca is in French, English otherwise. The list at the top right of the tab (**Auto / Français / English**) lets you pick another one; the choice is kept. Everything switches at once, even the analysis on screen (the profiles you picked by hand are kept). Orca notifications and the names of per-plate files (`… - U1-by-Dragg - plate 2.3mf`, `… - U1-by-Dragg - plaque 2.3mf`) follow too.
 
+### 4.6 The U1 beside the plate
+
+When Orca opens a 3MF that isn't set up for the U1 (a MakerWorld, Bambu Studio or Snapmaker Orca project…), the U1 shows up in a **panel to the right of the plate**, in Prepare and Preview (Orca only shows plugin panels there):
+
+1. **"Yum!"**: she shows the file, where it comes from and its printer. **Eat it** starts the analysis with your saved settings (or Orca's current settings if none are saved). **Not now** puts her away.
+2. **"Burp!"**: one row per filament, as in the tab. Click the swatch to change the color, and pick the filament profile among your settings and your presets. The **free slots** row opens to choose their filament; **+ Add a color** adds an extra color (the cross removes it). Warnings (material, more than 4 filaments…) show below. **Convert** writes the file in the folder chosen in Settings.
+3. **"It's ready!"**: the file's path and **Copy path**, then **File › Open Project (Ctrl+O)**, paste the path and confirm.
+
+![The U1 in Prepare: she asks for the 3MF, you pick colors and profiles, the project is ready](docs/captures/en/6_panneau.png)
+
+The panel and the tab do the same work: an analysis started in the panel also shows in the tab, with what the tab has on top (plate thumbnails, One file per plate…), and what you change on one side shows on the other.
+
+You can also **drop a 3MF on the panel** (or click "Drop a 3MF here" to pick one): same path, no need for the tab. Orca keeps the panel's place and size. The cross closes it; it comes back with the next 3MF that isn't set up for the U1.
+
+Rather keep her in the tab? At the bottom of the panel, **When a 3MF isn't set up**: **I show up here** (default), **a notification** (as before 0.5.3) or **nothing**. The same choice is in the tab's **Settings** window, with the **Put the U1 in Prepare** button to bring her in right away. The panel needs OrcaSlicer 2.5.1 or later.
+
 ## 5. More than 4 colors
 
 Orca accepts more filaments than heads on the U1: the converted project has one filament per color, and **Orca assigns the heads** when slicing, with your usual setting (automatic or manual assignment).
@@ -163,12 +179,13 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 
 ## 7. Known limits
 
-- **Version 0.5.2**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice). Conversion with more than 4 filaments is still to be tried.
+- **Version 0.5.3**: tested outside OrcaSlicer (a real MakerWorld 3MF, Bambu Studio and Snapmaker Orca projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab and the panel rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice), then the Prepare panel. Conversion with more than 4 filaments is still to be tried.
 - **PrusaSlicer** files (Printables): not supported yet. Orca already opens them and keeps the shape and the painting.
 - **Already sliced** files (`.gcode.3mf`): refused, they don't contain the model.
 - **Materials**: if none of your profiles has the model's material (PETG, TPU…), the plugin warns you but doesn't create a profile.
 - The **author's supports** (interface filament chosen in their profile) are not kept: your support settings apply.
 - An Orca plugin **cannot open** a project (open the converted file with Ctrl+O) nor **bring its tab to the front** by itself.
+- The **panel** only exists in Prepare and Preview, and Orca shows it in both: it can't be limited to one of them.
 
 ## 8. Troubleshooting
 
@@ -180,6 +197,9 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 | "File too large to be read here" | A file over 500 MB was dropped or picked with Browse: put it in Downloads or paste its path (no limit in those two cases). |
 | "The file did not arrive in full" | Reading a dropped file was interrupted: drop it again. |
 | The tab is in the wrong language | Pick it in the list at the top right of the tab (**Auto** follows Orca's language). |
+| The U1 doesn't show up in Prepare | She only comes for a 3MF that isn't set up for the U1, and if **Settings** › "When Orca opens a 3MF not set up for your U1" is on "the U1 shows up beside the plate". If she is already chewing another 3MF, you get a notification. **Put the U1 in Prepare** (in Settings) brings her in. |
+| "this OrcaSlicer can't show the panel" | You need OrcaSlicer 2.5.1 or later. Meanwhile, choose "a notification only" in **Settings**. |
+| The panel takes too much room | Change its size or place: Orca keeps them. Or choose **a notification** or **nothing** at the bottom of the panel. |
 | "PrusaSlicer file", "already sliced file" | See [§ 7](#7-known-limits). |
 | The tab doesn't show | Check in the Plugins window that Mange-3MF is loaded and enabled. With many plugin tabs, the last ones go into the ▾ menu at the end of the bar (the number of visible tabs is set in Orca's preferences). |
 | Long profile names "…(a project.3mf)" | These are copies Orca makes when a project's settings differ from your presets. Since 0.4.0 the plugin writes the values of your Orca presets, so Orca recognizes them. To clean your saved settings, open one of your clean U1 projects (or pick your presets in Orca), then **Settings** › **Save Orca's current settings**. |
@@ -196,7 +216,7 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 | `LISEZMOI.md` | The same guide in French. |
 | `CHANGELOG.md` | Version history (in French). |
 | `docs/FONCTIONNEMENT.md` | Technical notes (3MF formats, painting, plates, color plan, project settings) to work on the code (in French). |
-| `docs/captures/` | Screenshots of the tab: home, analysis, file ready, hungry U1, Settings window (English ones in `docs/captures/en/`). |
+| `docs/captures/` | Screenshots of the tab (home, analysis, file ready, hungry U1, Settings window) and of the Prepare panel; English ones in `docs/captures/en/`. |
 | `docs/visuals/` | Visuals for Orca Cloud and GitHub (banner, before / after, staged screenshots, the hungry U1 GIF). |
 | `docs/visuals/logo/` | The logo: icon (SVG, 512 px PNG), mascot without background, wide logo for dark or light backgrounds, tab icon. |
 | `tests/` | Automated tests (without Orca): `python tests/run_all.py`. See [tests/README.md](tests/README.md) (in French). |

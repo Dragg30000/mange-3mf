@@ -29,7 +29,7 @@ Open a 3MF made with another slicer (Bambu Studio for MakerWorld, Snapmaker Orca
 
 ## ✨ What Mange-3MF does
 
-It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real OrcaSlicer project for the U1:
+It adds a **Mange-3MF** tab to OrcaSlicer, and the U1 waits for you beside the plate in Prepare. Open or drop a 3MF and you get a real OrcaSlicer project for the U1:
 
 - 🎨 **Exactly the model's colors**: one file, one filament per color. 7 colors give 7 filaments, nothing split or merged.
 - 🖌️ **Everything kept**: painting, per-object and per-part colors, modifiers, layer ranges, per-layer color changes, per-feature filaments, plates and their names.
@@ -39,6 +39,7 @@ It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real O
 - 🎯 **Your call**: change a filament's color in a click, and choose where the converted files go.
 - 🌍 **English or French**: the tab follows Orca's language, or pick one at the top right.
 - 🖥️ **A clean tab**, in the same style as multiACE Bridge: home, analysis, file ready, and a Settings window.
+- 🍽️ **Right there in Prepare**: open a 3MF that isn't set up for the U1 and she shows up beside the plate, offers to eat it, lets you pick colors and profiles, and converts it on the spot. Prefer a notification, or nothing? One setting.
 - 😋 **A hungry U1**: drop a 3MF on the tab and the U1 swallows it, chews during the analysis, then burps the model's colors. Converted files are signed `… - U1-by-Dragg.3mf`.
 
 ![Exactly the model's colors](docs/visuals/02_colors.jpg)
@@ -53,8 +54,10 @@ It adds a **Mange-3MF** tab to OrcaSlicer. Drop a 3MF on it and you get a real O
 **Use**
 
 1. Set Orca to your usual U1 settings once, then in the tab click **Settings › Save Orca's current settings**.
-2. Drop a 3MF on the tab, or click **Analyze** next to a file of your Downloads.
-3. Check the colors and profiles, click **Convert**, then follow the 3 steps: **Copy path**, **File › Open Project (Ctrl+O)**, paste and confirm.
+2. Open the 3MF in Orca: the U1 shows up beside the plate; click **Eat it**. Or drop it on the tab, or click **Analyze** next to a file of your Downloads.
+3. Check the colors and profiles, click **Convert**, then **Copy path**, **File › Open Project (Ctrl+O)**, paste and confirm.
+
+![She waits in Prepare: she asks for the 3MF, you pick colors and profiles, the project is ready](docs/visuals/05_prepare.jpg)
 
 Everything else (what is kept, limits, troubleshooting) is in the **[full user guide](GUIDE.md)**.
 
@@ -71,7 +74,7 @@ Orca keeps at least 4 filaments on the U1 (one per head) and can paint 16 filame
 
 ## 🧪 Status
 
-Beta **0.5.2** (extra colors). 357 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab, the analysis and the new 0.5.0 interface have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
+Beta **0.5.3** (the U1 in Prepare). 437 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab, the analysis, the 0.5.0 interface and the Prepare panel have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
 
 ## 🌍 Translations
 
@@ -79,7 +82,7 @@ Every text of the plugin and of the tab lives in one table, `TEXTS`, at the top 
 
 ## 🐞 Bugs & ideas
 
-Open an [issue](../../issues/new/choose) with your plugin and Orca versions, a link to the model page and a screenshot of the tab. English or French.
+Open an [issue](../../issues/new/choose) with your plugin and Orca versions, a link to the model page and a screenshot of the tab or the panel. English or French.
 
 ## ☕ Support
 
@@ -87,7 +90,7 @@ Mange-3MF is free. If it saves you time, you can [buy Dragg a coffee on Ko-fi](h
 
 ## 🔒 Privacy
 
-The plugin lists the 3MF files of your Downloads folder, reads the file you pick and writes the converted project next to it. It keeps your saved settings and your language choice in its own storage folder. No network access, nothing collected.
+The plugin lists the 3MF files of your Downloads folder, reads the file you pick and writes the converted project next to it. It keeps your saved settings and your choices (language, output folder, panel) in its own storage folder. No network access, nothing collected.
 
 ## ⚠️ Disclaimer / Avertissement
 

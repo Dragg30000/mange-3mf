@@ -125,6 +125,26 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   if (await page.locator('select[data-f="0"][data-s="4"]').inputValue() !== String(choice)) fail('choix du profil perdu');
   // le meme profil pour une autre couleur : possible, et chaque couleur reste celle du modele
   await page.locator('select[data-f="0"][data-s="3"]').selectOption(String(choice));
+  // chaque changement part au plugin (le panneau de Preparer montre et convertit le meme plan)
+  const plans = (await sent()).filter(m => m.command === 'plan');
+  const lastPlan = plans[plans.length - 1];
+  if (!lastPlan || lastPlan.token !== an.token || lastPlan.files[0].slots[3].base !== choice || lastPlan.files[0].slots[4].base !== choice)
+    fail('plan pas envoye au plugin apres un changement', lastPlan);
+  // plan venu du panneau de Preparer : l'onglet le reprend (profil, couleur, couleur en plus) sans le renvoyer
+  const nPlans = plans.length, nEx = await page.locator('#analysis .tr.ex').count();
+  const fromPanel = JSON.parse(JSON.stringify(lastPlan.files));
+  fromPanel[0].slots[3].base = 0; fromPanel[0].slots[3].color = '#ABCDEF';
+  fromPanel[0].slots.push({ src: [], base: 1, color: null, extra: true });
+  await recv({ command: 'plan', token: an.token, files: fromPanel });
+  const tv = await page.evaluate(() => ({ base: document.querySelector('select[data-f="0"][data-s="3"]').value,
+    pick: document.querySelector('input.pick[data-cf="0"][data-cs="3"]').value }));
+  const nEx2 = await page.locator('#analysis .tr.ex').count();
+  if (tv.base !== '0' || tv.pick !== '#abcdef' || nEx2 !== nEx + 1 || (await sent()).filter(m => m.command === 'plan').length !== nPlans)
+    fail('plan du panneau mal repris par l\'onglet', { tv, nEx, nEx2 });
+  await recv({ command: 'plan', token: 'autre', files: fromPanel });
+  await recv({ command: 'plan', token: an.token, files: lastPlan.files });
+  if (await page.locator('#analysis .tr.ex').count() !== nEx || await page.locator('select[data-f="0"][data-s="3"]').inputValue() !== String(choice)
+      || (await sent()).filter(m => m.command === 'plan').length !== nPlans) fail('retour au plan d\'avant rate');
   const labels = await sel.locator('option').evaluateAll(os => os.map(o => o.textContent));
   if (labels.some(l => /\((noir|blanc|rouge|jaune|vert|black|white|red|yellow|green)\)/i.test(l))) fail('couleur dans le nom des profils', labels);
   // couleur changee a la main pour le 1er filament : signalee, gardee et envoyee
@@ -179,6 +199,19 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   if (await viewNow() !== 'home') fail('analyse annulee affichee quand meme');
   await recv(an);
   if (await viewNow() !== 'an') fail('analyse suivante pas affichee apres une annulation');
+  await page.click('#cancel');
+  // Annuler puis analyser un autre 3MF tout de suite : l'analyse annulee (reconnue a son jeton) ne bloque pas la suivante
+  await page.fill('#path', 'C:\\Users\\Test\\Downloads\\long.3mf');
+  await page.click('#go');
+  await recv({ command: 'progress', text: 'Analyse de long.3mf…', token: 'a77' });
+  await page.click('#cancel');
+  await page.fill('#path', 'C:\\Users\\Test\\Downloads\\suivant.3mf');
+  await page.click('#go');
+  await recv({ command: 'progress', text: 'Analyse de suivant.3mf…', token: 'a78' });
+  await recv(Object.assign({}, an, { token: 'a77' }));
+  if (await viewNow() !== 'busy') fail('analyse annulee affichee (jeton)');
+  await recv(Object.assign({}, an, { token: 'a78' }));
+  if (await viewNow() !== 'an') fail('analyse suivante bloquee apres une annulation');
   await page.click('#cancel');
   await page.fill('#path', '');
 
@@ -281,6 +314,18 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   const outs = (await sent()).filter(m => m.command === 'outdir');
   if (outs.length !== 2 || outs[0].mode !== 'downloads' || outs[1].mode !== 'folder' || outs[1].dir !== 'C:\\Users\\Dragg\\3D') fail('choix du dossier incorrect', outs);
   if (!(await sent()).some(m => m.command === 'capture')) fail('memoriser les reglages : rien envoye');
+  // la U1 dans Preparer : panneau, notification seule ou rien ; bouton pour la mettre dans Preparer
+  const pm = await page.evaluate(() => ({ radios: [...document.querySelectorAll('input[name=pmode]')].map(r => r.value + (r.checked ? '*' : '')),
+    h: document.querySelector('[data-t="pn_h"]').textContent, show: document.getElementById('pshow').textContent }));
+  if (pm.radios.join() !== 'panel*,notif,off' || pm.h !== T.pn_h || pm.show !== T.pn_show) fail('reglage du panneau absent', pm);
+  await page.check('input[name=pmode][value=notif]');
+  await page.click('#pshow');
+  const pms = (await sent()).filter(m => m.command === 'panel_mode' || m.command === 'panel_show');
+  if (pms.length !== 2 || pms[0].mode !== 'notif' || pms[1].command !== 'panel_show' || (await page.textContent('#pshowMsg')) !== T.pn_shown)
+    fail('reglage du panneau : envoi incorrect', pms);
+  await recv(Object.assign({}, load('state.json'), { panel: 'off' }));
+  if (!(await page.isChecked('input[name=pmode][value=off]'))) fail('reglage du panneau : etat du plugin pas affiche');
+  await recv(load('state.json'));
   if ((await page.locator('input[name=tc]').count()) >= 2) {
     await page.check('input[name=tc][value=current]');
     if (!(await page.evaluate(() => document.querySelector('.choice.on input').value === 'current'))) fail('choix des reglages actuels perdu');

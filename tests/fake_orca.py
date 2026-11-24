@@ -26,6 +26,16 @@ class FakeWindow:
                 if left <= 0: raise AssertionError("pas de message %s (recus %s)" % (cmd, [p["command"] for p in self.posts]))
                 self.cv.wait(left)
 
+class FakePanel(FakeWindow):
+    """Panneau d'Orca a cote du plateau (orca.host.ui.create_dock_panel) : montre, cache, ferme."""
+    def __init__(self, **k):
+        super().__init__(**k); self.shown = True
+    def show(self): self.shown = True
+    def hide(self): self.shown = False
+    def close(self):
+        if self.open_:
+            self.open_ = False; self.shown = False; cb = self.k.get("on_close"); cb and cb()
+
 def template_3mf_bytes(cfg):
     """Projet enregistre comme le fait OrcaSlicer 2.5.1 : application « BambuStudio-02.08.01.55 » et
     etiquette « OrcaSlicer »."""
@@ -38,9 +48,9 @@ def template_3mf_bytes(cfg):
         z.writestr("Metadata/project_settings.config", json.dumps(cfg))
     return buf.getvalue()
 
-def install(storage, template_cfg, current=None):
+def install(storage, template_cfg, current=None, dock=False):
     orca = types.ModuleType("orca")
-    state = {"windows": [], "notes": [], "perms": [], "caps": [], "exports": 0, "language": "fr_FR", "presets": []}
+    state = {"windows": [], "panels": [], "notes": [], "perms": [], "caps": [], "exports": 0, "language": "fr_FR", "presets": []}
     cur = dict(current or template_cfg)
     def ser(v):
         if isinstance(v, list):
@@ -77,6 +87,10 @@ def install(storage, template_cfg, current=None):
     def create_window(**k):
         w = FakeWindow(**k); state["windows"].append(w); return w
     ui.create_window = create_window
+    if dock:   # OrcaSlicer 2.5.1 : panneaux a cote du plateau (sans : comme un Orca plus ancien)
+        def create_dock_panel(**k):
+            p = FakePanel(**k); state["panels"].append(p); return p
+        ui.create_dock_panel = create_dock_panel
     ui.NotificationLevel = types.SimpleNamespace(ImportantNotificationLevel="Important", WarningNotificationLevel="Warning",
                                                  RegularNotificationLevel="Regular")
     ui.push_notification = lambda lvl, txt, hyper="", cb=None: state["notes"].append((lvl, txt, hyper, cb))

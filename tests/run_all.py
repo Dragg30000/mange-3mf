@@ -11,6 +11,7 @@ TESTS = [
     ("test_presets.py", "préréglages d'Orca, couleur choisie, dossier des fichiers convertis"),
     ("test_lang.py", "langues : textes français et anglais, page de l'onglet, retraduction"),
     ("test_plugin.py", "plugin dans un faux OrcaSlicer : onglet, messages, écriture, notifications, langue"),
+    ("test_panel.py", "la U1 dans le panneau de Préparer : Miam, glisser, conversion, même travail que l'onglet"),
 ]
 
 SAMPLES = os.path.join(HERE, "samples")

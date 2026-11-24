@@ -11,7 +11,7 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(path.join(HERE, 'assets'));
 fs.copyFileSync(require.resolve('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2'),
                 path.join(HERE, 'assets', 'bricolage.woff2'));
-for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png', '5_reglages.png'])
+for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png', '5_reglages.png', '6_panneau.png'])
   fs.copyFileSync(path.join(ROOT, 'docs', 'captures', 'en', f), path.join(HERE, 'assets', f));
 fs.copyFileSync(path.join(ROOT, 'docs', 'captures', '1_reglages_et_fichiers.png'), path.join(HERE, 'assets', 'fr_1_reglages_et_fichiers.png'));
 
@@ -138,7 +138,8 @@ function crop(file, x, y, w, h, width) {   // morceau d'une capture, affiche a l
   return `<div class="crop" style="width:${width}px;height:${Math.round(h * s)}px;overflow:hidden;position:relative">
 <img src="assets/${file}" style="position:absolute;left:${-x * s}px;top:${-y * s}px;width:${imgW[file] * s}px;max-width:none"></div>`;
 }
-const imgW = { '1_reglages_et_fichiers.png': 1920, 'fr_1_reglages_et_fichiers.png': 1920, '2_analyse.png': 1920, '3_resultat.png': 1920, '5_reglages.png': 1920 };
+const imgW = { '1_reglages_et_fichiers.png': 1920, 'fr_1_reglages_et_fichiers.png': 1920, '2_analyse.png': 1920, '3_resultat.png': 1920, '5_reglages.png': 1920,
+               '6_panneau.png': 2236 };
 
 function colorsPage() {
   return shot('Exactly the model’s colors',
@@ -148,7 +149,7 @@ function colorsPage() {
 function settingsPage() {
   return shot('Your settings, saved in one click',
     'Printer, nozzles, process and plate come from your Orca, not from the model’s author.',
-    frame(crop('5_reglages.png', 150, 72, 1620, 1056, 1120)));
+    frame(crop('5_reglages.png', 150, 47, 1620, 1107, 1120)));   // la fenetre Reglages entiere
 }
 function readyPage() {
   const right = frame(`<img src="assets/3_resultat.png">`) +
@@ -159,6 +160,19 @@ function readyPage() {
     right, `.langs{display:flex;gap:18px}
 .langs span{display:block;margin:0 0 10px 4px;font-size:26px;font-weight:700;color:#22b3a5}
 .lang{position:relative;border-radius:14px;overflow:hidden;border:1px solid #2c3747;background:#262629}`);
+}
+
+function preparePage() {   // les trois panneaux de 6_panneau.png (docks de 684 x 1452, tous les 728 px)
+  const steps = ['She asks for the 3MF', 'You pick colors and profiles', 'The project is ready'];
+  const right = `<div class="docks">${steps.map((t, i) => `<div class="step"><p class="lab"><b>${i + 1}</b>${t}</p>
+<div class="dock">${crop('6_panneau.png', 48 + i * 728, 112, 684, 1452, 350)}</div></div>`).join('')}</div>`;
+  return shot('She waits in Prepare',
+    'Open a 3MF that isn’t set up for the U1: she offers to eat it, lets you pick colors and profiles, and builds the project right there.',
+    right, `.docks{display:flex;gap:35px}
+.step{width:350px}
+.lab{display:flex;align-items:center;gap:11px;margin:0 0 16px 2px;font-size:22px;font-weight:650;color:#dfe5ee;white-space:nowrap}
+.lab b{display:inline-grid;place-items:center;flex:none;width:32px;height:32px;border-radius:8px;background:#22b3a5;color:#0c2e2a;font-size:19px;font-weight:800}
+.dock{border-radius:10px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.5)}`);
 }
 
 // ---- GitHub : banniere du README et apercu social
@@ -193,6 +207,7 @@ ${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in English and French</
     ['02_colors', colorsPage(), 1920, 1080, 'jpeg'],
     ['03_settings', settingsPage(), 1920, 1080, 'jpeg'],
     ['04_ready', readyPage(), 1920, 1080, 'jpeg'],
+    ['05_prepare', preparePage(), 1920, 1080, 'jpeg'],
     ['github_banner', banner(1760, 520), 1760, 520, 'png'],
     ['github_social_preview', banner(1280, 640), 1280, 640, 'png'],
   ];

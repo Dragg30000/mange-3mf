@@ -16,7 +16,7 @@
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Snapmaker Orca, OrcaSlicer et ses variantes : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
-- Version : **0.5.2** (23/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
+- Version : **0.5.3** (24/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), Snapmaker U1 (profil à 4 têtes)
 - Langues : français ou anglais (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
@@ -54,7 +54,7 @@ Pourquoi : Orca ne reconnaît comme « ses » projets que les 3MF signés Bambu 
 
 ## 2. Ce que fait le plugin
 
-Mange-3MF ajoute un **onglet « Mange-3MF »** à OrcaSlicer. Il lit le 3MF d'origine **sans passer par l'ouverture d'Orca** et fabrique un vrai projet OrcaSlicer :
+Mange-3MF ajoute à OrcaSlicer un **onglet « Mange-3MF »**, et un **panneau à côté du plateau** (Préparer et Aperçu) où la U1 réclame les 3MF pas réglés pour elle ([§ 4.6](#46-la-u1-à-côté-du-plateau)). Il lit le 3MF d'origine **sans passer par l'ouverture d'Orca** et fabrique un vrai projet OrcaSlicer :
 
 - **exactement les couleurs du modèle** : un seul fichier avec toutes les plaques et **un filament par couleur** (7 couleurs donnent 7 filaments). Rien n'est découpé en plusieurs fichiers, aucune couleur n'est fusionnée ;
 - **couleurs** : filament de chaque objet et de chaque pièce, peinture (renumérotée filament par filament), modificateurs, plages de couches, changements de couleur ou d'outil par couche, filaments par fonction (parois, remplissage, supports…) ;
@@ -108,7 +108,7 @@ Toujours dans la fenêtre Réglages, **« Fichiers convertis »** choisit où le
 - ou **glisse un 3MF** sur l'onglet : la U1 dessinée dans « Le 3MF à manger » ouvre la bouche, l'avale, le mâche pendant l'analyse, puis rote les couleurs du modèle (un fichier qui n'est pas un 3MF, elle le recrache). Un clic sur elle ouvre le choix d'un fichier. Un clic pendant le spectacle le coupe ; les animations s'arrêtent si Windows est réglé pour réduire les animations ;
 - ou colle le chemin d'un 3MF sous la U1 (dans l'Explorateur : clic droit sur le fichier › « Copier en tant que chemin d'accès »), puis **Analyser** ;
 - ou **Parcourir…** (glisser-déposer et Parcourir : fichiers jusqu'à 500 Mo ; un gros fichier est lu par morceaux, la page affiche « Lecture de … (3/7) ») ;
-- si tu ouvres directement dans Orca un 3MF venu d'ailleurs, une **notification** propose « Préparer la conversion dans l'onglet Mange-3MF ». Un clic lance l'analyse, et une deuxième notification te dit quand elle est prête : il ne reste qu'à ouvrir l'onglet (un plugin ne peut pas l'afficher tout seul).
+- ou **ouvre-le directement dans Orca** : la U1 apparaît à côté du plateau et propose de le manger ([§ 4.6](#46-la-u1-à-côté-du-plateau)). Si tu as choisi « une notification », c'est une **notification** qui propose « Préparer la conversion dans l'onglet Mange-3MF » : un clic lance l'analyse, et une deuxième notification te dit quand elle est prête. Il ne reste qu'à ouvrir l'onglet (un plugin ne peut pas l'afficher tout seul).
 
 ![La U1 a faim : « Miam ! Lâche-le… »](docs/captures/4_glouton.png)
 
@@ -147,6 +147,22 @@ Avant d'imprimer, vérifie dans Orca :
 
 L'onglet suit la langue d'Orca : en français si Orca est en français, en anglais sinon. La liste en haut à droite de l'onglet (**Auto / Français / English**) permet d'en choisir une autre ; le choix est gardé. Tout passe dans la nouvelle langue tout de suite, même l'analyse affichée (les profils que tu as choisis à la main sont gardés). Les notifications d'Orca et les noms des fichiers par plaque (`… - U1-by-Dragg - plaque 2.3mf`, `… - U1-by-Dragg - plate 2.3mf`) suivent aussi.
 
+### 4.6 La U1 à côté du plateau
+
+Quand Orca ouvre un 3MF qui n'est pas réglé pour la U1 (un projet MakerWorld, Bambu Studio, Snapmaker Orca…), la U1 apparaît dans un **panneau à droite du plateau**, dans Préparer et Aperçu (Orca n'affiche les panneaux des plugins que là) :
+
+1. **« Miam ! »** : elle montre le fichier, son origine et son imprimante. **Le manger** lance l'analyse, avec tes réglages mémorisés (sinon les réglages actuels d'Orca). **Pas maintenant** la range.
+2. **« Burp ! »** : une ligne par filament, comme dans l'onglet. Clique la pastille pour changer la couleur, et choisis le profil de filament parmi tes réglages et tes préréglages. La ligne des **cases libres** s'ouvre pour choisir leur filament ; **+ Ajouter une couleur** ajoute une couleur en plus (la croix la retire). Les alertes (matière, plus de 4 filaments…) s'affichent dessous. **Convertir** écrit le fichier dans le dossier choisi dans les Réglages.
+3. **« C'est prêt ! »** : le chemin du fichier et **Copier le chemin**, puis **Fichier › Ouvrir un projet (Ctrl+O)**, colle le chemin et valide.
+
+![La U1 dans Préparer : elle réclame le 3MF, tu choisis couleurs et profils, le projet est prêt](docs/captures/6_panneau.png)
+
+Le panneau et l'onglet font le même travail : l'analyse lancée dans le panneau s'affiche aussi dans l'onglet, avec ce qu'il a en plus (vignettes des plaques, « Un fichier par plaque »…), et ce que tu changes d'un côté se retrouve de l'autre.
+
+Tu peux aussi **glisser un 3MF sur le panneau** (ou cliquer « Dépose un 3MF ici » pour le choisir) : même chemin, sans passer par l'onglet. Orca garde la place et la taille du panneau. La croix le ferme ; il revient au prochain 3MF pas réglé pour la U1.
+
+Tu préfères qu'elle reste dans l'onglet ? En bas du panneau, **« Quand un 3MF n'est pas réglé »** : **je viens ici** (par défaut), **une notification** (comme avant la 0.5.3) ou **rien**. Le même choix est dans la fenêtre **Réglages** de l'onglet, avec le bouton **« Mettre la U1 dans Préparer »** pour la faire venir tout de suite. Le panneau demande OrcaSlicer 2.5.1 ou plus.
+
 ## 5. Plus de 4 couleurs
 
 Orca accepte plus de filaments que de têtes sur la U1 : le projet converti a un filament par couleur, et c'est **Orca qui attribue les têtes** au tranchage, avec ton réglage habituel (attribution automatique ou manuelle).
@@ -172,12 +188,13 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.5.2** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet rendu dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils). La conversion à plus de 4 filaments reste à essayer.
+- **Version 0.5.3** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, projets Bambu Studio et Snapmaker Orca fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet et panneau rendus dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils), puis le panneau de Préparer. La conversion à plus de 4 filaments reste à essayer.
 - Fichiers **PrusaSlicer** (Printables) : pas encore gérés. Orca les ouvre déjà en gardant la forme et la peinture.
 - Fichiers **déjà tranchés** (`.gcode.3mf`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si aucun de tes profils n'a la matière du modèle (PETG, TPU…), le plugin te prévient mais ne crée pas de profil.
 - Les **supports de l'auteur** (filament d'interface choisi dans son profil) ne sont pas repris : ce sont tes réglages de supports qui s'appliquent.
 - Un plugin Orca **ne peut pas ouvrir** de projet (le fichier converti s'ouvre avec Ctrl+O) ni **afficher son onglet** tout seul.
+- Le **panneau** n'existe que dans Préparer et Aperçu, et Orca le montre dans les deux : il ne peut pas se limiter à l'un des deux.
 
 ## 8. Dépannage
 
@@ -189,6 +206,9 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | « Fichier trop gros pour être lu ici » | Fichier de plus de 500 Mo glissé ou choisi avec Parcourir : mets-le dans Téléchargements ou colle son chemin (pas de limite dans ces deux cas). |
 | « Le fichier n'est pas arrivé en entier » | La lecture d'un fichier glissé a été interrompue : glisse-le à nouveau. |
 | L'onglet n'est pas dans la bonne langue | Choisis-la dans la liste en haut à droite de l'onglet (**Auto** suit la langue d'Orca). |
+| La U1 n'apparaît pas dans Préparer | Elle ne vient que pour un 3MF pas réglé pour la U1, et si **Réglages** › « Quand Orca ouvre un 3MF pas réglé pour ta U1 » est sur « la U1 apparaît à côté du plateau ». Si elle mâche déjà un autre 3MF, c'est une notification. **« Mettre la U1 dans Préparer »** (dans les Réglages) la fait venir. |
+| « cet OrcaSlicer ne sait pas afficher le panneau » | Il faut OrcaSlicer 2.5.1 ou plus. En attendant, choisis « une notification seulement » dans les **Réglages**. |
+| Le panneau prend trop de place | Change sa taille ou sa place : Orca les garde. Ou choisis **une notification** ou **rien** en bas du panneau. |
 | « fichier PrusaSlicer », « déjà tranché » | Voir [§ 7](#7-limites-connues). |
 | L'onglet n'apparaît pas | Vérifie dans la fenêtre Plugins que Mange-3MF est chargé et activé. S'il y a beaucoup d'onglets de plugins, les derniers passent dans le menu ▾ au bout de la barre (le nombre visible se règle dans les préférences d'Orca). |
 | Noms de profils à rallonge « …(un projet.3mf) » | Ce sont des copies qu'Orca crée quand les réglages d'un projet diffèrent de tes préréglages. Depuis la 0.4.0, le plugin écrit les valeurs de tes préréglages d'Orca : Orca les reconnaît. Pour nettoyer tes réglages mémorisés, ouvre un de tes projets U1 propres (ou choisis tes préréglages dans Orca), puis **Réglages** › « Mémoriser les réglages actuels d'Orca ». |
@@ -205,7 +225,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 | `GUIDE.md` | Ce mode d'emploi en anglais. |
 | `CHANGELOG.md` | Historique des versions. |
 | `docs/FONCTIONNEMENT.md` | Fonctionnement détaillé (formats 3MF, peinture, plaques, plan des couleurs, réglages du projet) pour reprendre le code. |
-| `docs/captures/` | Captures de l'onglet : accueil, analyse, fichier prêt, U1 gourmande, fenêtre Réglages (en anglais dans `docs/captures/en/`). |
+| `docs/captures/` | Captures de l'onglet (accueil, analyse, fichier prêt, U1 gourmande, fenêtre Réglages) et du panneau de Préparer, en anglais dans `docs/captures/en/`. |
 | `docs/visuals/` | Visuels pour Orca Cloud et GitHub (bannière, avant / après, captures mises en scène, la U1 gourmande en GIF). |
 | `docs/visuals/logo/` | Le logo : icône (SVG, PNG 512), mascotte sans fond, logo en largeur pour fond sombre ou clair, icône de l'onglet. |
 | `tests/` | Tests automatiques (sans Orca) : `python tests/run_all.py`. Voir [tests/README.md](tests/README.md). |

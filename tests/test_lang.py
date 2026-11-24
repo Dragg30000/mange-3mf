@@ -66,6 +66,24 @@ for lang in langs:
     ok("</" not in blob and json.loads(blob) == m.TEXTS, "  textes dans la page (JSON sans « </ »)")
 ok('var lang="en"' in m.page_html("en") and 'var lang="fr"' in m.page_html("fr"), "langue de depart dans la page")
 
+print("== page du panneau de Preparer")
+panel = m.PANEL_PAGE
+used = set(re.findall(r'data-t="(\w+)"', panel)) | set(re.findall(r'\bt\("(\w+)"', panel))
+used |= {k for pair in re.findall(r'\?"(\w+)":"(\w+)"', panel) for k in pair if k in ref or k.startswith("pn_")}
+missing = sorted(k for k in used if k not in ref)
+ok(len(used) > 30 and not missing, "%d textes utilises par le panneau, tous traduits (manquants %s)" % (len(used), missing))
+for lang in langs:
+    html = m.panel_html(lang)
+    ok('<html lang="%s">' % lang in html and not any(x in html for x in ("__LANG__", "__TEXTS__", "__FONT__", "__U1CSS__", "__U1SVG__")),
+       "panneau en %s" % lang)
+    j = html.index("var L=") + len("var L=")
+    blob = html[j:html.index(";\nvar nav", j)]
+    texts = json.loads(blob)
+    ok("</" not in blob and set(texts) == set(langs) and all(used <= set(texts[x]) for x in texts),
+       "  ses textes dans chaque langue (%d)" % len(texts[lang]))
+ok(m.panel_html("en").count('<template id="u1t">') == 1 and m.panel_html("en").count("@font-face") == 1,
+   "la U1 et la police de l'onglet, une fois")
+
 print("== langue d'Orca ou du systeme")
 for code_, want in (("fr_FR", "fr"), ("fr-CA", "fr"), ("FR", "fr"), ("French_France", "fr"), ("fr_FR.UTF-8", "fr"),
                     ("en_US", "en"), ("en-GB", "en"), ("de_DE", "en"), ("zh_CN", "en"), ("", "en"), (None, "en"), ("C", "en")):
