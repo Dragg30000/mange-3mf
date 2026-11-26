@@ -14,7 +14,7 @@ def fields(text):
 
 print("== table des textes")
 langs = list(m.TEXTS)
-ok(langs[:2] == ["fr", "en"] and m.DEFAULT_LANG in m.TEXTS, "langues : %s" % langs)
+ok(langs == ["fr", "en", "de", "es", "it"] and m.DEFAULT_LANG in m.TEXTS, "langues : %s" % langs)
 ref = set(m.TEXTS["fr"])
 for lang in langs:
     keys = set(m.TEXTS[lang])
@@ -86,7 +86,9 @@ ok(m.panel_html("en").count('<template id="u1t">') == 1 and m.panel_html("en").c
 
 print("== langue d'Orca ou du systeme")
 for code_, want in (("fr_FR", "fr"), ("fr-CA", "fr"), ("FR", "fr"), ("French_France", "fr"), ("fr_FR.UTF-8", "fr"),
-                    ("en_US", "en"), ("en-GB", "en"), ("de_DE", "en"), ("zh_CN", "en"), ("", "en"), (None, "en"), ("C", "en")):
+                    ("en_US", "en"), ("en-GB", "en"), ("de_DE", "de"), ("German_Germany", "de"), ("es_ES", "es"),
+                    ("es-MX", "es"), ("Spanish_Spain", "es"), ("it_IT", "it"), ("Italian_Italy", "it"),
+                    ("zh_CN", "en"), ("", "en"), (None, "en"), ("C", "en")):
     ok(m.lang_of(code_) == want, "%r -> %s" % (code_, m.lang_of(code_)))
 ok(m.current_language() == "fr", "langue du systeme des tests : fr (LANGUAGE=fr_FR)")
 
@@ -101,8 +103,13 @@ loc = m.relocalize(data)
 ok(loc == {"a": ["Plate 2 “unnamed”: too large for the U1 bed (300 x 200 mm).", "red", 3, None], "b": {"c": "in Downloads"}},
    "dict et listes retraduits : %s" % loc)
 ok(all(type(x) is str for x in (loc["a"][0], loc["a"][1], loc["b"]["c"])), "  chaines ordinaires (JSON)")
-m.set_language("de")
+m.set_language("zh")
 ok(m.current_language() == "en", "langue inconnue -> anglais")
+for lang, want in (("de", "Platte 2 „ohne Namen“: zu groß für das Druckbett der U1 (300 x 200 mm)."),
+                   ("es", "Placa 2 “sin nombre”: demasiado grande para la cama de la U1 (300 x 200 mm)."),
+                   ("it", "Piatto 2 “senza nome”: troppo grande per il piano della U1 (300 x 200 mm).")):
+    m.set_language(lang)
+    ok(m.relocalize(w) == want, "%s : %s" % (lang, m.relocalize(w)))
 ok(m.tr("no_such_key") == "no_such_key", "texte absent : sa cle")
 
 print("== analyse et conversion en anglais")

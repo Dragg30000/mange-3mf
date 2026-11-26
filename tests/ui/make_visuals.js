@@ -11,7 +11,8 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(path.join(HERE, 'assets'));
 fs.copyFileSync(require.resolve('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2'),
                 path.join(HERE, 'assets', 'bricolage.woff2'));
-for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png', '5_reglages.png', '6_panneau.png'])
+for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png', '5_reglages.png', '6_panneau.png',
+                 '7a_prusa.png', '7b_profils.png', '7c_supports.png'])   // 7* : check_060.py
   fs.copyFileSync(path.join(ROOT, 'docs', 'captures', 'en', f), path.join(HERE, 'assets', f));
 fs.copyFileSync(path.join(ROOT, 'docs', 'captures', '1_reglages_et_fichiers.png'), path.join(HERE, 'assets', 'fr_1_reglages_et_fichiers.png'));
 
@@ -112,7 +113,7 @@ footer b{font-weight:700;color:#22b3a5}
   <div class="side after"><h2>Converted by Mange-3MF</h2><p>7 colors, 7 filaments, your own settings</p><div class="spools">${col}</div></div>
 </div>
 <div class="crumbs"><i style="left:6px;top:12px;width:16px;height:14px"></i><i style="left:40px;top:58px;width:11px;height:10px"></i><i style="left:20px;top:250px;width:13px;height:12px"></i><i style="left:48px;top:300px;width:8px;height:8px"></i></div>
-<footer><span>Free plugin for OrcaSlicer 2.5 and the Snapmaker U1, in English and French.</span><b>v${VERSION}</b></footer>
+<footer><span>Free plugin for OrcaSlicer 2.5 and the Snapmaker U1, in 5 languages.</span><b>v${VERSION}</b></footer>
 </div></body></html>`;
 }
 
@@ -156,7 +157,7 @@ function readyPage() {
     `<div class="langs"><div><span>English</span><div class="lang">${crop('1_reglages_et_fichiers.png', 0, 70, 1000, 142, 550)}</div></div>
      <div><span>Français</span><div class="lang">${crop('fr_1_reglages_et_fichiers.png', 0, 70, 1000, 142, 550)}</div></div></div>`;
   return shot('Ready to open, in your language',
-    'The project lands next to the original: open it in Orca and print. The tab follows Orca’s language, English or French.',
+    'The project lands next to the original: open it in Orca and print. The tab follows Orca’s language: English, French, German, Spanish or Italian.',
     right, `.langs{display:flex;gap:18px}
 .langs span{display:block;margin:0 0 10px 4px;font-size:26px;font-weight:700;color:#22b3a5}
 .lang{position:relative;border-radius:14px;overflow:hidden;border:1px solid #2c3747;background:#262629}`);
@@ -173,6 +174,20 @@ function preparePage() {   // les trois panneaux de 6_panneau.png (docks de 684 
 .lab{display:flex;align-items:center;gap:11px;margin:0 0 16px 2px;font-size:22px;font-weight:650;color:#dfe5ee;white-space:nowrap}
 .lab b{display:inline-grid;place-items:center;flex:none;width:32px;height:32px;border-radius:8px;background:#22b3a5;color:#0c2e2a;font-size:19px;font-weight:800}
 .dock{border-radius:10px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.5)}`);
+}
+
+// ---- 6. nouveautes de la 0.6.0 (morceaux de captures faits par check_060.py)
+function newPage() {
+  const card = (label, img, w) => `<div class="card"><p class="lab">${label}</p><div class="shot" style="width:${w}px"><img src="assets/${img}"></div></div>`;
+  return shot('New in 0.6.0',
+    'Projects from PrusaSlicer and Printables. An Orca profile when you lack a material. Your choices remembered. The author’s supports if you want them. And German, Spanish, Italian.',
+    card('PrusaSlicer and Printables projects', '7a_prusa.png', 1000) +
+    card('An Orca profile for a missing material, your choice from last time', '7b_profils.png', 1000) +
+    card('The author’s supports, your call', '7c_supports.png', 620),
+    `.right{gap:34px}
+.card .lab{margin:0 0 12px 2px;font-size:25px;font-weight:650;color:#dfe5ee}
+.shot{border-radius:14px;overflow:hidden;border:1px solid #2c3747;background:#1c1d20;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+.shot img{display:block;width:100%}`);
 }
 
 // ---- GitHub : banniere du README et apercu social
@@ -195,7 +210,7 @@ h1{font-size:${big ? 124 : 112}px;line-height:.9;font-weight:800;font-stretch:92
 </style></head><body><div class="canvas"><div class="in">
 <div class="top">${logo(big ? 170 : 150)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></div>
 <div class="row"><div class="gray">${gray}</div><span class="arrow">→</span>${col}</div>
-${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in English and French</p>' : ''}
+${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in 5 languages</p>' : ''}
 </div></div></body></html>`;
 }
 
@@ -208,6 +223,7 @@ ${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in English and French</
     ['03_settings', settingsPage(), 1920, 1080, 'jpeg'],
     ['04_ready', readyPage(), 1920, 1080, 'jpeg'],
     ['05_prepare', preparePage(), 1920, 1080, 'jpeg'],
+    ['06_new', newPage(), 1920, 1080, 'jpeg'],
     ['github_banner', banner(1760, 520), 1760, 520, 'png'],
     ['github_social_preview', banner(1280, 640), 1280, 640, 'png'],
   ];

@@ -341,7 +341,7 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   const switched = await page.evaluate(() => ({ h2: document.querySelector('#s4 h2').textContent, map: document.querySelector('#s3 h2').textContent, html: document.documentElement.lang,
     sent: window.__sent.slice(-1)[0], options: Array.from(document.querySelectorAll('#lang option')).map(o => o.value), view: document.body.getAttribute('data-v') }));
   if (switched.h2 !== L[other].h_open || switched.map !== L[other].h_map || switched.html !== other || !switched.sent || switched.sent.command !== 'lang'
-      || switched.sent.lang !== other || switched.options.join(',') !== 'auto,fr,en' || switched.view !== 'an') fail('changement de langue incorrect', switched);
+      || switched.sent.lang !== other || switched.options.join(',') !== 'auto,fr,en,de,es,it' || switched.view !== 'an') fail('changement de langue incorrect', switched);
   await page.selectOption('#lang', lang0);
 
   // lien Ko-fi : copie, sans quitter l'onglet

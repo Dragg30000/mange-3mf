@@ -4,12 +4,12 @@
   <a href="../../releases/latest"><img alt="Latest version" src="https://img.shields.io/github/v/release/Dragg30000/mange-3mf?label=version&color=22b3a5"></a>
   <img alt="OrcaSlicer 2.5" src="https://img.shields.io/badge/OrcaSlicer-2.5-22b3a5">
   <img alt="Snapmaker U1" src="https://img.shields.io/badge/Snapmaker-U1-1E5BD8">
-  <img alt="English and French" src="https://img.shields.io/badge/lang-English%20%7C%20Fran%C3%A7ais-6A1B9A">
+  <img alt="5 languages" src="https://img.shields.io/badge/lang-EN%20%7C%20FR%20%7C%20DE%20%7C%20ES%20%7C%20IT-6A1B9A">
   <a href="LICENSE"><img alt="License GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-8b919b"></a>
   <a href="https://ko-fi.com/dragg"><img alt="Buy Dragg a coffee on Ko-fi" src="https://img.shields.io/badge/Ko--fi-buy%20Dragg%20a%20coffee-FF5E5B?logo=ko-fi&logoColor=white"></a>
 </p>
 
-<p align="center"><b>Opened a MakerWorld model in OrcaSlicer for your U1 and lost the colors?<br>Mange-3MF brings them back: one filament per color, with your own settings.</b></p>
+<p align="center"><b>Opened a MakerWorld or Printables model in OrcaSlicer for your U1 and lost the colors?<br>Mange-3MF brings them back: one filament per color, with your own settings.</b></p>
 
 <p align="center">📖 <a href="GUIDE.md"><b>Full user guide</b></a> &nbsp;·&nbsp; 🇫🇷 <a href="LISEZMOI.md">Mode d'emploi complet en français</a></p>
 
@@ -21,7 +21,7 @@
 
 ## 😩 The problem
 
-Open a 3MF made with another slicer (Bambu Studio for MakerWorld, Snapmaker Orca…) in OrcaSlicer 2.5 for the U1: the parts arrive, the colors don't.
+Open a 3MF made with another slicer (Bambu Studio for MakerWorld, PrusaSlicer for Printables, Snapmaker Orca…) in OrcaSlicer 2.5 for the U1: the parts arrive, the colors don't.
 
 - Orca swaps the author's filaments for its defaults: 4 slots, often 4 × "Generic ABS" of the same color;
 - a 7-color project loses the painting of colors 5 to 7;
@@ -35,9 +35,13 @@ It adds a **Mange-3MF** tab to OrcaSlicer, and the U1 waits for you beside the p
 - 🖌️ **Everything kept**: painting, per-object and per-part colors, modifiers, layer ranges, per-layer color changes, per-feature filaments, plates and their names.
 - ⚙️ **Your settings**: printer, High flow / Standard nozzles, process and plate, saved once from your Orca and shown like on the printer, one card per head. Nothing comes from the author's settings.
 - 🧵 **Your filament presets**: each color gets the closest of your profiles in the same material, or any of your Orca filament presets, which Orca recognizes when it opens the project: no more "…(project.3mf)" copies. One profile can serve several colors: each filament keeps the model's color.
+- 🧩 **PrusaSlicer and Printables projects too**: parts, modifiers, painting, per-layer color changes and layer ranges come along. Plain 3MFs from CAD tools keep their colors.
+- 🧪 **An Orca profile when you lack a material**: the model wants PETG and none of your profiles is PETG? Orca's own U1 profile is suggested, with a warning to check it.
+- 🧠 **Your choices remembered**: pick another profile for a color once, it comes back next time for the same color and material.
+- 🛟 **The author's supports, your call**: one tick keeps the author's supports (type, support filament); otherwise your settings decide.
 - ➕ **Extra colors**: add filaments the model doesn't use, ready to paint or recolor a part in Orca.
 - 🎯 **Your call**: change a filament's color in a click, and choose where the converted files go.
-- 🌍 **English or French**: the tab follows Orca's language, or pick one at the top right.
+- 🌍 **5 languages**: English, French, German, Spanish and Italian. The tab follows Orca's language, or pick one at the top right.
 - 🖥️ **A clean tab**, in the same style as multiACE Bridge: home, analysis, file ready, and a Settings window.
 - 🍽️ **Right there in Prepare**: open a 3MF that isn't set up for the U1 and she shows up beside the plate, offers to eat it, lets you pick colors and profiles, and converts it on the spot. Prefer a notification, or nothing? One setting.
 - 😋 **A hungry U1**: drop a 3MF on the tab and the U1 swallows it, chews during the analysis, then burps the model's colors. Converted files are signed `… - U1-by-Dragg.3mf`.
@@ -59,6 +63,8 @@ It adds a **Mange-3MF** tab to OrcaSlicer, and the U1 waits for you beside the p
 
 ![She waits in Prepare: she asks for the 3MF, you pick colors and profiles, the project is ready](docs/visuals/05_prepare.jpg)
 
+![New in 0.6.0: PrusaSlicer and Printables projects, an Orca profile for a missing material, your choice from last time, the author's supports](docs/visuals/06_new.jpg)
+
 Everything else (what is kept, limits, troubleshooting) is in the **[full user guide](GUIDE.md)**.
 
 <p>
@@ -74,11 +80,11 @@ Orca keeps at least 4 filaments on the U1 (one per head) and can paint 16 filame
 
 ## 🧪 Status
 
-Beta **0.5.3** (the U1 in Prepare). 437 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)). The tab, the analysis, the 0.5.0 interface and the Prepare panel have run in OrcaSlicer 2.5.1. PrusaSlicer files are not supported yet; already-sliced `.gcode.3mf` files are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
+Beta **0.6.0** (PrusaSlicer and Printables projects, Orca profiles for a missing material, remembered choices, the author's supports, 5 languages). 531 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)), plus the tab and the Prepare panel rendered in Chrome. The tab, the analysis, the 0.5.0 interface and the Prepare panel have run in OrcaSlicer 2.5.1. Resin (SLA) projects and already-sliced files (`.gcode.3mf`, `.bgcode`) are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
 
 ## 🌍 Translations
 
-Every text of the plugin and of the tab lives in one table, `TEXTS`, at the top of `mange_3mf_any.py`. To add your language, copy the `"en"` block, translate each text (keep the `{0}`, `{1}`… placeholders and the HTML) and open a pull request. `tests/test_lang.py` checks that nothing is missing.
+Every text of the plugin and of the tab lives in one table, `TEXTS`, at the top of `mange_3mf_any.py`. English, French, German, Spanish and Italian are in. German, Spanish and Italian are new: corrections are welcome. To add your language, copy the `"en"` block, translate each text (keep the `{0}`, `{1}`… placeholders and the HTML) and open a pull request. `tests/test_lang.py` checks that nothing is missing.
 
 ## 🐞 Bugs & ideas
 

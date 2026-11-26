@@ -1,7 +1,7 @@
 """Fabrique les captures de docs/captures (francais) et docs/captures/en (anglais) : donnees reelles du
 plugin (faux OrcaSlicer) + rendu Chrome.
 Usage : python tests/ui/make_captures.py   (necessite Node, playwright-core installe ici, Chrome, Pillow)."""
-import base64, importlib, io, json, os, shutil, subprocess, sys, tempfile
+import base64, importlib, io, json, os, shutil, subprocess, sys, tempfile, time
 UI = os.path.dirname(os.path.abspath(__file__))
 TESTS = os.path.dirname(UI)
 ROOT = os.path.dirname(TESTS)
@@ -16,6 +16,9 @@ def captures(lang, out):
     os.environ["HOME"] = home; os.environ["USERPROFILE"] = home
     shutil.copy(sample("sample_dragon.3mf"), os.path.join(dl, "cute baby dragon.3mf"))
     make_samples.bambu_multiplate(os.path.join(dl, "Capsulas Pokeballs GachaPop.3mf"), plate_label={"fr": "Plaque", "en": "Plate"}[lang])
+    # un projet PrusaSlicer (0.6.0), plus ancien : en bas de la liste
+    prusa = make_samples.prusa_3mf(os.path.join(dl, {"fr": "Dragon articulé (Printables).3mf", "en": "Articulated dragon (Printables).3mf"}[lang]))
+    os.utime(prusa, (time.time() - 3 * 3600, time.time() - 3 * 3600))
     cfg = variant_template().config   # 5 filaments + 1 couleur melangee, comme dans Orca 2.5
     cfg["filament_colour"] = ["#111111", "#FFE11A", "#D32F2F", "#F5F5F5", "#2E7D32", "#808080"]
     cfg["filament_multi_colour"] = list(cfg["filament_colour"])

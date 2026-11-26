@@ -3,14 +3,15 @@
 #
 # [tool.orcaslicer.plugin]
 # name = "Mange-3MF (Snapmaker U1)"
-# description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English or French."
+# description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, PrusaSlicer / Printables, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English, French, German, Spanish or Italian."
 # author = "Dragg avec son ami Claude"
-# version = "0.5.3"
+# version = "0.6.0"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
-Sources acceptees : projets Bambu Studio (MakerWorld), Snapmaker Orca, OrcaSlicer et ses variantes
-(Creality, Elegoo, Anycubic...), 3MF sans reglages. Pas les fichiers deja tranches (.gcode.3mf).
+Sources acceptees : projets Bambu Studio (MakerWorld), PrusaSlicer (Printables), Snapmaker Orca,
+OrcaSlicer et ses variantes (Creality, Elegoo, Anycubic...), 3MF sans reglages (avec leurs couleurs,
+s'ils en ont). Pas les fichiers deja tranches (.gcode.3mf, .bgcode).
 
 Ce que fait la conversion :
 
@@ -25,8 +26,8 @@ Ce que fait la conversion :
   filaments (meme matiere, couleur la plus proche), avec ses reglages Haut debit / Standard ;
 * les couleurs vont si possible dans les cases dont la bobine actuelle est la plus proche.
 
-L'interface est un onglet « Mange-3MF » d'Orca, en francais ou en anglais (langue d'Orca, ou au
-choix dans l'onglet ; tous les textes sont dans TEXTS). Quand Orca ouvre un 3MF pas regle pour la U1,
+L'interface est un onglet « Mange-3MF » d'Orca, en francais, anglais, allemand, espagnol ou italien
+(langue d'Orca, ou au choix dans l'onglet ; tous les textes sont dans TEXTS). Quand Orca ouvre un 3MF pas regle pour la U1,
 la U1 apparait aussi dans un panneau a cote du plateau (Preparer et Apercu) : elle le mange, propose
 tes profils et le convertit (au choix dans les Reglages : panneau, notification seule ou rien). Le
 fichier converti s'ouvre ensuite avec Fichier > Ouvrir (Ctrl+O) : un plugin ne peut pas ouvrir un
@@ -52,7 +53,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.5.3"
+VERSION = "0.6.0"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -68,6 +69,10 @@ LAYER_HEIGHTS = "Metadata/layer_heights_profile.txt"
 BRIM_EARS = "Metadata/brim_ear_points.txt"
 CUT_INFO = "Metadata/cut_information.xml"
 PRUSA_CFG = "Metadata/Slic3r_PE.config"
+PRUSA_MODEL_CFG = "Metadata/Slic3r_PE_model.config"
+PRUSA_GCODE = "Metadata/Prusa_Slicer_custom_gcode_per_print_z.xml"
+PRUSA_RANGES = "Metadata/Prusa_Slicer_layer_config_ranges.xml"
+PRUSA_HEIGHTS = "Metadata/Slic3r_PE_layer_heights_profile.txt"
 
 # Fichiers de la source qu'on ne recopie pas : vignettes et resultats de tranchage de l'auteur,
 # reglages embarques de l'auteur, fichiers recrees par la conversion.
@@ -216,8 +221,9 @@ TEXTS = {
         "lang_title": "Langue de l'onglet",
         # --- onglet
         "sub": "n'importe quel 3MF → ta Snapmaker U1",
-        "lead": "MakerWorld / Bambu Studio, Snapmaker Orca, autres Orca : exactement les couleurs du modèle "
-                "(un filament par couleur), la peinture et les plaques, avec <b>tes</b> réglages.",
+        "lead": "MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, autres Orca : "
+                "exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques, "
+                "avec <b>tes</b> réglages.",
         "h_analysis": "Analyse",
         "h_result": "Fichiers prêts",
         "h_tpl": "Tes réglages pour la conversion",
@@ -439,8 +445,6 @@ TEXTS = {
         "err_no_model": "ce 3MF ne contient pas de modèle 3D",
         "err_ref_unreadable": "projet de référence illisible ({0})",
         "err_ref_not_orca": "le projet de référence doit venir d'OrcaSlicer (trouvé : {0})",
-        "err_prusa": "fichier PrusaSlicer : pas encore géré. Ouvre-le directement dans Orca (il garde la forme "
-                     "et la peinture).",
         "err_sliced": "c'est un fichier déjà tranché (.gcode.3mf) : il ne contient pas le modèle. Télécharge le "
                       "projet 3MF d'origine.",
         "err_no_part": "aucune pièce dans ce 3MF",
@@ -481,6 +485,28 @@ TEXTS = {
         "col_purple": "violet",
         "col_pink": "rose",
         "col_lightpink": "rose clair",
+        # 0.6.0
+        "grp_system": "Profils d'Orca",
+        "w_system": "Aucun de tes profils n'est du {0} : je propose « {1} », un profil d'Orca pour ta U1. "
+                    "Vérifie-le avant d'imprimer.",
+        "w_no_profile": "Aucun profil {0} pour ta U1, ni chez toi ni dans Orca : choisis-en un proche et "
+                        "vérifie les températures.",
+        "err_system_gone": "profil d'Orca « {0} » introuvable : refais l'analyse",
+        "mem_used": "ton choix de la dernière fois",
+        "mem_text": "Quand tu changes le profil d'une couleur, il est repris la fois suivante pour la même "
+                    "couleur et la même matière.",
+        "mem_count": "Couleurs retenues : {0}.",
+        "mem_forget": "Oublier mes choix de profils",
+        "mem_forgot": "C'est oublié.",
+        "sup_keep": "Garder les supports de l'auteur",
+        "sup_hint": "Sinon, les supports de tes réglages.",
+        "sup_tree": "supports arborescents",
+        "sup_normal": "supports normaux",
+        "sup_objects": "supports sur certains objets",
+        "sup_fil": "support en {1} {0}",
+        "sup_iface": "interface en {1} {0}",
+        "err_prusa_sla": "projet PrusaSlicer pour une imprimante résine (SLA) : rien à convertir pour la U1",
+        "w_prusa_keys": "Réglages par objet de PrusaSlicer non repris : {0}.",
     },
     "en": {
         "lang_name": "English",
@@ -488,8 +514,9 @@ TEXTS = {
         "lang_title": "Tab language",
         # --- tab
         "sub": "any 3MF → your Snapmaker U1",
-        "lead": "MakerWorld / Bambu Studio, Snapmaker Orca, other Orca forks: exactly the model's colors "
-                "(one filament per color), the painting and the plates, with <b>your</b> settings.",
+        "lead": "MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, other Orca forks: "
+                "exactly the model's colors (one filament per color), the painting and the plates, with "
+                "<b>your</b> settings.",
         "h_analysis": "Analysis",
         "h_result": "Files ready",
         "h_tpl": "Your settings for the conversion",
@@ -711,8 +738,6 @@ TEXTS = {
         "err_no_model": "this 3MF contains no 3D model",
         "err_ref_unreadable": "unreadable reference project ({0})",
         "err_ref_not_orca": "the reference project must come from OrcaSlicer (found: {0})",
-        "err_prusa": "PrusaSlicer file: not supported yet. Open it directly in Orca (it keeps the shape and "
-                     "the painting).",
         "err_sliced": "this is an already sliced file (.gcode.3mf): it does not contain the model. Download the "
                       "original 3MF project.",
         "err_no_part": "no part in this 3MF",
@@ -753,10 +778,914 @@ TEXTS = {
         "col_purple": "purple",
         "col_pink": "pink",
         "col_lightpink": "light pink",
+        # 0.6.0
+        "grp_system": "Orca profiles",
+        "w_system": "None of your profiles is {0}: I suggest “{1}”, an Orca profile for your U1. Check it "
+                    "before printing.",
+        "w_no_profile": "No {0} profile for your U1, neither yours nor in Orca: pick a close one and check "
+                        "the temperatures.",
+        "err_system_gone": "Orca profile “{0}” not found: analyze the file again",
+        "mem_used": "your choice from last time",
+        "mem_text": "When you change a color's profile, it is picked again next time for the same color and material.",
+        "mem_count": "Colors remembered: {0}.",
+        "mem_forget": "Forget my profile choices",
+        "mem_forgot": "Forgotten.",
+        "sup_keep": "Keep the author's supports",
+        "sup_hint": "Otherwise, your settings' supports.",
+        "sup_tree": "tree supports",
+        "sup_normal": "normal supports",
+        "sup_objects": "supports on some objects",
+        "sup_fil": "{0} {1} support",
+        "sup_iface": "{0} {1} interface",
+        "err_prusa_sla": "PrusaSlicer project for a resin (SLA) printer: nothing to convert for the U1",
+        "w_prusa_keys": "PrusaSlicer per-object settings not carried over: {0}.",
+    },
+    "de": {
+        "lang_name": "Deutsch",
+        "lang_auto": "Auto (Sprache von Orca)",
+        "lang_title": "Sprache des Tabs",
+        "sub": "jedes 3MF → deine Snapmaker U1",
+        "lead": "MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, andere Orca-Varianten: "
+                "genau die Farben des Modells (ein Filament pro Farbe), die Bemalung und die Platten, mit "
+                "<b>deinen</b> Einstellungen.",
+        "h_analysis": "Analyse",
+        "h_result": "Dateien bereit",
+        "h_tpl": "Deine Einstellungen für die Umwandlung",
+        "h_src": "Das 3MF zum Fressen",
+        "capture": "Aktuelle Einstellungen von Orca speichern",
+        "recent_title": "Neueste 3MFs in deinen Downloads",
+        "refresh": "Aktualisieren",
+        "searching": "Suche…",
+        "path_ph": "Oder füge den Pfad eines 3MF ein (Rechtsklick auf die Datei › Als Pfad kopieren)",
+        "analyse": "Analysieren",
+        "browse": "Durchsuchen…",
+        "drop_hint": "Lass ein 3MF auf die U1 fallen: Sie hat Hunger.",
+        "drop": "Mmmh! Lass es fallen…",
+        "u1_click": "oder klick sie an, um eine Datei zu wählen",
+        "u1_title": "Lass hier ein 3MF fallen oder klick, um eins zu wählen",
+        "u1_chomp": "Knusper!",
+        "u1_chew": "Kaue…",
+        "u1_burp": "Rülps! {0}",
+        "u1_spit": "Igitt! Das ist kein 3MF.",
+        "u1_sick": "Igitt! Das bekomme ich nicht runter.",
+        "tpl_saved": "Gespeicherte Einstellungen",
+        "tpl_current": "Aktuelle Einstellungen von Orca",
+        "badge_not_u1": "keine U1",
+        "badge_foreign": "aus dem offenen Projekt",
+        "tpl_hint": "Wähle in Orca deine üblichen Einstellungen (U1, Düsen, Prozess, Platte, Filamente) und "
+                    "klick dann auf „Speichern“: Sie werden für jede Umwandlung verwendet.",
+        "nozzles": "Düsen",
+        "except": "außer",
+        "hf": "High Flow",
+        "std": "Standard",
+        "bed_tpei": "Texturierte PEI-Platte",
+        "bed_cool": "Cool-Platte",
+        "bed_eng": "Engineering-Platte",
+        "bed_hot": "Hochtemperatur-Platte",
+        "bed_tack": "SuperTack-Platte",
+        "bed_tcool": "Texturierte Cool-Platte",
+        "badge_unreadable": "unlesbar",
+        "badge_sliced": "bereits gesliced",
+        "badge_todo": "umzuwandeln",
+        "badge_ok": "schon für die U1",
+        "color1": "Farbe",
+        "colorN": "Farben",
+        "mb": "MB",
+        "kb": "KB",
+        "ago_now": "gerade eben",
+        "ago_min": "vor {0} Min.",
+        "ago_h": "vor {0} Std.",
+        "ago_d": "vor {0} Tag(en)",
+        "opened_in_orca": "in Orca geöffnet",
+        "no_3mf": "Kein 3MF in {0}.",
+        "analysing": "Analysiere…",
+        "by": "von",
+        "nozzle": "Düse",
+        "bed": "Druckbett",
+        "plate1": "Platte",
+        "plateN": "Platten",
+        "one_per_plate": "Eine Datei pro Platte",
+        "file_n": "Datei {0}: ",
+        "n_filaments": "{0} Filamente",
+        "th_color": "Farbe im Modell",
+        "th_profile": "Filamentprofil",
+        "pad_name": "freier Slot",
+        "pad_sub": "keine Farbe des Modells",
+        "extra_name": "zusätzliche Farbe",
+        "extra_sub": "vom Modell nicht verwendet",
+        "extras_note": "Zusätzliche Farben werden von keinem Teil verwendet: Sie sind im Projekt, bereit zum "
+                       "Bemalen oder um ein Teil in Orca umzufärben.",
+        "add_color": "+ Farbe hinzufügen",
+        "remove_color": "Diese Farbe entfernen",
+        "max_colors": "höchstens {0} Filamente",
+        "color_reset_prof": "zurück zur Farbe des Profils",
+        "warn_material": "das Modell will {0}, dieses Profil ist {1}",
+        "mixed": "Mischfarbe",
+        "same_n": "{0} gleiche Filamente",
+        "pads_one": "Orca behält mindestens einen Slot pro Kopf der U1: Slot {0} wird vom Modell nicht "
+                    "verwendet, Farbe und Profil kannst du frei wählen.",
+        "pads_many": "Orca behält mindestens einen Slot pro Kopf der U1: Die Slots {0} und {1} werden vom "
+                     "Modell nicht verwendet, Farben und Profile kannst du frei wählen.",
+        "to_know": "Gut zu wissen",
+        "convert": "Umwandeln",
+        "convert_n": "In {0} Dateien umwandeln",
+        "created_1": "Die Datei wird {0} erstellt. Ein Filament pro Farbe des Modells, mit dem gewählten Profil.",
+        "created_n": "Die Dateien werden {0} erstellt. Ein Filament pro Farbe des Modells, mit dem gewählten Profil.",
+        "converting": "Umwandlung…",
+        "copy_path": "Pfad kopieren",
+        "copied": "Kopiert ✓",
+        "open_hint": "In Orca: <b>Datei › Projekt öffnen</b> (Strg+O), Pfad einfügen und bestätigen. Deine "
+                     "Einstellungen und die Farben sind schon drin.",
+        "not_3mf": "Das ist keine 3MF-Datei: {0}",
+        "too_big": "Datei zu groß, um hier gelesen zu werden ({0}): Leg sie in Downloads oder füge ihren Pfad ein.",
+        "reading": "Lese {0} ({1}/{2})…",
+        "err_upload": "Die Datei ist nicht vollständig angekommen: Lass sie noch einmal fallen.",
+        "grp_slots": "In deinen Einstellungen",
+        "grp_user": "Deine Voreinstellungen",
+        "grp_other": "Für einen anderen Drucker",
+        "pick_color": "Farbe dieses Filaments ändern",
+        "color_changed": "Farbe geändert",
+        "color_reset": "zurück zur Farbe des Modells",
+        "out_title": "Umgewandelte Dateien:",
+        "out_beside": "neben dem Original-3MF",
+        "out_downloads": "in Downloads",
+        "out_folder": "in diesem Ordner",
+        "out_ph": "Ordnerpfad (Rechtsklick auf den Ordner › Als Pfad kopieren)",
+        "out_ok": "OK",
+        "support": "Gefällt dir das Plugin? Spendier Dragg einen Kaffee ☕",
+        "copy_link": "Link kopieren",
+        "home_sub": "Lass eine Datei auf die U1 fallen oder wähle eine aus deinen Downloads.",
+        "say_idle": "Ich hab Hunger.",
+        "say_idle2": "Lass ein 3MF auf mich fallen oder klick, um eins zu wählen.",
+        "busy2": "Ein paar Sekunden, um alles zu kosten.",
+        "say_done": "Das war lecker!",
+        "say_done2": "Noch ein 3MF? Lass es auf mich fallen.",
+        "mini2": "Das habe ich im Modell gefunden.",
+        "recent_sub": "Neueste zuerst.",
+        "edit": "Ändern",
+        "settings": "Einstellungen",
+        "rig_used": "Sie kommen in jedes umgewandelte Projekt.",
+        "rig_sub": "Eine Spalte pro Kopf: sein Filament und seine Düse.",
+        "filament_n": "Filament {0}",
+        "filament_more": "Filamente {0} bis {1}",
+        "via_ace": "via multiACE",
+        "k_printer": "Drucker",
+        "k_process": "Prozess",
+        "h_plates": "Platten",
+        "h_before": "Vor dem Umwandeln",
+        "h_map": "Farben und Filamente",
+        "map_sub": "Jede Farbe des Modells wird ein Filament und behält ihre Farbe, egal welches Profil. Ein "
+                   "Profil kann für mehrere Farben dienen. Klick auf einen Farbpunkt, um die Farbe zu ändern.",
+        "map_busy": "Die U1 liest die Platten, die Farben und die Bemalung.",
+        "th_plates": "Platten",
+        "need_ace": "{0} Filamente für 4 Köpfe: Über 4 braucht deine U1 multiACE.",
+        "need_ace2": "Kein multiACE? Hak „Eine Datei pro Platte“ an: Jede Datei hat nur die Farben ihrer Platte.",
+        "all_good": "Nichts Besonderes: Alles ist bereit zum Umwandeln.",
+        "one_per_hint": "{0} Dateien, eine pro Platte",
+        "res_title": "Dein Projekt ist fertig",
+        "res_title_n": "Deine {0} Projekte sind fertig",
+        "res_sub": "Deine Einstellungen und die Farben sind drin.",
+        "h_open": "In Orca öffnen: 3 Schritte",
+        "open_sub": "Orca lässt ein Plugin kein Projekt selbst öffnen.",
+        "step_copy": "Pfad des Projekts kopieren",
+        "step_open": "In Orca: Datei › Projekt öffnen",
+        "step_paste": "Pfad einfügen und bestätigen",
+        "key_enter": "Eingabe",
+        "orig_kept": "Deine Originaldatei bleibt unverändert.",
+        "back": "Zurück zu den Farben",
+        "again": "Ein weiteres 3MF umwandeln",
+        "cancel": "Abbrechen",
+        "dlg_sub": "Diese Einstellungen kommen in jedes umgewandelte Projekt: Drucker, Düsen, Prozess, "
+                   "Platte und Filamente.",
+        "saved_desc": "Sie bleiben gleich, bis du sie ersetzt.",
+        "current_desc": "Die gerade in Orca angezeigten: Sie ändern sich mit Orca.",
+        "out_h": "Umgewandelte Dateien",
+        "dlg_foot": "Deine Auswahl bleibt für das nächste Mal gespeichert.",
+        "close": "Schließen",
+        "pn_rest2": "Lass ein 3MF auf mich fallen oder öffne es in Orca: Ich sage dir, ob es umgewandelt werden muss.",
+        "pn_rest2b": "Lass ein 3MF auf mich fallen: Ich mache es für deine U1 bereit.",
+        "pn_zone": "3MF hier ablegen",
+        "pn_drag": "Lass los!",
+        "pn_drag2": "Ich nehme es direkt hier, ganz ohne den Tab.",
+        "pn_zone_drag": "Lass dein 3MF los",
+        "pn_offer": "Mmmh!",
+        "pn_offer2": "Dieses 3MF ist nicht für deine U1 eingerichtet.",
+        "pn_eat": "Fressen",
+        "pn_later": "Nicht jetzt",
+        "pn_offer_hint": "Du kannst die Profile ändern und Farben hinzufügen, bevor du umwandelst.",
+        "pn_chew": "Kaue…",
+        "pn_an_hint": "Klick auf einen Punkt, um die Farbe zu ändern. Alles lässt sich auch im Tab Mange-3MF "
+                      "einstellen.",
+        "pn_pads_edit": "Filament für diese Slots wählen",
+        "pn_pads": "freie Slots",
+        "pn_keep_1": "deine Spule",
+        "pn_keep_n": "deine Spulen",
+        "pn_conv": "Ich mache dein Projekt…",
+        "pn_done": "Fertig!",
+        "pn_done_hint": "Dann {0} (Strg+O), Pfad einfügen und bestätigen.",
+        "pn_menu": "Datei › Projekt öffnen",
+        "pn_err": "Igitt!",
+        "pn_ok": "OK",
+        "pn_h": "Wenn Orca ein 3MF öffnet, das nicht für deine U1 eingerichtet ist",
+        "pn_mode_panel": "erscheint die U1 neben der Platte (Vorbereiten und Vorschau)",
+        "pn_mode_notif": "nur eine Benachrichtigung",
+        "pn_mode_off": "nichts",
+        "pn_show": "Die U1 in Vorbereiten zeigen",
+        "pn_shown": "Sie wartet in Vorbereiten und Vorschau.",
+        "pn_mode_label": "Wenn ein 3MF nicht eingerichtet ist:",
+        "pn_opt_panel": "ich erscheine hier",
+        "pn_opt_notif": "eine Benachrichtigung",
+        "pn_opt_off": "nichts",
+        "pn_bye": "Okay, ich verstecke mich.",
+        "pn_bye2": "Um mich zurückzuholen: Tab Mange-3MF, Einstellungen.",
+        "when_saved": "gespeichert am {0:02d}.{1:02d}. um {3:02d}:{4:02d}",
+        "cap_saved": "Einstellungen gespeichert.",
+        "cap_current": "Aktuelle Einstellungen für die Umwandlung gespeichert.",
+        "out_saved": "Ordner gespeichert.",
+        "err_out_dir": "Ordner nicht gefunden: {0}",
+        "dest_in": "in {0}",
+        "downloads": "Downloads",
+        "out_plate1": "{0} - {2} - Platte {1}.3mf",
+        "out_plateN": "{0} - {2} - Platten {1}.3mf",
+        "unknown_app": "unbekannte Software",
+        "another_slicer": "anderes Programm",
+        "unknown": "unbekannt",
+        "unnamed": "ohne Namen",
+        "mix": "Mischung {0}+{1}",
+        "p_analysing": "Analysiere {0}…",
+        "p_converting": "Umwandlung…",
+        "p_file": "Datei {0} von {1}…",
+        "need_u1": "Ich brauche deine U1-Einstellungen: Wähle in Orca deine Snapmaker U1 und deine Profile "
+                   "(oder öffne eins deiner U1-Projekte) und klick dann auf „Aktuelle Einstellungen von Orca "
+                   "speichern“.",
+        "w_cfg_unreadable": "Die Einstellungen des Originalprojekts sind unlesbar: Sie werden ignoriert.",
+        "w_obj_unreadable": "Die Objekteinstellungen sind unlesbar: Die Farben der Objekte werden ignoriert.",
+        "w_mixed_orca": "Das Projekt nutzt Mischfarben (gemischte Filamente von Orca): Jede wird eine "
+                        "Vollfarbe mit eigenem Filament.",
+        "w_mixed_fs": "Das Projekt nutzt Mischfarben (Snapmaker Orca Full Spectrum): Jede wird eine "
+                      "Vollfarbe mit eigenem Filament.",
+        "w_paint": "Ein Teil der Bemalung ist unlesbar: Er bleibt, wie er ist.",
+        "w_paint_max": "Mehr als {0} Farben: Orca kann nur mit den ersten {0} Filamenten malen.",
+        "w_plate": "Platte {0} „{1}“: {2}.",
+        "w_too_big": "zu groß für das Druckbett der U1 ({0:.0f} x {1:.0f} mm)",
+        "w_material": "Filament {0} ({1}): Das Modell will {2}, das gewählte Profil „{3}“ ist {4}. Ändere es "
+                      "bei Bedarf in Orca.",
+        "err_not_3mf": "diese Datei ist kein 3MF (unlesbares Archiv)",
+        "err_no_model": "dieses 3MF enthält kein 3D-Modell",
+        "err_ref_unreadable": "Referenzprojekt unlesbar ({0})",
+        "err_ref_not_orca": "das Referenzprojekt muss von OrcaSlicer stammen (gefunden: {0})",
+        "err_sliced": "das ist eine bereits geslicte Datei (.gcode.3mf): Sie enthält das Modell nicht. Lade "
+                      "das originale 3MF-Projekt herunter.",
+        "err_no_part": "kein Teil in diesem 3MF",
+        "err_profile": "unbekanntes Profil {0}: analysiere die Datei erneut",
+        "err_no_slot": "Filament {0} hat keinen Slot: analysiere die Datei erneut",
+        "err_too_many_extra": "zu viele zusätzliche Farben: höchstens {0} Filamente pro Datei",
+        "err_gone": "kein 3MF mehr offen: Öffne es erneut in Orca oder lass es auf mich fallen",
+        "err_panel": "dieses OrcaSlicer kann das Panel nicht anzeigen (Version 2.5.1 oder neuer nötig)",
+        "err_plates_missing": "Platte(n) {0} fehlen im Plan",
+        "err_not_found": "Datei nicht gefunden: {0}",
+        "err_lost": "Analyse verloren: analysiere die Datei erneut",
+        "err_not_u1": "das offene Projekt ist nicht für eine Snapmaker U1 eingerichtet",
+        "err_nothing": "nichts zu schreiben: starte die Umwandlung erneut",
+        "err_denied": "Zugriff von Orca verweigert: {0}",
+        "err_generic": "Fehler: {0}",
+        "err_in_file": "{0}: {1}",
+        "err_analyse": "{0} konnte nicht analysiert werden: {1}",
+        "err_convert": "Umwandlung fehlgeschlagen: {0}",
+        "err_storage": "Speicherordner des Plugins nicht verfügbar",
+        "n_foreign": "„{0}“ – {1}{2}: Farben und Einstellungen passen nicht zu deiner U1.",
+        "n_link": "Umwandlung im Tab Mange-3MF vorbereiten",
+        "n_ready": "Die Umwandlung von „{0}“ ist bereit: Öffne den Tab Mange-3MF.",
+        "n_error": "Mange-3MF: {0}",
+        "col_black": "Schwarz",
+        "col_white": "Weiß",
+        "col_lightgrey": "Hellgrau",
+        "col_grey": "Grau",
+        "col_darkgrey": "Dunkelgrau",
+        "col_brown": "Braun",
+        "col_beige": "Beige",
+        "col_red": "Rot",
+        "col_orange": "Orange",
+        "col_yellow": "Gelb",
+        "col_green": "Grün",
+        "col_turquoise": "Türkis",
+        "col_blue": "Blau",
+        "col_purple": "Lila",
+        "col_pink": "Rosa",
+        "col_lightpink": "Hellrosa",
+        "grp_system": "Profile von Orca",
+        "w_system": "Keines deiner Profile ist {0}: Ich schlage „{1}“ vor, ein Profil von Orca für deine U1. "
+                    "Prüfe es vor dem Drucken.",
+        "w_no_profile": "Kein {0}-Profil für deine U1, weder bei dir noch in Orca: Wähle ein ähnliches und "
+                        "prüfe die Temperaturen.",
+        "err_system_gone": "Profil von Orca „{0}“ nicht gefunden: analysiere die Datei erneut",
+        "mem_used": "deine Wahl vom letzten Mal",
+        "mem_text": "Wenn du das Profil einer Farbe änderst, wird es beim nächsten Mal für dieselbe Farbe "
+                    "und dasselbe Material wieder genommen.",
+        "mem_count": "Gemerkte Farben: {0}.",
+        "mem_forget": "Meine Profilwahl vergessen",
+        "mem_forgot": "Vergessen.",
+        "sup_keep": "Stützen des Autors behalten",
+        "sup_hint": "Sonst die Stützen deiner Einstellungen.",
+        "sup_tree": "Baumstützen",
+        "sup_normal": "normale Stützen",
+        "sup_objects": "Stützen an einigen Objekten",
+        "sup_fil": "Stützen in {0} ({1})",
+        "sup_iface": "Schnittstelle in {0} ({1})",
+        "err_prusa_sla": "PrusaSlicer-Projekt für einen Harzdrucker (SLA): nichts für die U1 umzuwandeln",
+        "w_prusa_keys": "Objekteinstellungen von PrusaSlicer nicht übernommen: {0}.",
+    },
+    "es": {
+        "lang_name": "Español",
+        "lang_auto": "Auto (idioma de Orca)",
+        "lang_title": "Idioma de la pestaña",
+        "sub": "cualquier 3MF → tu Snapmaker U1",
+        "lead": "MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, otras variantes de "
+                "Orca: exactamente los colores del modelo (un filamento por color), la pintura y las placas, "
+                "con <b>tus</b> ajustes.",
+        "h_analysis": "Análisis",
+        "h_result": "Archivos listos",
+        "h_tpl": "Tus ajustes para la conversión",
+        "h_src": "El 3MF que comer",
+        "capture": "Guardar los ajustes actuales de Orca",
+        "recent_title": "Últimos 3MF en tus Descargas",
+        "refresh": "Actualizar",
+        "searching": "Buscando…",
+        "path_ph": "O pega la ruta de un 3MF (clic derecho en el archivo › Copiar como ruta de acceso)",
+        "analyse": "Analizar",
+        "browse": "Examinar…",
+        "drop_hint": "Suelta un 3MF sobre la U1: tiene hambre.",
+        "drop": "¡Ñam! Suéltalo…",
+        "u1_click": "o haz clic en ella para elegir un archivo",
+        "u1_title": "Suelta aquí un 3MF o haz clic para elegir uno",
+        "u1_chomp": "¡Crunch!",
+        "u1_chew": "Masticando…",
+        "u1_burp": "¡Burp! {0}",
+        "u1_spit": "¡Puaj! Eso no es un 3MF.",
+        "u1_sick": "¡Puaj! Esto no hay quien se lo trague.",
+        "tpl_saved": "Ajustes guardados",
+        "tpl_current": "Ajustes actuales de Orca",
+        "badge_not_u1": "no es una U1",
+        "badge_foreign": "del proyecto abierto",
+        "tpl_hint": "Elige tus ajustes habituales en Orca (U1, boquillas, proceso, placa, filamentos) y haz "
+                    "clic en “Guardar”: se usarán en cada conversión.",
+        "nozzles": "boquillas",
+        "except": "excepto",
+        "hf": "High flow",
+        "std": "Estándar",
+        "bed_tpei": "placa PEI texturizada",
+        "bed_cool": "placa Cool",
+        "bed_eng": "placa Engineering",
+        "bed_hot": "placa de alta temperatura",
+        "bed_tack": "placa SuperTack",
+        "bed_tcool": "placa Cool texturizada",
+        "badge_unreadable": "ilegible",
+        "badge_sliced": "ya laminado",
+        "badge_todo": "por convertir",
+        "badge_ok": "ya para la U1",
+        "color1": "color",
+        "colorN": "colores",
+        "mb": "MB",
+        "kb": "KB",
+        "ago_now": "ahora mismo",
+        "ago_min": "hace {0} min",
+        "ago_h": "hace {0} h",
+        "ago_d": "hace {0} d",
+        "opened_in_orca": "abierto en Orca",
+        "no_3mf": "Ningún 3MF en {0}.",
+        "analysing": "Analizando…",
+        "by": "de",
+        "nozzle": "boquilla",
+        "bed": "cama",
+        "plate1": "placa",
+        "plateN": "placas",
+        "one_per_plate": "Un archivo por placa",
+        "file_n": "Archivo {0}: ",
+        "n_filaments": "{0} filamentos",
+        "th_color": "Color del modelo",
+        "th_profile": "Perfil de filamento",
+        "pad_name": "ranura libre",
+        "pad_sub": "sin color del modelo",
+        "extra_name": "color extra",
+        "extra_sub": "no lo usa el modelo",
+        "extras_note": "Ninguna pieza usa los colores extra: estarán en el proyecto, listos para pintar o "
+                       "para cambiar el color de una pieza en Orca.",
+        "add_color": "+ Añadir un color",
+        "remove_color": "Quitar este color",
+        "max_colors": "{0} filamentos como máximo",
+        "color_reset_prof": "volver al color del perfil",
+        "warn_material": "el modelo pide {0}, este perfil es {1}",
+        "mixed": "color mezclado",
+        "same_n": "{0} filamentos idénticos",
+        "pads_one": "Orca mantiene al menos una ranura por cabezal de la U1: el modelo no usa la ranura {0}, "
+                    "su color y su perfil los eliges tú.",
+        "pads_many": "Orca mantiene al menos una ranura por cabezal de la U1: el modelo no usa las ranuras "
+                     "{0} y {1}, sus colores y perfiles los eliges tú.",
+        "to_know": "Conviene saber",
+        "convert": "Convertir",
+        "convert_n": "Convertir en {0} archivos",
+        "created_1": "El archivo se crea {0}. Un filamento por color del modelo, con el perfil elegido.",
+        "created_n": "Los archivos se crean {0}. Un filamento por color del modelo, con el perfil elegido.",
+        "converting": "Convirtiendo…",
+        "copy_path": "Copiar ruta",
+        "copied": "Copiado ✓",
+        "open_hint": "En Orca: <b>Archivo › Abrir proyecto</b> (Ctrl+O), pega la ruta y confirma. Tus "
+                     "ajustes y los colores ya están dentro.",
+        "not_3mf": "Esto no es un archivo 3MF: {0}",
+        "too_big": "Archivo demasiado grande para leerlo aquí ({0}): ponlo en Descargas o pega su ruta.",
+        "reading": "Leyendo {0} ({1}/{2})…",
+        "err_upload": "El archivo no llegó completo: suéltalo otra vez.",
+        "grp_slots": "En tus ajustes",
+        "grp_user": "Tus preajustes",
+        "grp_other": "Para otra impresora",
+        "pick_color": "Cambiar el color de este filamento",
+        "color_changed": "color cambiado",
+        "color_reset": "volver al color del modelo",
+        "out_title": "Archivos convertidos:",
+        "out_beside": "junto al 3MF original",
+        "out_downloads": "en Descargas",
+        "out_folder": "en esta carpeta",
+        "out_ph": "Ruta de la carpeta (clic derecho en la carpeta › Copiar como ruta de acceso)",
+        "out_ok": "OK",
+        "support": "¿Te gusta el plugin? Invita a Dragg a un café ☕",
+        "copy_link": "Copiar enlace",
+        "home_sub": "Suelta un archivo sobre la U1 o elige uno de tus Descargas.",
+        "say_idle": "Tengo hambre.",
+        "say_idle2": "Suéltame un 3MF encima o haz clic para elegir uno.",
+        "busy2": "Unos segundos para probarlo todo.",
+        "say_done": "¡Estaba delicioso!",
+        "say_done2": "¿Otro 3MF? Suéltamelo encima.",
+        "mini2": "Esto es lo que encontré en el modelo.",
+        "recent_sub": "Los más recientes primero.",
+        "edit": "Cambiar",
+        "settings": "Ajustes",
+        "rig_used": "Van en cada proyecto convertido.",
+        "rig_sub": "Una columna por cabezal: su filamento y su boquilla.",
+        "filament_n": "filamento {0}",
+        "filament_more": "filamentos {0} a {1}",
+        "via_ace": "vía multiACE",
+        "k_printer": "Impresora",
+        "k_process": "Proceso",
+        "h_plates": "Placas",
+        "h_before": "Antes de convertir",
+        "h_map": "Colores y filamentos",
+        "map_sub": "Cada color del modelo se convierte en un filamento y conserva su color, sea cual sea el "
+                   "perfil. Un mismo perfil puede servir para varios colores. Haz clic en una muestra para "
+                   "cambiar el color.",
+        "map_busy": "La U1 está leyendo las placas, los colores y la pintura.",
+        "th_plates": "Placas",
+        "need_ace": "{0} filamentos para 4 cabezales: por encima de 4, tu U1 necesita multiACE.",
+        "need_ace2": "¿Sin multiACE? Marca “Un archivo por placa”: cada archivo solo tiene los colores de su placa.",
+        "all_good": "Nada especial: todo está listo para convertir.",
+        "one_per_hint": "{0} archivos, uno por placa",
+        "res_title": "Tu proyecto está listo",
+        "res_title_n": "Tus {0} proyectos están listos",
+        "res_sub": "Tus ajustes y los colores están dentro.",
+        "h_open": "Ábrelo en Orca: 3 pasos",
+        "open_sub": "Orca no deja que un plugin abra un proyecto por sí solo.",
+        "step_copy": "Copia la ruta del proyecto",
+        "step_open": "En Orca: Archivo › Abrir proyecto",
+        "step_paste": "Pega la ruta y confirma",
+        "key_enter": "Intro",
+        "orig_kept": "Tu archivo original no se modifica.",
+        "back": "Volver a los colores",
+        "again": "Convertir otro 3MF",
+        "cancel": "Cancelar",
+        "dlg_sub": "Estos ajustes van en cada proyecto convertido: impresora, boquillas, proceso, placa y filamentos.",
+        "saved_desc": "Se mantienen hasta que los sustituyas.",
+        "current_desc": "Los que muestra Orca ahora mismo: cambian con Orca.",
+        "out_h": "Archivos convertidos",
+        "dlg_foot": "Tus elecciones se guardan para la próxima vez.",
+        "close": "Cerrar",
+        "pn_rest2": "Suéltame un 3MF encima o ábrelo en Orca: te diré si hay que convertirlo.",
+        "pn_rest2b": "Suéltame un 3MF encima: lo prepararé para tu U1.",
+        "pn_zone": "Suelta aquí un 3MF",
+        "pn_drag": "¡Suéltalo!",
+        "pn_drag2": "Lo tomo aquí mismo, sin la pestaña.",
+        "pn_zone_drag": "Suelta tu 3MF",
+        "pn_offer": "¡Ñam!",
+        "pn_offer2": "Este 3MF no está preparado para tu U1.",
+        "pn_eat": "Cómetelo",
+        "pn_later": "Ahora no",
+        "pn_offer_hint": "Puedes cambiar los perfiles y añadir colores antes de convertir.",
+        "pn_chew": "Masticando…",
+        "pn_an_hint": "Haz clic en un punto para cambiar el color. Todo se puede ajustar también en la "
+                      "pestaña Mange-3MF.",
+        "pn_pads_edit": "Elige el filamento de estas ranuras",
+        "pn_pads": "ranuras libres",
+        "pn_keep_1": "tu bobina",
+        "pn_keep_n": "tus bobinas",
+        "pn_conv": "Preparando tu proyecto…",
+        "pn_done": "¡Listo!",
+        "pn_done_hint": "Luego {0} (Ctrl+O), pega la ruta y confirma.",
+        "pn_menu": "Archivo › Abrir proyecto",
+        "pn_err": "¡Puaj!",
+        "pn_ok": "OK",
+        "pn_h": "Cuando Orca abre un 3MF no preparado para tu U1",
+        "pn_mode_panel": "la U1 aparece junto a la placa (Preparar y Previsualizar)",
+        "pn_mode_notif": "solo una notificación",
+        "pn_mode_off": "nada",
+        "pn_show": "Poner la U1 en Preparar",
+        "pn_shown": "Te espera en Preparar y Previsualizar.",
+        "pn_mode_label": "Cuando un 3MF no está preparado:",
+        "pn_opt_panel": "aparezco aquí",
+        "pn_opt_notif": "una notificación",
+        "pn_opt_off": "nada",
+        "pn_bye": "Vale, me escondo.",
+        "pn_bye2": "Para traerme de vuelta: pestaña Mange-3MF, Ajustes.",
+        "when_saved": "guardados el {0:02d}/{1:02d} a las {3:02d}:{4:02d}",
+        "cap_saved": "Ajustes guardados.",
+        "cap_current": "Ajustes actuales guardados para la conversión.",
+        "out_saved": "Carpeta guardada.",
+        "err_out_dir": "Carpeta no encontrada: {0}",
+        "dest_in": "en {0}",
+        "downloads": "Descargas",
+        "out_plate1": "{0} - {2} - placa {1}.3mf",
+        "out_plateN": "{0} - {2} - placas {1}.3mf",
+        "unknown_app": "programa desconocido",
+        "another_slicer": "otro programa",
+        "unknown": "desconocido",
+        "unnamed": "sin nombre",
+        "mix": "mezcla {0}+{1}",
+        "p_analysing": "Analizando {0}…",
+        "p_converting": "Convirtiendo…",
+        "p_file": "Archivo {0} de {1}…",
+        "need_u1": "Necesito tus ajustes de la U1: elige tu Snapmaker U1 y tus perfiles en Orca (o abre uno "
+                   "de tus proyectos U1) y haz clic en “Guardar los ajustes actuales de Orca”.",
+        "w_cfg_unreadable": "Los ajustes del proyecto original son ilegibles: se ignoran.",
+        "w_obj_unreadable": "Los ajustes de los objetos son ilegibles: se ignoran los colores de los objetos.",
+        "w_mixed_orca": "El proyecto usa colores mezclados (filamentos mezclados de Orca): cada uno pasa a "
+                        "ser un color sólido con su propio filamento.",
+        "w_mixed_fs": "El proyecto usa colores mezclados (Snapmaker Orca Full Spectrum): cada uno pasa a ser "
+                      "un color sólido con su propio filamento.",
+        "w_paint": "Parte de la pintura es ilegible: se conserva tal cual.",
+        "w_paint_max": "Más de {0} colores: Orca solo puede pintar con los {0} primeros filamentos.",
+        "w_plate": "Placa {0} “{1}”: {2}.",
+        "w_too_big": "demasiado grande para la cama de la U1 ({0:.0f} x {1:.0f} mm)",
+        "w_material": "Filamento {0} ({1}): el modelo pide {2}, el perfil elegido “{3}” es {4}. Cámbialo en "
+                      "Orca si hace falta.",
+        "err_not_3mf": "este archivo no es un 3MF (archivo comprimido ilegible)",
+        "err_no_model": "este 3MF no contiene ningún modelo 3D",
+        "err_ref_unreadable": "proyecto de referencia ilegible ({0})",
+        "err_ref_not_orca": "el proyecto de referencia debe venir de OrcaSlicer (encontrado: {0})",
+        "err_sliced": "es un archivo ya laminado (.gcode.3mf): no contiene el modelo. Descarga el proyecto "
+                      "3MF original.",
+        "err_no_part": "ninguna pieza en este 3MF",
+        "err_profile": "perfil {0} desconocido: vuelve a analizar el archivo",
+        "err_no_slot": "el filamento {0} no tiene ranura: vuelve a analizar el archivo",
+        "err_too_many_extra": "demasiados colores extra: {0} filamentos como máximo por archivo",
+        "err_gone": "ya no hay ningún 3MF abierto: vuelve a abrirlo en Orca o suéltamelo encima",
+        "err_panel": "este OrcaSlicer no puede mostrar el panel (hace falta la versión 2.5.1 o posterior)",
+        "err_plates_missing": "placa(s) {0} fuera del plan",
+        "err_not_found": "archivo no encontrado: {0}",
+        "err_lost": "análisis perdido: vuelve a analizar el archivo",
+        "err_not_u1": "el proyecto abierto no está preparado para una Snapmaker U1",
+        "err_nothing": "nada que escribir: vuelve a lanzar la conversión",
+        "err_denied": "Acceso denegado por Orca: {0}",
+        "err_generic": "Error: {0}",
+        "err_in_file": "{0}: {1}",
+        "err_analyse": "No se pudo analizar {0}: {1}",
+        "err_convert": "La conversión falló: {0}",
+        "err_storage": "carpeta de datos del plugin no disponible",
+        "n_foreign": "“{0}” viene de {1}{2}: colores y ajustes no adaptados a tu U1.",
+        "n_link": "Preparar la conversión en la pestaña Mange-3MF",
+        "n_ready": "La conversión de “{0}” está lista: abre la pestaña Mange-3MF.",
+        "n_error": "Mange-3MF: {0}",
+        "col_black": "negro",
+        "col_white": "blanco",
+        "col_lightgrey": "gris claro",
+        "col_grey": "gris",
+        "col_darkgrey": "gris oscuro",
+        "col_brown": "marrón",
+        "col_beige": "beige",
+        "col_red": "rojo",
+        "col_orange": "naranja",
+        "col_yellow": "amarillo",
+        "col_green": "verde",
+        "col_turquoise": "turquesa",
+        "col_blue": "azul",
+        "col_purple": "morado",
+        "col_pink": "rosa",
+        "col_lightpink": "rosa claro",
+        "grp_system": "Perfiles de Orca",
+        "w_system": "Ninguno de tus perfiles es {0}: propongo “{1}”, un perfil de Orca para tu U1. Revísalo "
+                    "antes de imprimir.",
+        "w_no_profile": "No hay ningún perfil {0} para tu U1, ni tuyo ni en Orca: elige uno parecido y "
+                        "revisa las temperaturas.",
+        "err_system_gone": "perfil de Orca “{0}” no encontrado: vuelve a analizar el archivo",
+        "mem_used": "tu elección de la última vez",
+        "mem_text": "Cuando cambias el perfil de un color, se vuelve a usar la próxima vez para el mismo "
+                    "color y el mismo material.",
+        "mem_count": "Colores recordados: {0}.",
+        "mem_forget": "Olvidar mis perfiles elegidos",
+        "mem_forgot": "Olvidado.",
+        "sup_keep": "Conservar los soportes del autor",
+        "sup_hint": "Si no, los soportes de tus ajustes.",
+        "sup_tree": "soportes en árbol",
+        "sup_normal": "soportes normales",
+        "sup_objects": "soportes en algunos objetos",
+        "sup_fil": "soporte en {1} {0}",
+        "sup_iface": "interfaz en {1} {0}",
+        "err_prusa_sla": "proyecto de PrusaSlicer para una impresora de resina (SLA): nada que convertir para la U1",
+        "w_prusa_keys": "Ajustes por objeto de PrusaSlicer no conservados: {0}.",
+    },
+    "it": {
+        "lang_name": "Italiano",
+        "lang_auto": "Auto (lingua di Orca)",
+        "lang_title": "Lingua della scheda",
+        "sub": "qualsiasi 3MF → la tua Snapmaker U1",
+        "lead": "MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, altre varianti di "
+                "Orca: esattamente i colori del modello (un filamento per colore), la pittura e i piatti, "
+                "con le <b>tue</b> impostazioni.",
+        "h_analysis": "Analisi",
+        "h_result": "File pronti",
+        "h_tpl": "Le tue impostazioni per la conversione",
+        "h_src": "Il 3MF da mangiare",
+        "capture": "Salva le impostazioni attuali di Orca",
+        "recent_title": "Ultimi 3MF nei tuoi Download",
+        "refresh": "Aggiorna",
+        "searching": "Ricerca…",
+        "path_ph": "Oppure incolla il percorso di un 3MF (clic destro sul file › Copia come percorso)",
+        "analyse": "Analizza",
+        "browse": "Sfoglia…",
+        "drop_hint": "Lascia cadere un 3MF sulla U1: ha fame.",
+        "drop": "Gnam! Lascialo…",
+        "u1_click": "o cliccala per scegliere un file",
+        "u1_title": "Lascia qui un 3MF o clicca per sceglierne uno",
+        "u1_chomp": "Crunch!",
+        "u1_chew": "Mastico…",
+        "u1_burp": "Burp! {0}",
+        "u1_spit": "Bleah! Questo non è un 3MF.",
+        "u1_sick": "Bleah! Questo non va giù.",
+        "tpl_saved": "Impostazioni salvate",
+        "tpl_current": "Impostazioni attuali di Orca",
+        "badge_not_u1": "non è una U1",
+        "badge_foreign": "dal progetto aperto",
+        "tpl_hint": "Scegli in Orca le tue impostazioni abituali (U1, ugelli, processo, piatto, filamenti), "
+                    "poi clicca “Salva”: verranno usate per ogni conversione.",
+        "nozzles": "ugelli",
+        "except": "tranne",
+        "hf": "High flow",
+        "std": "Standard",
+        "bed_tpei": "piatto PEI testurizzato",
+        "bed_cool": "piatto Cool",
+        "bed_eng": "piatto Engineering",
+        "bed_hot": "piatto alta temperatura",
+        "bed_tack": "piatto SuperTack",
+        "bed_tcool": "piatto Cool testurizzato",
+        "badge_unreadable": "illeggibile",
+        "badge_sliced": "già slicato",
+        "badge_todo": "da convertire",
+        "badge_ok": "già per la U1",
+        "color1": "colore",
+        "colorN": "colori",
+        "mb": "MB",
+        "kb": "KB",
+        "ago_now": "proprio ora",
+        "ago_min": "{0} min fa",
+        "ago_h": "{0} h fa",
+        "ago_d": "{0} g fa",
+        "opened_in_orca": "aperto in Orca",
+        "no_3mf": "Nessun 3MF in {0}.",
+        "analysing": "Analisi in corso…",
+        "by": "di",
+        "nozzle": "ugello",
+        "bed": "piano",
+        "plate1": "piatto",
+        "plateN": "piatti",
+        "one_per_plate": "Un file per piatto",
+        "file_n": "File {0}: ",
+        "n_filaments": "{0} filamenti",
+        "th_color": "Colore del modello",
+        "th_profile": "Profilo filamento",
+        "pad_name": "slot libero",
+        "pad_sub": "nessun colore del modello",
+        "extra_name": "colore extra",
+        "extra_sub": "non usato dal modello",
+        "extras_note": "I colori extra non sono usati da nessuna parte: saranno nel progetto, pronti per "
+                       "dipingere o ricolorare una parte in Orca.",
+        "add_color": "+ Aggiungi un colore",
+        "remove_color": "Rimuovi questo colore",
+        "max_colors": "{0} filamenti al massimo",
+        "color_reset_prof": "torna al colore del profilo",
+        "warn_material": "il modello vuole {0}, questo profilo è {1}",
+        "mixed": "colore misto",
+        "same_n": "{0} filamenti identici",
+        "pads_one": "Orca tiene almeno uno slot per testina della U1: lo slot {0} non è usato dal modello, "
+                    "colore e profilo sono a tua scelta.",
+        "pads_many": "Orca tiene almeno uno slot per testina della U1: gli slot {0} e {1} non sono usati dal "
+                     "modello, colori e profili sono a tua scelta.",
+        "to_know": "Buono a sapersi",
+        "convert": "Converti",
+        "convert_n": "Converti in {0} file",
+        "created_1": "Il file viene creato {0}. Un filamento per colore del modello, con il profilo scelto.",
+        "created_n": "I file vengono creati {0}. Un filamento per colore del modello, con il profilo scelto.",
+        "converting": "Conversione…",
+        "copy_path": "Copia percorso",
+        "copied": "Copiato ✓",
+        "open_hint": "In Orca: <b>File › Apri progetto</b> (Ctrl+O), incolla il percorso e conferma. Le tue "
+                     "impostazioni e i colori sono già dentro.",
+        "not_3mf": "Questo non è un file 3MF: {0}",
+        "too_big": "File troppo grande per essere letto qui ({0}): mettilo in Download o incolla il suo percorso.",
+        "reading": "Lettura di {0} ({1}/{2})…",
+        "err_upload": "Il file non è arrivato per intero: lascialo cadere di nuovo.",
+        "grp_slots": "Nelle tue impostazioni",
+        "grp_user": "I tuoi preset",
+        "grp_other": "Per un'altra stampante",
+        "pick_color": "Cambia il colore di questo filamento",
+        "color_changed": "colore cambiato",
+        "color_reset": "torna al colore del modello",
+        "out_title": "File convertiti:",
+        "out_beside": "accanto al 3MF originale",
+        "out_downloads": "in Download",
+        "out_folder": "in questa cartella",
+        "out_ph": "Percorso della cartella (clic destro sulla cartella › Copia come percorso)",
+        "out_ok": "OK",
+        "support": "Ti piace il plugin? Offri un caffè a Dragg ☕",
+        "copy_link": "Copia link",
+        "home_sub": "Lascia cadere un file sulla U1 o scegline uno dai tuoi Download.",
+        "say_idle": "Ho fame.",
+        "say_idle2": "Lasciami cadere addosso un 3MF o clicca per sceglierne uno.",
+        "busy2": "Qualche secondo per assaggiare tutto.",
+        "say_done": "Era delizioso!",
+        "say_done2": "Un altro 3MF? Lasciamelo cadere addosso.",
+        "mini2": "Ecco cosa ho trovato nel modello.",
+        "recent_sub": "Prima i più recenti.",
+        "edit": "Cambia",
+        "settings": "Impostazioni",
+        "rig_used": "Finiscono in ogni progetto convertito.",
+        "rig_sub": "Una colonna per testina: il suo filamento e il suo ugello.",
+        "filament_n": "filamento {0}",
+        "filament_more": "filamenti da {0} a {1}",
+        "via_ace": "via multiACE",
+        "k_printer": "Stampante",
+        "k_process": "Processo",
+        "h_plates": "Piatti",
+        "h_before": "Prima di convertire",
+        "h_map": "Colori e filamenti",
+        "map_sub": "Ogni colore del modello diventa un filamento e mantiene il suo colore, qualunque sia il "
+                   "profilo. Uno stesso profilo può servire per più colori. Clicca su un campione per "
+                   "cambiare il colore.",
+        "map_busy": "La U1 sta leggendo i piatti, i colori e la pittura.",
+        "th_plates": "Piatti",
+        "need_ace": "{0} filamenti per 4 testine: oltre 4, la tua U1 ha bisogno di multiACE.",
+        "need_ace2": "Niente multiACE? Spunta “Un file per piatto”: ogni file ha solo i colori del suo piatto.",
+        "all_good": "Niente di particolare: tutto è pronto per la conversione.",
+        "one_per_hint": "{0} file, uno per piatto",
+        "res_title": "Il tuo progetto è pronto",
+        "res_title_n": "I tuoi {0} progetti sono pronti",
+        "res_sub": "Le tue impostazioni e i colori sono dentro.",
+        "h_open": "Aprilo in Orca: 3 passi",
+        "open_sub": "Orca non permette a un plugin di aprire un progetto da solo.",
+        "step_copy": "Copia il percorso del progetto",
+        "step_open": "In Orca: File › Apri progetto",
+        "step_paste": "Incolla il percorso e conferma",
+        "key_enter": "Invio",
+        "orig_kept": "Il tuo file originale non viene modificato.",
+        "back": "Torna ai colori",
+        "again": "Converti un altro 3MF",
+        "cancel": "Annulla",
+        "dlg_sub": "Queste impostazioni finiscono in ogni progetto convertito: stampante, ugelli, processo, "
+                   "piatto e filamenti.",
+        "saved_desc": "Restano uguali finché non le sostituisci.",
+        "current_desc": "Quelle mostrate ora in Orca: cambiano con Orca.",
+        "out_h": "File convertiti",
+        "dlg_foot": "Le tue scelte restano salvate per la prossima volta.",
+        "close": "Chiudi",
+        "pn_rest2": "Lasciami cadere addosso un 3MF o aprilo in Orca: ti dirò se va convertito.",
+        "pn_rest2b": "Lasciami cadere addosso un 3MF: lo preparo per la tua U1.",
+        "pn_zone": "Lascia qui un 3MF",
+        "pn_drag": "Lascialo!",
+        "pn_drag2": "Lo prendo qui, senza la scheda.",
+        "pn_zone_drag": "Molla il tuo 3MF",
+        "pn_offer": "Gnam!",
+        "pn_offer2": "Questo 3MF non è impostato per la tua U1.",
+        "pn_eat": "Mangialo",
+        "pn_later": "Non ora",
+        "pn_offer_hint": "Puoi cambiare i profili e aggiungere colori prima di convertire.",
+        "pn_chew": "Mastico…",
+        "pn_an_hint": "Clicca su un punto per cambiare il colore. Tutto si può impostare anche nella scheda Mange-3MF.",
+        "pn_pads_edit": "Scegli il filamento per questi slot",
+        "pn_pads": "slot liberi",
+        "pn_keep_1": "la tua bobina",
+        "pn_keep_n": "le tue bobine",
+        "pn_conv": "Preparo il tuo progetto…",
+        "pn_done": "È pronto!",
+        "pn_done_hint": "Poi {0} (Ctrl+O), incolla il percorso e conferma.",
+        "pn_menu": "File › Apri progetto",
+        "pn_err": "Bleah!",
+        "pn_ok": "OK",
+        "pn_h": "Quando Orca apre un 3MF non impostato per la tua U1",
+        "pn_mode_panel": "la U1 appare accanto al piatto (Prepara e Anteprima)",
+        "pn_mode_notif": "solo una notifica",
+        "pn_mode_off": "niente",
+        "pn_show": "Metti la U1 in Prepara",
+        "pn_shown": "Ti aspetta in Prepara e Anteprima.",
+        "pn_mode_label": "Quando un 3MF non è impostato:",
+        "pn_opt_panel": "appaio qui",
+        "pn_opt_notif": "una notifica",
+        "pn_opt_off": "niente",
+        "pn_bye": "Ok, mi nascondo.",
+        "pn_bye2": "Per riportarmi: scheda Mange-3MF, Impostazioni.",
+        "when_saved": "salvate il {0:02d}/{1:02d} alle {3:02d}:{4:02d}",
+        "cap_saved": "Impostazioni salvate.",
+        "cap_current": "Impostazioni attuali salvate per la conversione.",
+        "out_saved": "Cartella salvata.",
+        "err_out_dir": "Cartella non trovata: {0}",
+        "dest_in": "in {0}",
+        "downloads": "Download",
+        "out_plate1": "{0} - {2} - piatto {1}.3mf",
+        "out_plateN": "{0} - {2} - piatti {1}.3mf",
+        "unknown_app": "programma sconosciuto",
+        "another_slicer": "un altro programma",
+        "unknown": "sconosciuto",
+        "unnamed": "senza nome",
+        "mix": "miscela {0}+{1}",
+        "p_analysing": "Analisi di {0}…",
+        "p_converting": "Conversione…",
+        "p_file": "File {0} di {1}…",
+        "need_u1": "Mi servono le tue impostazioni U1: scegli la tua Snapmaker U1 e i tuoi profili in Orca "
+                   "(o apri uno dei tuoi progetti U1), poi clicca “Salva le impostazioni attuali di Orca”.",
+        "w_cfg_unreadable": "Le impostazioni del progetto originale sono illeggibili: vengono ignorate.",
+        "w_obj_unreadable": "Le impostazioni degli oggetti sono illeggibili: i colori degli oggetti vengono ignorati.",
+        "w_mixed_orca": "Il progetto usa colori misti (filamenti misti di Orca): ognuno diventa un colore "
+                        "pieno con il suo filamento.",
+        "w_mixed_fs": "Il progetto usa colori misti (Snapmaker Orca Full Spectrum): ognuno diventa un colore "
+                      "pieno con il suo filamento.",
+        "w_paint": "Parte della pittura è illeggibile: resta così com'è.",
+        "w_paint_max": "Più di {0} colori: Orca può dipingere solo con i primi {0} filamenti.",
+        "w_plate": "Piatto {0} “{1}”: {2}.",
+        "w_too_big": "troppo grande per il piano della U1 ({0:.0f} x {1:.0f} mm)",
+        "w_material": "Filamento {0} ({1}): il modello vuole {2}, il profilo scelto “{3}” è {4}. Cambialo in "
+                      "Orca se serve.",
+        "err_not_3mf": "questo file non è un 3MF (archivio illeggibile)",
+        "err_no_model": "questo 3MF non contiene alcun modello 3D",
+        "err_ref_unreadable": "progetto di riferimento illeggibile ({0})",
+        "err_ref_not_orca": "il progetto di riferimento deve venire da OrcaSlicer (trovato: {0})",
+        "err_sliced": "è un file già slicato (.gcode.3mf): non contiene il modello. Scarica il progetto 3MF originale.",
+        "err_no_part": "nessuna parte in questo 3MF",
+        "err_profile": "profilo {0} sconosciuto: analizza di nuovo il file",
+        "err_no_slot": "il filamento {0} non ha uno slot: analizza di nuovo il file",
+        "err_too_many_extra": "troppi colori extra: {0} filamenti al massimo per file",
+        "err_gone": "nessun 3MF più aperto: riaprilo in Orca o lasciamelo cadere addosso",
+        "err_panel": "questo OrcaSlicer non può mostrare il pannello (serve la versione 2.5.1 o successiva)",
+        "err_plates_missing": "piatto/i {0} esclusi dal piano",
+        "err_not_found": "file non trovato: {0}",
+        "err_lost": "analisi persa: analizza di nuovo il file",
+        "err_not_u1": "il progetto aperto non è impostato per una Snapmaker U1",
+        "err_nothing": "niente da scrivere: rilancia la conversione",
+        "err_denied": "Accesso negato da Orca: {0}",
+        "err_generic": "Errore: {0}",
+        "err_in_file": "{0}: {1}",
+        "err_analyse": "Impossibile analizzare {0}: {1}",
+        "err_convert": "Conversione non riuscita: {0}",
+        "err_storage": "cartella dati del plugin non disponibile",
+        "n_foreign": "“{0}” viene da {1}{2}: colori e impostazioni non adatti alla tua U1.",
+        "n_link": "Prepara la conversione nella scheda Mange-3MF",
+        "n_ready": "La conversione di “{0}” è pronta: apri la scheda Mange-3MF.",
+        "n_error": "Mange-3MF: {0}",
+        "col_black": "nero",
+        "col_white": "bianco",
+        "col_lightgrey": "grigio chiaro",
+        "col_grey": "grigio",
+        "col_darkgrey": "grigio scuro",
+        "col_brown": "marrone",
+        "col_beige": "beige",
+        "col_red": "rosso",
+        "col_orange": "arancione",
+        "col_yellow": "giallo",
+        "col_green": "verde",
+        "col_turquoise": "turchese",
+        "col_blue": "blu",
+        "col_purple": "viola",
+        "col_pink": "rosa",
+        "col_lightpink": "rosa chiaro",
+        "grp_system": "Profili di Orca",
+        "w_system": "Nessuno dei tuoi profili è {0}: propongo “{1}”, un profilo di Orca per la tua U1. "
+                    "Controllalo prima di stampare.",
+        "w_no_profile": "Nessun profilo {0} per la tua U1, né tuo né in Orca: scegline uno simile e "
+                        "controlla le temperature.",
+        "err_system_gone": "profilo di Orca “{0}” non trovato: analizza di nuovo il file",
+        "mem_used": "la tua scelta dell'ultima volta",
+        "mem_text": "Quando cambi il profilo di un colore, viene ripreso la volta successiva per lo stesso "
+                    "colore e lo stesso materiale.",
+        "mem_count": "Colori ricordati: {0}.",
+        "mem_forget": "Dimentica i profili scelti",
+        "mem_forgot": "Dimenticato.",
+        "sup_keep": "Mantieni i supporti dell'autore",
+        "sup_hint": "Altrimenti, i supporti delle tue impostazioni.",
+        "sup_tree": "supporti ad albero",
+        "sup_normal": "supporti normali",
+        "sup_objects": "supporti su alcuni oggetti",
+        "sup_fil": "supporto in {1} {0}",
+        "sup_iface": "interfaccia in {1} {0}",
+        "err_prusa_sla": "progetto PrusaSlicer per una stampante a resina (SLA): niente da convertire per la U1",
+        "w_prusa_keys": "Impostazioni per oggetto di PrusaSlicer non riprese: {0}.",
     },
 }
 DEFAULT_LANG = "en"
-_LANG_WORDS = {"french": "fr", "english": "en"}   # noms de langue de Windows (« French_France »)
+_LANG_WORDS = {"french": "fr", "english": "en", "german": "de", "deutsch": "de", "spanish": "es",
+               "italian": "it", "italiano": "it"}  # noms de langue de Windows (« French_France »)
 _LANG = DEFAULT_LANG                              # langue courante (voir set_language)
 
 
@@ -1028,6 +1957,15 @@ def remap_paint(text, mapping):
     return "".join(_HEXC[v] for v in reversed(out))
 
 
+def paint_leaf(state):
+    """Chaine paint_color d'un triangle peint tout entier avec le filament state (0 = celui de la piece)."""
+    if state < 3:
+        return _HEXC[state << 2]
+    if state <= 17:
+        return _HEXC[state - 3] + "C"
+    return _HEXC[state - 18] + "FC"
+
+
 _RE_PAINT_ATTR = re.compile(r'(\s(?:paint_color|slic3rpe:mmu_segmentation)=")([0-9A-Fa-f]+)(")')
 
 
@@ -1253,6 +2191,16 @@ class Source3MF:
         self.path = path
         self.names = [i.filename for i in self.zip.infolist() if not i.filename.endswith("/")]
         self.nameset = set(self.names)
+        self.origin = None          # "prusa" ou "plain" : projet relu comme un projet Orca (voir plus bas)
+        self.keep_supports = False  # garder les supports de l'auteur (ses filaments comptent alors)
+        pre = []
+        if PRUSA_CFG in self.nameset:
+            data, pre = prusa_to_orca(self.zip, self.names)
+            self._reopen(data, "prusa")
+        elif PROJECT_CFG not in self.nameset:
+            data = plain_colors_to_orca(self.zip, self.names)
+            if data is not None:
+                self._reopen(data, "plain")
         self.main = self._main_model_name()
         if self.main not in self.nameset:
             raise ConvertError(tr("err_no_model"))
@@ -1274,7 +2222,24 @@ class Source3MF:
         self.identify = {}
         self.filaments = []
         self.n_filaments = 0
+        self.warnings.extend(pre)
         self._parse()
+
+    def _reopen(self, data, origin):
+        """Projet d'un autre format reecrit en memoire comme un projet Orca : on lit celui-la."""
+        self.zip = zipfile.ZipFile(io.BytesIO(data))
+        self.data = data
+        self.names = [i.filename for i in self.zip.infolist() if not i.filename.endswith("/")]
+        self.nameset = set(self.names)
+        self.origin = origin
+
+    def set_supports(self, keep):
+        """Garder les supports de l'auteur : ses filaments de support et d'interface comptent alors comme
+        utilises sur chaque plaque (ils sont dans le projet converti)."""
+        keep = bool(keep) and author_supports(self) is not None
+        if keep != self.keep_supports:
+            self.keep_supports = keep
+            self._compute_usage()
 
     # ---- acces aux fichiers
     def text(self, name):
@@ -1319,6 +2284,8 @@ class Source3MF:
     # ---- origine du fichier
     @property
     def kind(self):
+        if self.origin:
+            return self.origin
         app = self.application.lower()
         if PRUSA_CFG in self.nameset:
             return "prusa"
@@ -1639,6 +2606,11 @@ class Source3MF:
                     weights[f] = weights.get(f, 0.0) + w
             for f in tool_changes.get(p.id, set()):
                 weights[f] = weights.get(f, 0.0) + 0.3
+            if self.keep_supports and p.instances:
+                sup = author_supports(self) or {}
+                for f in (sup.get("filament", 0), sup.get("interface", 0)):
+                    if f >= 1:
+                        weights[f] = weights.get(f, 0.0) + 0.2
             p.weights = {f: w for f, w in weights.items() if f >= 1}
             p.filaments = set(p.weights)
         self.object_usage = cache
@@ -1833,6 +2805,9 @@ class FilamentPreset:
         self.raw = dict(raw)
         self.other = other          # prevu pour une autre imprimante que celle des reglages
         self.user = False           # prereglage de l'utilisateur (pas un prereglage systeme)
+        self.system = False         # prereglage systeme d'Orca (propose pour une matiere qui te manque)
+        self.light = False          # lu en bref (nom, matiere, couleur) : relu en entier s'il sert
+        self.visible = True         # montre dans les listes d'Orca
         self._cache = {}
 
     @classmethod
@@ -1846,6 +2821,22 @@ class FilamentPreset:
             if value is not None:
                 raw[key] = str(value)
         return cls(preset.name, raw, other)
+
+    @classmethod
+    def light_read(cls, preset):
+        """Prereglage systeme lu en bref : nom, matiere, couleur. Relu en entier a la conversion s'il sert."""
+        raw = {}
+        for key in ("filament_type", "default_filament_colour"):
+            try:
+                value = preset.config_value(key)
+            except Exception:
+                value = None
+            if value is not None:
+                raw[key] = str(value)
+        fp = cls(preset.name, raw)
+        fp.system = fp.light = True
+        fp.visible = bool(getattr(preset, "is_visible", True))
+        return fp
 
     def values(self, key, strings=False):
         """Valeurs d'un reglage (une par variante de buse). strings : le reglage est un texte qui
@@ -1910,7 +2901,72 @@ def read_filament_presets(template):
         except Exception as e:
             log_error("prereglage %d : %s" % (i, e))
     out["user"].sort(key=lambda p: (p.other, p.name.lower()))
+    out["system"] = _system_presets(coll, template, same_printer)
     return out
+
+
+_NOZZLE_IN_NAME = re.compile(r"(\d+(?:\.\d+)?)\s*nozzle", re.I)
+
+
+def _printer_names(template):
+    """Imprimante des reglages et son profil systeme (pour reconnaitre les prereglages qui vont avec)."""
+    cfg = template.config
+    names = {_cfg_str(cfg, "printer_settings_id")}
+    inh = _cfg_list(cfg, "inherits_group")
+    if inh:
+        names.add(inh[-1])
+    return {strip_project_suffix(n) for n in names if n}
+
+
+def _system_presets(coll, template, same_printer):
+    """Prereglages systeme d'Orca pour l'imprimante des reglages, lus en bref. Ils ne sont proposes que
+    pour une matiere du modele qu'aucun de tes profils n'a (PETG, TPU...)."""
+    out = []
+    printers = _printer_names(template)
+    try:
+        nozzle = float((_cfg_list(template.config, "nozzle_diameter") or ["0"])[0])
+        count = coll.size()
+    except Exception:
+        return out
+    for i in range(count):
+        try:
+            p = coll.preset(i)
+            if not getattr(p, "is_system", False) or p.is_default or p.is_project_embedded:
+                continue
+            if same_printer:
+                if not p.is_compatible:
+                    continue
+            else:
+                listed = split_serialized(p.config_value("compatible_printers") or "", True)
+                if listed:
+                    if not printers & set(listed):
+                        continue
+                else:
+                    m = _NOZZLE_IN_NAME.search(p.name)
+                    if "@U1" not in p.name or (m and nozzle and abs(float(m.group(1)) - nozzle) > 1e-6):
+                        continue
+            out.append(FilamentPreset.light_read(p))
+        except Exception as e:
+            log_error("prereglage systeme %d : %s" % (i, e))
+    return out
+
+
+def hydrate_presets(template, files):
+    """Prereglages systeme d'Orca choisis dans un plan : lus en entier (fil de l'interface)."""
+    k = template.slot_count
+    used = {_int(s.get("base"), -1) for f in files or [] for s in f.get("slots") or []}
+    coll = None
+    for j, p in enumerate(template.presets):
+        if not p.light or (k + j) not in used:
+            continue
+        if coll is None:
+            coll = orca.host.preset_bundle().filaments
+        q = coll.find_preset(p.name)
+        if q is None:
+            raise ConvertError(tr("err_system_gone", p.name))
+        full = FilamentPreset.read(q)
+        full.system = True
+        template.presets[j] = full
 
 
 class Template:
@@ -1924,13 +2980,45 @@ class Template:
         self.source = source
         self.presets = []           # prereglages de l'utilisateur proposes en plus des cases
         self.slot_presets = {}      # case -> prereglage d'Orca du meme nom (valeurs a jour)
+        self.system = []            # prereglages systeme d'Orca pour cette imprimante (lus en bref)
 
     def attach(self, presets):
         """Prereglages lus dans Orca (read_filament_presets)."""
         presets = presets or {}
         self.presets = list(presets.get("user") or [])
         self.slot_presets = dict(presets.get("slots") or {})
+        self.system = list(presets.get("system") or [])
         return self
+
+    def add_system(self, missing, per_type=6):
+        """Ajoute a la liste les profils systeme d'Orca des matieres du modele qu'aucun de tes profils n'a
+        (missing : familles de matiere). Retourne ceux ajoutes, le meilleur d'abord pour chaque matiere."""
+        have = {p.name for p in self.presets}
+        added = []
+        for want in sorted(m for m in missing if m and m != "?"):
+            cands = [p for p in self.system if base_type(p.type) == want and p.name not in have]
+            cands.sort(key=lambda p: ((p.type or "").strip().upper() != want, not p.visible, "@u1" not in p.name.lower(),
+                                      "generic" not in p.name.lower(), len(p.name), p.name.lower()))
+            added += cands[:per_type]
+        if added:
+            self.presets = list(self.presets) + added
+        return added
+
+    def profile_index(self, name, want=None):
+        """Numero dans la liste proposee du profil nomme name (une case de tes reglages d'abord), de la
+        matiere want si elle est donnee ; None s'il n'y est plus."""
+        if not name:
+            return None
+
+        def fits(t):
+            return want in (None, "?") or base_type(t) in (want, "?")
+        for i in range(self.slot_count):
+            if self.profile(i)[0] == name and fits(self.slot_types[i]):
+                return i
+        for j, p in enumerate(self.presets):
+            if p.name == name and fits(p.type):
+                return self.slot_count + j
+        return None
 
     def profile(self, index):
         """Profil numero index de la liste proposee : (nom, matiere, prereglage d'Orca ou None,
@@ -2010,7 +3098,8 @@ class Template:
             c = p.color
             out.append({"n": None, "color": c, "fill": c or self.slot_colors[self.closest_slot(p)],
                         "cname": color_name(c) if c else "", "type": p.type or "?",
-                        "base": base_type(p.type), "name": p.name, "group": "other" if p.other else "user"})
+                        "base": base_type(p.type), "name": p.name,
+                        "group": "other" if p.other else ("system" if p.system else "user")})
         return out
 
     @property
@@ -2047,6 +3136,478 @@ class Template:
             "app": self.application,
         }
 
+
+
+# --------------------------------------------------------------------------- projets PrusaSlicer (Printables)
+# Un projet PrusaSlicer est relu en memoire comme un projet Orca : chaque objet devient des
+# sous-objets (un par volume, dans 3D/Objects/), ses reglages par objet et par volume vont dans
+# model_settings.config, les couleurs des extrudeurs dans project_settings.config, la peinture
+# (slic3rpe:mmu_segmentation, meme codage) devient paint_color. Ensuite, meme chemin que les autres.
+
+_PRUSA_VOLUME_TYPES = {"ModelPart": "normal_part", "ParameterModifier": "modifier_part",
+                       "NegativeVolume": "negative_part", "SupportBlocker": "support_blocker",
+                       "SupportEnforcer": "support_enforcer"}
+# reglages par objet ou par volume de PrusaSlicer repris (nom dans Orca) ; les anciens noms de
+# filament par fonction (perimeter_extruder...) sont gardes, la conversion les renomme
+_PRUSA_KEYS = {"layer_height": "layer_height", "perimeters": "wall_loops", "top_solid_layers": "top_shell_layers",
+               "bottom_solid_layers": "bottom_shell_layers", "fill_density": "sparse_infill_density",
+               "support_material": "enable_support", "brim_width": "brim_width",
+               "wipe_into_infill": "flush_into_infill", "wipe_into_objects": "flush_into_objects"}
+# types de code par hauteur : PrusaSlicer (0 couleur, 1 pause, 2 perso, 3 modele, 4 outil) -> Orca
+_PRUSA_GCODE_TYPES = {0: 0, 1: 1, 2: 4, 3: 3, 4: 2}
+_MODEL_HEAD = ('<?xml version="1.0" encoding="UTF-8"?>\n<model unit="millimeter" xml:lang="en-US" '
+               'xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" '
+               'xmlns:BambuStudio="http://schemas.bambulab.com/package/2021" '
+               'xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">\n')
+_RELS_3DMODEL = "http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"
+_IDENTITY_3MF = "1 0 0 0 1 0 0 0 1 0 0 0"
+_IDENTITY_MATRIX = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+
+
+def parse_prusa_config(text):
+    """Metadata/Slic3r_PE.config (lignes « ; cle = valeur ») -> {cle: valeur ecrite}."""
+    cfg = {}
+    for line in text.splitlines():
+        m = re.match(r";\s*([A-Za-z0-9_]+)\s*=\s?(.*)$", line)
+        if m:
+            cfg[m.group(1)] = m.group(2).rstrip("\r")
+    return cfg
+
+
+def prusa_list(value):
+    """Valeur de liste de PrusaSlicer -> textes : « a;b », « "a b";c » ou « 0.4,0.4 »."""
+    v = (value or "").strip()
+    if not v:
+        return []
+    if ";" not in v and '"' not in v:
+        return [x.strip() for x in v.split(",")]
+    out, cur, quoted, i = [], [], False, 0
+    while i < len(v):
+        c = v[i]
+        if quoted:
+            if c == "\\" and i + 1 < len(v):
+                cur.append(v[i + 1])
+                i += 2
+                continue
+            if c == '"':
+                quoted = False
+            else:
+                cur.append(c)
+        elif c == '"':
+            quoted = True
+        elif c == ";":
+            out.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(c)
+        i += 1
+    out.append("".join(cur).strip())
+    return out
+
+
+def prusa_colours(pcfg):
+    """Couleur de chaque extrudeur telle que PrusaSlicer la montre : celle de l'extrudeur si elle est
+    donnee, sinon celle du filament."""
+    ecol, fcol = prusa_list(pcfg.get("extruder_colour")), prusa_list(pcfg.get("filament_colour"))
+    n = max(len(ecol), len(fcol), len(prusa_list(pcfg.get("nozzle_diameter"))), 1)
+    out = []
+    for i in range(n):
+        c = norm_color(ecol[i]) if i < len(ecol) else None
+        out.append(c or (norm_color(fcol[i]) if i < len(fcol) else None) or "#808080")
+    return out
+
+
+def _prusa_project_config(pcfg):
+    """Reglages du projet PrusaSlicer, avec les noms d'Orca, pour l'analyse (couleurs, matieres,
+    plateau, tour d'essuyage, supports de l'auteur)."""
+    colours = prusa_colours(pcfg)
+    n = len(colours)
+
+    def per_ext(key, default=""):
+        vals = prusa_list(pcfg.get(key))
+        return [vals[i] if i < len(vals) else (vals[-1] if vals else default) for i in range(n)]
+    printer = prusa_list(pcfg.get("printer_settings_id"))
+    cfg = {"filament_colour": colours, "filament_type": per_ext("filament_type", "PLA"),
+           "filament_settings_id": per_ext("filament_settings_id"), "filament_vendor": per_ext("filament_vendor"),
+           "nozzle_diameter": per_ext("nozzle_diameter", "0.4"),
+           "printable_area": prusa_list(pcfg.get("bed_shape")) or ["0x0", "250x0", "250x210", "0x210"],
+           "printer_model": pcfg.get("printer_model", ""), "printer_settings_id": printer[0] if printer else "",
+           "wipe_tower_x": [pcfg.get("wipe_tower_x") or "170"], "wipe_tower_y": [pcfg.get("wipe_tower_y") or "140"]}
+    if "support_material" in pcfg:
+        cfg["enable_support"] = "1" if pcfg["support_material"] in ("1", "true") else "0"
+        style = pcfg.get("support_material_style", "")
+        auto = pcfg.get("support_material_auto", "1") in ("1", "true")
+        cfg["support_type"] = ("tree" if style == "organic" else "normal") + ("(auto)" if auto else "(manual)")
+        for a, b in (("support_material_extruder", "support_filament"),
+                     ("support_material_interface_extruder", "support_interface_filament"),
+                     ("support_material_contact_distance", "support_top_z_distance"),
+                     ("support_material_interface_layers", "support_interface_top_layers"),
+                     ("support_material_buildplate_only", "support_on_build_plate_only"),
+                     ("raft_layers", "raft_layers")):
+            if pcfg.get(a) not in (None, ""):
+                cfg[b] = pcfg[a]
+    return cfg
+
+
+def _compose_tf(c, t):
+    """Transformation c (composant) puis t (instance), au format du 3MF (vecteurs lignes)."""
+    r = [[sum(c[3 * i + k] * t[3 * k + j] for k in range(3)) for j in range(3)] for i in range(3)]
+    tr_ = [sum(c[9 + k] * t[3 * k + j] for k in range(3)) + t[9 + j] for j in range(3)]
+    return tuple(r[0] + r[1] + r[2] + tr_)
+
+
+def _prusa_meta(elem):
+    return {md.get("key"): md.get("value", "") for md in elem.findall("metadata") if md.get("key")}
+
+
+def _settings_elems(parent, meta, dropped, is_object):
+    """Metadonnees d'un objet ou d'un volume de PrusaSlicer -> celles d'Orca (model_settings.config)."""
+    if meta.get("name"):
+        ET.SubElement(parent, "metadata", key="name", value=meta["name"])
+    ext = _int(meta.get("extruder"), 0)
+    if is_object or ext >= 1:
+        ET.SubElement(parent, "metadata", key="extruder", value=str(max(1, ext)))
+    for key, value in meta.items():
+        if key in ("name", "extruder", "volume_type", "modifier", "matrix") or key.startswith("source_"):
+            continue
+        if key in FILAMENT_KEYS_LEGACY or key in FILAMENT_KEYS_NEW:
+            ET.SubElement(parent, "metadata", key=key, value=value)
+        elif key in _PRUSA_KEYS:
+            ET.SubElement(parent, "metadata", key=_PRUSA_KEYS[key], value=value)
+        else:
+            dropped.add(key)
+
+
+def _split_mesh(block, ranges):
+    """Maillage d'un objet PrusaSlicer (tous ses volumes) -> un maillage par volume (first, last : rang
+    des triangles), les sommets renumerotes. Retourne les textes <mesh>...</mesh>."""
+    v0, v1 = block.find("<vertices"), block.find("</vertices>")
+    t0, t1 = block.find("<triangles"), block.find("</triangles>")
+    verts = re.findall(r"<vertex\b[^>]*/>", block[v0:v1])
+    tris = re.findall(r"<triangle\b[^>]*/>", block[t0:t1])
+    out = []
+    for first, last in ranges:
+        part = tris[first:last + 1]
+        idx = [tuple(int(x) for x in re.findall(r'\bv[123]="(\d+)"', t)) for t in part]
+        lo = min(min(i) for i in idx) if idx else 0
+        hi = max(max(i) for i in idx) if idx else -1
+        lines = ['<mesh>\n<vertices>\n', "\n".join(verts[lo:hi + 1]), '\n</vertices>\n<triangles>\n']
+        new = []
+        for t, (a, b, c) in zip(part, idx):
+            rest = re.sub(r'\s*\bv[123]="\d+"', "", t[len("<triangle"):])
+            new.append('<triangle v1="%d" v2="%d" v3="%d"%s' % (a - lo, b - lo, c - lo, rest))
+        lines += ["\n".join(new), "\n</triangles>\n</mesh>"]
+        out.append("".join(lines))
+    return out
+
+
+def _rename_paint(text):
+    return (text.replace(" slic3rpe:mmu_segmentation=", " paint_color=")
+            .replace(" slic3rpe:custom_supports=", " paint_supports=")
+            .replace(" slic3rpe:custom_seam=", " paint_seam="))
+
+
+def _prusa_gcodes(data):
+    """Prusa_Slicer_custom_gcode_per_print_z.xml -> custom_gcode_per_layer.xml d'Orca (plaque 1)."""
+    try:
+        root = ET.fromstring(data)
+    except ET.ParseError:
+        return None
+    out = ET.Element("custom_gcodes_per_layer")
+    plate = ET.SubElement(out, "plate")
+    ET.SubElement(plate, "plate_info", id="1")
+    for code in root.findall("code"):
+        gcode = code.get("gcode", "")
+        if code.get("type") is not None:
+            kind = _PRUSA_GCODE_TYPES.get(_int(code.get("type"), 2), 4)
+        else:
+            kind = 0 if gcode == "M600" else 1 if gcode == "M601" else 2 if gcode == "tool_change" else 4
+        ET.SubElement(plate, "layer", top_z=code.get("print_z", "0"), type=str(kind),
+                      extruder=code.get("extruder", "1"), color=code.get("color", ""), extra=code.get("extra", ""),
+                      gcode=gcode)
+    mode = root.find("mode")
+    ET.SubElement(plate, "mode", value=mode.get("value", "MultiAsSingle") if mode is not None else "MultiAsSingle")
+    return _xml_bytes(out)
+
+
+def _prusa_ranges(data):
+    """Prusa_Slicer_layer_config_ranges.xml -> layer_config_ranges.xml d'Orca (extrudeur, hauteur)."""
+    try:
+        root = ET.fromstring(data)
+    except ET.ParseError:
+        return None
+    for rng in root.iter("range"):
+        for opt in list(rng.findall("option")):
+            if opt.get("opt_key") not in ("extruder", "layer_height"):
+                rng.remove(opt)
+    return _xml_bytes(root)
+
+
+def prusa_to_orca(zf, names):
+    """Projet PrusaSlicer -> le meme projet ecrit comme un projet Orca (octets d'un zip), et les
+    alertes. ConvertError s'il n'est pas lisible (ou pour une imprimante resine)."""
+    nameset = set(names)
+    pcfg = parse_prusa_config(zf.read(PRUSA_CFG).decode("utf-8", "replace"))
+    if pcfg.get("printer_technology", "FFF").upper() == "SLA":
+        raise ConvertError(tr("err_prusa_sla"))
+    main_name = MAIN_MODEL if MAIN_MODEL in nameset else next(
+        (n for n in names if n.lower().endswith(".model") and n.lower().startswith("3d/")), None)
+    if not main_name:
+        raise ConvertError(tr("err_no_model"))
+    main = zf.read(main_name).decode("utf-8", "replace")
+    pobjs = {}
+    if PRUSA_MODEL_CFG in nameset:
+        try:
+            for oe in ET.fromstring(zf.read(PRUSA_MODEL_CFG)).findall("object"):
+                pobjs[oe.get("id")] = oe
+        except ET.ParseError:
+            pobjs = {}
+    warnings, dropped = [], set()
+    files, tops, rels = {}, [], []
+    mcfg = ET.Element("config")
+    res0 = main.find("<resources")
+    # objets : ceux qui ont un maillage, et les alias (instances suivantes d'un objet : un composant
+    # vers le premier, que PrusaSlicer ecrit pour chaque instance en plus)
+    found, alias = [], {}
+    rx_obj, pos = re.compile(r"<object\b([^>]*)>"), max(res0, 0)
+    while True:
+        m = rx_obj.search(main, pos)
+        if m is None:
+            break
+        end = main.find("</object>", m.end())
+        if end < 0:
+            break
+        pos = end + len("</object>")
+        a = tag_attrs(m.group(1))
+        if a.get("id") is None:
+            continue
+        if main.find("<mesh", m.end(), end) >= 0:
+            found.append((a, m.end(), end))
+            continue
+        c = re.search(r"<component\b([^>]*)/?>", main[m.end():end])
+        if c:
+            ca = tag_attrs(c.group(1))
+            alias[a["id"]] = (ca.get("objectid"), parse_transform(ca.get("transform")))
+    # numeros des sous-objets : uniques dans tout le projet (Orca partage le maillage de deux
+    # sous-objets de meme numero)
+    next_id = max([_int(a.get("id"), 0) for a, _b, _e in found] + [_int(k, 0) for k in alias] + [0]) + 1
+    for a, b0, b1 in found:
+        oid = a["id"]
+        body = main[b0:b1]
+        mb0, mb1 = body.find("<mesh"), body.rfind("</mesh>")
+        if mb0 < 0 or mb1 < 0:
+            continue
+        block = body[mb0:mb1 + len("</mesh>")]
+        po = pobjs.get(oid)
+        vols = []
+        if po is not None:
+            for ve in po.findall("volume"):
+                vols.append((_int(ve.get("firstid"), 0), _int(ve.get("lastid"), -1), _prusa_meta(ve)))
+        vols.sort(key=lambda v: v[0])
+        n_tri = block.count("<triangle ")
+        if not vols or len(vols) == 1 and vols[0][0] == 0 and vols[0][1] in (-1, n_tri - 1):
+            meshes = [block]
+            vols = [(0, n_tri - 1, vols[0][2] if vols else {})]
+        else:
+            meshes = _split_mesh(block, [(v[0], v[1]) for v in vols])
+        sub = "3D/Objects/object_%s.model" % oid
+        ids = list(range(next_id, next_id + len(meshes)))
+        next_id += len(meshes)
+        objs_text = [' <object id="%d" type="model">\n%s\n </object>' % (i, mesh) for i, mesh in zip(ids, meshes)]
+        files[sub] = (_MODEL_HEAD + ' <metadata name="BambuStudio:3mfVersion">1</metadata>\n <resources>\n'
+                      + _rename_paint("\n".join(objs_text)) + '\n </resources>\n <build/>\n</model>\n').encode("utf-8")
+        rels.append(sub)
+        comps = "".join('    <component p:path="/%s" objectid="%d" transform="%s"/>\n' % (sub, i, _IDENTITY_3MF)
+                        for i in ids)
+        tops.append('  <object id="%s" type="model">\n   <components>\n%s   </components>\n  </object>' % (oid, comps))
+        oe = ET.SubElement(mcfg, "object", id=oid)
+        ometa = _prusa_meta(po) if po is not None else {}
+        if not ometa.get("name"):
+            ometa["name"] = a.get("name") or "Object %s" % oid
+        _settings_elems(oe, ometa, dropped, True)
+        for i, (_f, _l, vm) in zip(ids, vols):
+            subtype = _PRUSA_VOLUME_TYPES.get(vm.get("volume_type"), "modifier_part" if vm.get("modifier") == "1" else "normal_part")
+            pe = ET.SubElement(oe, "part", id=str(i), subtype=subtype)
+            _settings_elems(pe, vm, dropped, False)
+            ET.SubElement(pe, "metadata", key="matrix", value=_IDENTITY_MATRIX)
+    if not tops:
+        raise ConvertError(tr("err_no_part"))
+    # modele principal : metadonnees de PrusaSlicer (sauf les siennes), objets a composants, construction
+    head = main[:res0 if res0 > 0 else 0]
+    meta = "".join(" %s\n" % x for x in re.findall(r'<metadata\s+name="[^"]+"[^>]*>.*?</metadata>', head, re.S)
+                   if 'name="slic3rpe:' not in x)
+    b0, b1 = main.find("<build"), main.find("</build>")
+    build = main[b0:b1 + len("</build>")] if b0 >= 0 and b1 > b0 else "<build/>"
+    if alias:
+        def item(mi):
+            ia = tag_attrs(mi.group(1))
+            target = alias.get(ia.get("objectid"))
+            if target is None:
+                return mi.group(0)
+            tf = _compose_tf(target[1], parse_transform(ia.get("transform")))
+            return '<item objectid="%s" transform="%s" printable="%s"/>' % (
+                target[0], format_transform(tf), ia.get("printable", "1"))
+        build = re.sub(r"<item\b([^>]*?)/?>(?:\s*</item>)?", item, build)
+    files[MAIN_MODEL] = (_MODEL_HEAD + meta + ' <metadata name="BambuStudio:3mfVersion">1</metadata>\n <resources>\n'
+                         + "\n".join(tops) + '\n </resources>\n ' + build + '\n</model>\n').encode("utf-8")
+    files[MAIN_RELS] = ('<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n'
+                        + "".join(' <Relationship Target="/%s" Id="rel-%d" Type="%s"/>\n' % (r, i + 1, _RELS_3DMODEL)
+                                  for i, r in enumerate(rels))
+                        + '</Relationships>\n').encode("utf-8")
+    files[PROJECT_CFG] = json.dumps(_prusa_project_config(pcfg), indent=1).encode("utf-8")
+    files[MODEL_CFG] = _xml_bytes(mcfg)
+    if PRUSA_GCODE in nameset:
+        g = _prusa_gcodes(zf.read(PRUSA_GCODE))
+        if g:
+            files[CUSTOM_GCODE] = g
+    if PRUSA_RANGES in nameset:
+        r = _prusa_ranges(zf.read(PRUSA_RANGES))
+        if r:
+            files[LAYER_RANGES] = r
+    if PRUSA_HEIGHTS in nameset:
+        files[LAYER_HEIGHTS] = zf.read(PRUSA_HEIGHTS)
+    if dropped:
+        warnings.append(tr("w_prusa_keys", ", ".join(sorted(dropped)[:6]) + ("…" if len(dropped) > 6 else "")))
+    keep = [n for n in names if n not in files and n != main_name and not n.startswith("Metadata/Slic3r_PE")
+            and not n.startswith("Metadata/Prusa_Slicer")]
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as out:
+        for n in keep:
+            out.writestr(n, zf.read(n))
+        for n, d in files.items():
+            out.writestr(n, d)
+    return buf.getvalue(), warnings
+
+
+# --------------------------------------------------------------------------- 3MF bruts en couleurs (CAO)
+# Un 3MF sans reglages (Fusion, Onshape, 3D Builder...) peut avoir des couleurs (extension Materials
+# du 3MF : <m:colorgroup>, <basematerials>), par objet (pid / pindex) ou par triangle (pid / p1).
+# Chaque couleur devient un filament ; la couleur d'un objet, son filament ; un triangle d'une autre
+# couleur, de la peinture.
+
+_RE_GROUP = re.compile(r"<((?:\w+:)?colorgroup|basematerials)\b([^>]*)>(.*?)</\1>", re.S)
+_RE_GROUP_ITEM = re.compile(r"<(?:\w+:)?(?:color|base)\b([^>]*)/?>")
+
+
+def _tri_color(palette, ta, opid, opidx):
+    """Couleur d'un triangle : la sienne (pid, p1), sinon celle de son objet (pid, pindex)."""
+    pid = ta.get("pid") or opid
+    if pid is None:
+        return None
+    idx = _int(ta["p1"], 0) if "p1" in ta else (0 if ta.get("pid") else opidx)
+    return palette.get((pid, idx))
+
+
+def plain_colors_to_orca(zf, names):
+    """3MF sans reglages : octets d'un zip ou ses couleurs sont des filaments (project_settings,
+    model_settings, peinture), ou None s'il n'a pas de couleurs."""
+    main_name = MAIN_MODEL if MAIN_MODEL in names else next(
+        (n for n in names if n.lower().endswith(".model") and n.lower().startswith("3d/")), None)
+    if not main_name:
+        return None
+    try:
+        main = zf.read(main_name).decode("utf-8", "replace")
+    except KeyError:
+        return None
+    palette = {}
+    for m in _RE_GROUP.finditer(main):
+        gid = tag_attrs(m.group(2)).get("id")
+        for k, it in enumerate(_RE_GROUP_ITEM.finditer(m.group(3))):
+            a = tag_attrs(it.group(1))
+            c = norm_color(a.get("color") or a.get("displaycolor") or "")
+            if gid is not None and c:
+                palette[(gid, k)] = c
+    if not palette:
+        return None
+    order = []                                  # couleurs dans l'ordre ou elles servent
+
+    def num(color):
+        if color not in order:
+            order.append(color)
+        return order.index(color) + 1
+    b0 = main.find("<build")
+    built = [tag_attrs(x).get("objectid") for x in re.findall(r"<item\b([^>]*?)/?>", main[b0:] if b0 >= 0 else "")]
+    rx_obj, rx_tri = re.compile(r"<object\b([^>]*)>"), re.compile(r"<triangle\b([^>]*)/>")
+    objects, pieces, pos = {}, [], 0
+    while True:
+        m = rx_obj.search(main, pos)
+        if m is None:
+            break
+        end = main.find("</object>", m.end())
+        if end < 0:
+            break
+        pos = end + len("</object>")
+        a = tag_attrs(m.group(1))
+        oid, opid, opidx = a.get("id"), a.get("pid"), _int(a.get("pindex"), 0)
+        if oid is None:
+            continue
+
+        default = palette.get((opid, opidx)) if opid else None
+        body = main[m.end():end]
+        t0, t1 = body.find("<triangles"), body.find("</triangles>")
+        colors = []
+        if t0 >= 0 and t1 > t0:
+            colors = [_tri_color(palette, tag_attrs(t.group(1)), opid, opidx) for t in rx_tri.finditer(body, t0, t1)]
+        if default is None:
+            seen = [c for c in colors if c]
+            default = max(set(seen), key=seen.count) if seen else None
+        comps = [tag_attrs(c.group(1)) for c in re.finditer(r"<component\b([^>]*)/?>", body)]
+        objects[oid] = {"name": a.get("name") or "", "color": default,
+                        "comps": [c.get("objectid") for c in comps if not (c.get("p:path") or c.get("path"))]}
+        if default is not None and any(c and c != default for c in colors):
+            pieces.append((m.end() + t0, m.end() + t1, default, opid, opidx))
+    used = [oid for oid in dict.fromkeys(built) if oid in objects]
+    for oid in used:                            # numeros des filaments : dans l'ordre des objets
+        o = objects[oid]
+        for c in [o["color"]] + [objects[x]["color"] for x in o["comps"] if x in objects]:
+            if c:
+                num(c)
+    if not order:
+        return None
+    # peinture des triangles d'une autre couleur que leur objet (attributs de couleur retires)
+    out, last = [], 0
+    for t0, t1, default, opid, opidx in pieces:
+        ext = num(default)
+        seg = main[t0:t1]
+        parts, k = [], 0
+        for mt in rx_tri.finditer(seg):
+            parts.append(seg[k:mt.start()])
+            ta = tag_attrs(mt.group(1))
+            col = _tri_color(palette, ta, opid, opidx)
+            rest = re.sub(r'\s*\b(?:pid|p1|p2|p3)="[^"]*"', "", mt.group(1))
+            state = num(col) if col else ext
+            parts.append("<triangle%s%s/>" % (rest, ' paint_color="%s"' % paint_leaf(state) if state != ext else ""))
+            k = mt.end()
+        parts.append(seg[k:])
+        out.append(main[last:t0])
+        out.append("".join(parts))
+        last = t1
+    out.append(main[last:])
+    new_main = "".join(out)
+    mcfg = ET.Element("config")
+    for oid in used:
+        o = objects[oid]
+        oe = ET.SubElement(mcfg, "object", id=oid)
+        ET.SubElement(oe, "metadata", key="name", value=o["name"] or "Object %s" % oid)
+        first = o["color"] or next((objects[x]["color"] for x in o["comps"] if x in objects and objects[x]["color"]), None)
+        ET.SubElement(oe, "metadata", key="extruder", value=str(num(first) if first else 1))
+        for x in o["comps"]:
+            c = objects.get(x, {}).get("color")
+            pe = ET.SubElement(oe, "part", id=x, subtype="normal_part")
+            ET.SubElement(pe, "metadata", key="name", value=objects.get(x, {}).get("name") or "Part %s" % x)
+            if c:
+                ET.SubElement(pe, "metadata", key="extruder", value=str(num(c)))
+    cfg = {"filament_colour": list(order), "filament_type": [""] * len(order),
+           "filament_settings_id": [""] * len(order)}
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as z:
+        for n in names:
+            if n != main_name:
+                z.writestr(n, zf.read(n))
+        z.writestr(main_name, new_main.encode("utf-8"))
+        z.writestr(PROJECT_CFG, json.dumps(cfg).encode("utf-8"))
+        z.writestr(MODEL_CFG, _xml_bytes(mcfg))
+    return buf.getvalue()
 
 # --------------------------------------------------------------------------- plan : couleurs -> filaments
 
@@ -2153,24 +3714,201 @@ def default_profile(entry, s, template):
     return min(cands, key=cost)[0]
 
 
-def plan_file(src, template, plate_indices):
-    """Plan d'un fichier converti : une case par couleur utilisee (au moins une par tete)."""
+def plan_file(src, template, plate_indices, choices=None):
+    """Plan d'un fichier converti : une case par couleur utilisee (au moins une par tete). Le profil
+    propose d'office (auto) laisse la place a celui que tu avais choisi pour cette couleur (mem)."""
     layout = order_entries(color_entries(src, plate_indices), template)
     k = template.slot_count
     slots = []
     for s, e in enumerate(layout):
         if e is None:
             slots.append({"src": [], "base": s if s < k else 0})
-        else:
-            slots.append({"src": list(e["src"]), "base": default_profile(e, s, template)})
+            continue
+        auto = default_profile(e, s, template)
+        slot = {"src": list(e["src"]), "base": auto, "auto": auto}
+        mem = template.profile_index(remembered(choices, e), e["base"]) if choices else None
+        if mem is not None:
+            slot["base"] = slot["mem"] = mem
+        slots.append(slot)
     return {"plates": list(plate_indices), "slots": slots}
 
 
-def make_plan(src, template, one_per_plate=False):
+def make_plan(src, template, one_per_plate=False, choices=None):
     """Fichiers a produire : un seul avec toutes les plaques, ou un par plaque."""
     plates = [p.index for p in src.plates if p.instances]
     groups = [[i] for i in plates] if one_per_plate else [plates]
-    return [plan_file(src, template, g) for g in groups if g]
+    return [plan_file(src, template, g, choices) for g in groups if g]
+
+
+# --------------------------------------------------------------------------- memoire des choix
+
+CHOICES_MAX = 300           # couleurs retenues au plus (les plus anciennes partent)
+CHOICE_NEAR = 6.0           # ecart (Delta E) pour reconnaitre une couleur presque identique
+
+
+def choice_key(f):
+    """Cle de la memoire des choix : matiere et couleur d'un filament du modele (None sans couleur)."""
+    if not f or not f.get("color"):
+        return None
+    return "%s|%s" % (f.get("base") or "?", str(f["color"]).upper())
+
+
+def remembered(choices, entry):
+    """Profil choisi la derniere fois pour cette couleur : meme matiere, couleur identique, sinon tres
+    proche. None s'il n'y en a pas."""
+    key = choice_key(entry)
+    if not key or not choices:
+        return None
+    hit = choices.get(key)
+    if isinstance(hit, dict) and hit.get("name"):
+        return hit["name"]
+    base, color = key.split("|", 1)
+    best = None
+    for k, v in choices.items():
+        b, _, c = k.partition("|")
+        if b != base or not isinstance(v, dict) or not v.get("name") or not norm_color(c):
+            continue
+        d = color_distance(color, c)
+        if d <= CHOICE_NEAR and (best is None or d < best[0]):
+            best = (d, v["name"])
+    return best[1] if best else None
+
+
+def learn_choices(choices, src, template, files, analysed):
+    """Memoire des choix apres une conversion : un profil change a la main pour une couleur du modele est
+    retenu ; revenir au profil propose d'office l'oublie. Retourne True si elle a change."""
+    changed = False
+    for fi, f in enumerate(files or []):
+        if fi >= len(analysed or []):
+            break
+        auto = {tuple(s.get("src") or []): s.get("auto") for s in analysed[fi].get("slots") or [] if s.get("src")}
+        for s in f.get("slots") or []:
+            srcs = tuple(_int(x, 0) for x in s.get("src") or [])
+            if not srcs or auto.get(srcs) is None:
+                continue
+            key = choice_key(src.filament(srcs[0]))
+            if key is None:
+                continue
+            base = _int(s.get("base"), -1)
+            if base == auto[srcs]:
+                if key in choices:
+                    del choices[key]
+                    changed = True
+            elif 0 <= base < template.slot_count + len(template.presets):
+                name = template.profile(base)[0]
+                if name and (choices.get(key) or {}).get("name") != name:
+                    choices[key] = {"name": name, "t": time.time()}
+                    changed = True
+    return changed
+
+
+def carry_choices(old_files, old_profiles, profiles, files):
+    """Choix faits a la main (profils, couleurs choisies, couleurs en plus) reportes sur une nouvelle
+    analyse du meme 3MF : garder ou non les supports de l'auteur change les filaments, pas tes choix.
+    old_profiles : (nom, groupe) de chaque profil de l'analyse d'avant."""
+    names = [(p["name"], p["group"]) for p in profiles]
+
+    def base_of(b):
+        b = _int(b, -1)
+        if not 0 <= b < len(old_profiles or []):
+            return None
+        key = tuple(old_profiles[b])
+        return names.index(key) if key in names else None
+
+    def pick_of(o, base, model):
+        c = norm_color(o.get("color") or "")
+        if not c or model:
+            return c
+        p = profiles[base] if 0 <= base < len(profiles) else {}
+        own = norm_color(p.get("color") or "") if p.get("group") != "slot" else None
+        return None if own == c else c              # couleur du profil : pas un choix
+    by_src = {}
+    for f in old_files or []:
+        for s in f.get("slots") or []:
+            src = tuple(_int(x, 0) for x in s.get("src") or [])
+            if src:
+                by_src.setdefault(src, s)
+    for fi, f in enumerate(files):
+        old = (old_files[fi].get("slots") or []) if fi < len(old_files or []) else []
+        for si, s in enumerate(f["slots"]):
+            if s["src"]:
+                o = by_src.get(tuple(s["src"]))
+            else:
+                o = old[si] if si < len(old) and not old[si].get("src") and not old[si].get("extra") else None
+            if not o:
+                continue
+            b = base_of(o.get("base"))
+            if b is not None:
+                s["base"] = b
+            c = pick_of(o, s["base"], bool(s["src"]))
+            if c:
+                s["pick"] = c
+        for o in old:
+            if o.get("extra") and len(f["slots"]) < MAX_PAINT_FILAMENTS:
+                b = base_of(o.get("base"))
+                b = 0 if b is None else b
+                f["slots"].append({"n": len(f["slots"]) + 1, "src": [], "base": b, "pad": False, "extra": True,
+                                   "pick": pick_of(o, b, False)})
+
+
+def missing_materials(src, template):
+    """Matieres du modele qu'aucun de tes profils n'a (ni tes cases, ni tes prereglages)."""
+    plates = [p.index for p in src.plates if p.instances]
+    need = {e["base"] for e in color_entries(src, plates)} - {"?"}
+    have = {base_type(t) for t in template.slot_types}
+    have |= {base_type(p.type) for p in template.presets if not p.other and not p.system}
+    if "?" in have:
+        return set()
+    return need - have
+
+
+# --------------------------------------------------------------------------- supports de l'auteur
+
+# Reglages de supports de l'auteur qu'on ne reprend pas : ils dependent de l'imprimante (largeur de
+# ligne, vitesses, ventilation, filtration).
+_SUPPORT_SKIP = {"support_line_width", "support_speed", "support_interface_speed", "support_air_filtration",
+                 "support_chamber_temp_control", "support_material_interface_fan_speed", "support_multi_bed_types"}
+
+
+def author_supports(src):
+    """Supports du projet de l'auteur, s'il en a : {"on", "objects", "type", "filament", "interface"}."""
+    cfg = src.config or {}
+    on = _cfg_str(cfg, "enable_support") in ("1", "true")
+    objs = any(str((o.keys or {}).get("enable_support", "")) in ("1", "true")
+               for o in src.objects.values() if o.instances)
+    if not on and not objs:
+        return None
+    return {"on": on, "objects": objs, "type": _cfg_str(cfg, "support_type"),
+            "filament": _int(_cfg_str(cfg, "support_filament"), 0),
+            "interface": _int(_cfg_str(cfg, "support_interface_filament"), 0)}
+
+
+def supports_info(src, keep):
+    """Ce que l'onglet et le panneau montrent des supports de l'auteur (None s'il n'en a pas)."""
+    sup = author_supports(src)
+    if not sup:
+        return None
+    desc = [tr("sup_tree" if (sup["type"] or "").lower().startswith("tree") else "sup_normal")] if sup["on"] else [tr("sup_objects")]
+    for key, label in (("filament", "sup_fil"), ("interface", "sup_iface")):
+        i = sup.get(key) or 0
+        if i >= 1:
+            f = src.filament(i)
+            desc.append(tr(label, color_name(f["color"]), f["type"] or "?"))
+    return {"keep": bool(keep), "desc": desc}
+
+
+def copy_author_supports(src_cfg, cfg, mapping):
+    """Reglages de supports de l'auteur dans les reglages du projet converti (filaments renumerotes)."""
+    for key, value in (src_cfg or {}).items():
+        if not isinstance(value, str) or key in _SUPPORT_SKIP or key not in cfg:
+            continue
+        if not (key in ("enable_support", "independent_support_layer_height")
+                or key.startswith(("support_", "tree_support_", "raft_"))):
+            continue
+        if key in ("support_filament", "support_interface_filament"):
+            v = _int(value, 0)
+            value = str(mapping.get(v, 0)) if v >= 1 else "0"
+        cfg[key] = value
 
 
 # --------------------------------------------------------------------------- construction du 3MF converti
@@ -2420,7 +4158,7 @@ def build_project_config(template, slots):
         for b, p in zip(bases, presets):
             if p is None:
                 out.append(values[b])
-            elif key == "different_settings_to_system":
+            elif key == "different_settings_to_system" or (key == "inherits_group" and p.system):
                 out.append("")
             else:
                 out.append(p.scalar(from_preset[key]) or "")
@@ -2475,9 +4213,9 @@ def slot_mapping(slots):
     return {int(idx): j + 1 for j, s in enumerate(slots) for idx in s["src"]}
 
 
-def build_output(src, template, group, slots, report):
+def build_output(src, template, group, slots, report, keep_supports=False):
     """Construit le 3MF converti pour un groupe de plaques. slots : filaments du projet converti
-    (voir plan_file). Retourne les octets du fichier."""
+    (voir plan_file) ; keep_supports : reglages de supports de l'auteur. Retourne les octets du fichier."""
     plates = [src.plates[i] for i in group]
     dest_cols = compute_column_count(len(plates))
     mapping = slot_mapping(slots)
@@ -2574,6 +4312,8 @@ def build_output(src, template, group, slots, report):
         color = s.get("pick") or (src.filament(s["src"][0])["color"] if s["src"] else None)
         cfg_slots.append({"base": base, "preset": preset, "color": color})
     cfg = build_project_config(template, cfg_slots)
+    if keep_supports:
+        copy_author_supports(src.config, cfg, mapping)
     # tour d'essuyage : a la place choisie par l'auteur, deplacee comme les pieces
     sx_list, sy_list = _cfg_list(src.config, "wipe_tower_x"), _cfg_list(src.config, "wipe_tower_y")
     tx_list, ty_list = _cfg_list(cfg, "wipe_tower_x") or ["15"], _cfg_list(cfg, "wipe_tower_y") or ["220"]
@@ -2744,7 +4484,8 @@ OUT_TAG = "U1-by-Dragg"   # signe les fichiers convertis : « modele - U1-by-Dra
 
 def output_name(src, plates, multiple):
     base = os.path.splitext(os.path.basename(src.name or "projet.3mf"))[0]
-    base = re.sub(r"\s*-\s*U1(?:-by-Dragg)?(\s*-\s*(?:plaques?|plates?) [\d\-]+)?$", "", base).strip() or "projet"
+    base = re.sub(r"\s*-\s*U1(?:-by-Dragg)?(\s*-\s*(?:plaques?|plates?|platten?|placas?|piatt[oi]) [\d\-]+)?$", "",
+                  base, flags=re.I).strip() or "projet"
     if not multiple:
         return "%s - %s.3mf" % (base, OUT_TAG)
     ids = "-".join(str(p.id) for p in plates)
@@ -2781,18 +4522,21 @@ def plate_thumbnail(src, plate):
 
 
 def _check_source(src):
-    if src.kind == "prusa":
-        raise ConvertError(tr("err_prusa"))
     if src.is_sliced_only:
         raise ConvertError(tr("err_sliced"))
     if not any(o.instances for o in src.objects.values()):
         raise ConvertError(tr("err_no_part"))
 
 
-def analyze(src, template, one_per_plate=False, with_thumbs=True):
-    """Resultat d'analyse pour l'interface : source, plaques, fichiers prevus, alertes."""
+def analyze(src, template, one_per_plate=False, with_thumbs=True, choices=None, supports=False):
+    """Resultat d'analyse pour l'interface : source, plaques, fichiers prevus, alertes. choices : memoire
+    des choix ; supports : garder les supports de l'auteur. Les profils d'Orca d'une matiere qui te
+    manque sont ajoutes a template.presets."""
     _check_source(src)
-    plan = make_plan(src, template, one_per_plate)
+    src.set_supports(supports)
+    missing = missing_materials(src, template)
+    added = template.add_system(missing) if missing else []
+    plan = make_plan(src, template, one_per_plate, choices)
     filaments = []
     used = set()
     for p in src.plates:
@@ -2821,6 +4565,7 @@ def analyze(src, template, one_per_plate=False, with_thumbs=True):
                 continue
             fl = src.filament(s["src"][0])
             slots.append({"n": j + 1, "src": s["src"], "base": s["base"], "pad": False,
+                          "auto": s.get("auto"), "mem": s.get("mem"),
                           "color": fl["color"] or "#808080", "known": bool(fl["color"]),
                           "name": color_name(fl["color"]), "type": fl["type"] or "?", "ftype": fl["base"],
                           "preset": fl["name"], "mixed": any(src.filament(i)["mixed"] for i in s["src"]),
@@ -2838,6 +4583,9 @@ def analyze(src, template, one_per_plate=False, with_thumbs=True):
         warnings.append(tr("w_paint"))
     if any(len(f["slots"]) > MAX_PAINT_FILAMENTS for f in plan):
         warnings.append(tr("w_paint_max", MAX_PAINT_FILAMENTS))
+    for want in sorted(missing):
+        best = next((p.name for p in added if base_type(p.type) == want), None)
+        warnings.append(tr("w_system", want, best) if best else tr("w_no_profile", want))
     return {
         "source": describe_source(src),
         "filaments": filaments,
@@ -2847,6 +4595,7 @@ def analyze(src, template, one_per_plate=False, with_thumbs=True):
         "heads": template.head_count,
         "max_filaments": MAX_PAINT_FILAMENTS,
         "warnings": warnings,
+        "supports": supports_info(src, src.keep_supports),
     }
 
 
@@ -2904,6 +4653,9 @@ def check_plan(src, template, files):
 def convert(src, template, files, progress=None):
     """Produit les fichiers convertis : liste de dicts {name, data, plates, map, filaments, report}."""
     _check_source(src)
+    sup = [bool(f.get("supports")) for f in files or [] if isinstance(f, dict) and "supports" in f]
+    if sup:                     # sinon : le choix de la derniere analyse
+        src.set_supports(any(sup))
     files = check_plan(src, template, files)
     results = []
     multiple = len(files) > 1
@@ -2920,7 +4672,7 @@ def convert(src, template, files, progress=None):
             want, have = fl["base"], base_type(ftype)
             if want != "?" and have != "?" and want != have:
                 report["warnings"].append(tr("w_material", j + 1, color_name(fl["color"]), want, name or "?", have))
-        data = build_output(src, template, f["plates"], f["slots"], report)
+        data = build_output(src, template, f["plates"], f["slots"], report, keep_supports=src.keep_supports)
         results.append({"name": output_name(src, plates, multiple), "data": data,
                         "plates": [p.id for p in plates], "map": slot_mapping(f["slots"]),
                         "filaments": len(f["slots"]),
@@ -3053,6 +4805,33 @@ def save_options(options):
     os.replace(tmp, path)
 
 
+def _choices_path():
+    return os.path.join(storage_dir(), "choix.json")
+
+
+def load_choices():
+    """Memoire des choix : {"PLA|#F5547C": {"name": profil, "t": date}}."""
+    try:
+        with open(_choices_path(), "r", encoding="utf-8") as f:
+            d = json.load(f)
+        items = d.get("items") if isinstance(d, dict) else None
+        if not isinstance(items, dict):
+            return {}
+        return {k: v for k, v in items.items() if isinstance(v, dict) and v.get("name")}
+    except Exception:
+        return {}
+
+
+def save_choices(items):
+    if len(items) > CHOICES_MAX:
+        items = dict(sorted(items.items(), key=lambda kv: -float(kv[1].get("t") or 0))[:CHOICES_MAX])
+    path = _choices_path()
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump({"v": 1, "items": items}, f, ensure_ascii=False)
+    os.replace(tmp, path)
+
+
 OUT_MODES = ("beside", "downloads", "folder")
 PANEL_MODES = ("panel", "notif", "off")     # 3MF pas regle pour la U1 : panneau, notification, rien
 
@@ -3144,6 +4923,11 @@ def sniff_3mf(path):
                     cfg = json.loads(z.read(PROJECT_CFG).decode("utf-8", "replace"))
                 except ValueError:
                     cfg = {}
+            if PRUSA_CFG in names and not cfg:
+                pc = parse_prusa_config(z.read(PRUSA_CFG).decode("utf-8", "replace"))
+                cfg = {"printer_model": pc.get("printer_model", ""),
+                       "printer_settings_id": (prusa_list(pc.get("printer_settings_id")) or [""])[0],
+                       "filament_colour": prusa_colours(pc)}
             info["printer"] = _cfg_str(cfg, "printer_model") or _cfg_str(cfg, "printer_settings_id")
             cols = {norm_color(c) for c in _cfg_list(cfg, "filament_colour")}
             info["colors"] = len(cols - {None})
@@ -3156,7 +4940,7 @@ def sniff_3mf(path):
 
 
 def needs_conversion(info):
-    if info.get("error") or info.get("prusa"):
+    if info.get("error"):
         return False
     if is_orca_file(info.get("app"), info.get("orca_tag")) and is_u1(info.get("printer")):
         return False
@@ -3375,7 +5159,7 @@ body[data-v=home] .vh.grd,body[data-v=busy] .vb.grd,body[data-v=an] .va.grd,body
  <div class="v va mini" id="miniWrap"><div id="mini"></div><div><div class="say" id="miniSay"></div><div class="say2" data-t="mini2"></div></div></div>
  <div class="v va blk" id="platesWrap"><div class="sec" style="margin-bottom:8px"><h2 data-t="h_plates"></h2></div><div class="plates" id="plates"></div></div>
  <div class="v va blk" id="notesWrap"><div class="sec" style="margin-bottom:8px"><h2 data-t="h_before"></h2></div><div class="notes" id="notes"></div></div>
- <div class="v va" id="opWrap"></div>
+ <div class="v va" id="opWrap" style="flex-direction:column;gap:14px"></div>
 </div>
 <div class="col">
  <div class="v vh blk" id="homeRight">
@@ -3423,7 +5207,7 @@ body[data-v=home] .vh.grd,body[data-v=busy] .vb.grd,body[data-v=an] .va.grd,body
     <div class="row" style="flex-wrap:wrap;margin-top:2px"><button id="pshow" data-t="pn_show"></button><span class="muted small" id="pshowMsg"></span></div></div>
   </div>
  </div>
- <footer style="position:static"><span data-t="dlg_foot"></span><div class="r"><button class="go" id="dlgClose" data-t="close"></button></div></footer>
+ <footer style="position:static"><span data-t="dlg_foot"></span><div class="r"><span class="muted small" id="memMsg"></span><button id="forget" data-t="mem_forget" data-tt="mem_text"></button><button class="go" id="dlgClose" data-t="close"></button></div></footer>
 </div></div>
 
 <div id="eat" class="hidden"><div class="ring"><div id="eatU"></div><div id="eatCap"></div></div></div>
@@ -3567,8 +5351,8 @@ function renderTpl(){var x=tplOf(),h="";
  $("tplChoices").innerHTML=h;$("dlgRig").innerHTML=rigHtml(x);$("dlgRigTitle").textContent=x===S.tpl?t("tpl_saved"):t("tpl_current");
  each('input[name=tc]',function(r){r.onchange=function(){S.choice=r.value;renderTpl();if(S.token)send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})}})}
 /* ---- 3MF lists ---- */
-function fileRow(f,opened){var st=f.error?['grey',t("badge_unreadable")]:f.prusa?['grey','PrusaSlicer']:f.sliced?['grey',t("badge_sliced")]:f.todo?['',t("badge_todo")]:['grey',t("badge_ok")];
- var off=f.error||f.prusa||f.sliced,info=[f.label,f.printer,f.colors?colors(f.colors):"",f.size?size(f.size):""].filter(Boolean).join(", ");
+function fileRow(f,opened){var st=f.error?['grey',t("badge_unreadable")]:f.sliced?['grey',t("badge_sliced")]:f.todo?['',t("badge_todo")]:['grey',t("badge_ok")];
+ var off=f.error||f.sliced,info=[f.label,f.printer,f.colors?colors(f.colors):"",f.size?size(f.size):""].filter(Boolean).join(", ");
  var when=opened?t("opened_in_orca"):ago(f.mtime);
  return '<div class="li'+(off?' off':'')+'">'+docIcon(off?'#6A6E76':'#22B3A5',f.sliced?'G-CODE':'3MF')+'<div style="min-width:0"><div class="nm">'+esc(f.name)+'</div><div class="mt">'+esc(info)+'</div></div><div class="st"><i class="mk '+st[0]+'"></i><span><b>'+esc(st[1])+'</b>'+(when?', '+esc(when):'')+'</span></div><button data-p="'+esc(f.path)+'">'+esc(t("analyse"))+'</button></div>'}
 function bindAnalyze(root){Array.prototype.forEach.call(root.querySelectorAll("button[data-p]"),function(b){b.onclick=function(){analyze({path:b.getAttribute("data-p")})}})}
@@ -3583,11 +5367,11 @@ function analyze(src,cont){if(S.busy&&!cont)return;src.command="analyze";src.tem
  var name=src.name||String(src.path||"").split(/[\\\/]/).pop();if(cont){S.busyText=t("analysing");renderHead()}else busyStart(name,t("analysing"));send(src)}
 /* ---- analysis ---- */
 function profLabel(p){var ty=p.type&&p.type!="?"&&p.type!=p.name?' · '+p.type:'';return (p.n?p.n+' · ':'')+(p.name||p.type)+ty}
-function profOpts(sel){var groups={slot:[],user:[],other:[]};
+function profOpts(sel){var groups={slot:[],user:[],system:[],other:[]};
  /* tes preregl. : tous, comme dans Orca ; ceux deja dans tes reglages y sont aussi (meme profil, meme numero) */
  S.an.profiles.forEach(function(p,i){var g=groups[p.group||"slot"]||groups.slot;g.push({p:p,i:i,on:i==sel});if(p.group=="slot"&&p.user)groups.user.push({p:{name:p.name,type:p.type},i:i})});
  groups.user.sort(function(a,b){return String(a.p.name).toLowerCase()<String(b.p.name).toLowerCase()?-1:1});
- return [["slot","grp_slots"],["user","grp_user"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'+groups[g[0]].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(profLabel(o.p))+'</option>'}).join("")+'</optgroup>':''}).join("")}
+ return [["slot","grp_slots"],["user","grp_user"],["system","grp_system"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'+groups[g[0]].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(profLabel(o.p))+'</option>'}).join("")+'</optgroup>':''}).join("")}
 function fil(i){var a=S.an;for(var j=0;j<a.filaments.length;j++)if(a.filaments[j].index==i)return a.filaments[j];return{color:"#808080",name:"?",type:"?",plates:[]}}
 function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null)S.onePer=!!a.one_per_plate;var h="";
  a.files.forEach(function(f,fi){
@@ -3598,7 +5382,7 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
   f.slots.forEach(function(sl,si){var p=a.profiles[sl.base]||{},free=sl.pad||sl.extra;
    var warn=(!free&&sl.ftype&&sl.ftype!="?"&&p.base&&p.base!="?"&&p.base!=sl.ftype)?'<div class="warn"><i class="mk"></i>'+esc(t("warn_material",sl.ftype,p.base))+'</div>':'';
    var col=slotCol(a,sl),extra=[];if(sl.pad)pads.push(sl.n);if(sl.extra)nex++;
-   if(!free){if(sl.mixed)extra.push(esc(t("mixed")));if(sl.same>1)extra.push(esc(t("same_n",sl.same)))}
+   if(!free){if(sl.mixed)extra.push(esc(t("mixed")));if(sl.same>1)extra.push(esc(t("same_n",sl.same)));if(sl.mem!=null&&sl.base==sl.mem)extra.push(esc(t("mem_used")))}
    if(sl.pick)extra.push('<span class="changed">'+esc(t("color_changed"))+'</span> (<a class="reset" data-rf="'+fi+'" data-rs="'+si+'">'+esc(t(free?"color_reset_prof":"color_reset"))+'</a>)');
    var nm=free?t(sl.pad?"pad_name":"extra_name"):sl.name,sub=free?t(sl.pad?"pad_sub":"extra_sub"):[sl.type,sl.preset].filter(Boolean).join(", ");
    h+='<div class="tr'+(sl.pad?' pad':'')+(sl.extra?' ex':'')+'"><span class="num'+(free?' gr':'')+'">'+sl.n+'</span><div class="cn"><input type="color" class="pick" data-cf="'+fi+'" data-cs="'+si+'" value="'+esc(String(col).slice(0,7))+'" title="'+esc(t("pick_color"))+'"><div class="tx"><div><b>'+esc(nm)+'</b> <span class="sub">'+esc(sub)+'</span></div>'+(extra.length?'<div class="sub">'+extra.join(", ")+'</div>':'')+'</div></div>'
@@ -3619,11 +5403,15 @@ function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null
  if(a.not_ready)nn+='<div><i class="mk coral"></i><span>'+esc(a.not_ready)+'</span></div>';
  if(!nn)nn='<div><i class="mk grey"></i><span>'+esc(t("all_good"))+'</span></div>';
  $("notes").innerHTML=nn;
- $("opWrap").innerHTML=a.plates.length>1?'<label class="check"><input type="checkbox" id="onePer"'+(S.onePer?" checked":"")+'><span>'+esc(t("one_per_plate"))+'<small>'+esc(t("one_per_hint",a.plates.length))+'</small></span></label>':'';
+ var sup=a.supports;
+ $("opWrap").innerHTML=(a.plates.length>1?'<label class="check"><input type="checkbox" id="onePer"'+(S.onePer?" checked":"")+'><span>'+esc(t("one_per_plate"))+'<small>'+esc(t("one_per_hint",a.plates.length))+'</small></span></label>':'')
+  +(sup?'<label class="check"><input type="checkbox" id="keepSup"'+(sup.keep?" checked":"")+'><span>'+esc(t("sup_keep"))+'<small>'+esc(cap1(sup.desc.join(", "))+". "+t("sup_hint"))+'</small></span></label>':'');
  $("dest").innerHTML=esc(a.files.length>1?t("created_n",a.dest_hint):t("created_1",a.dest_hint));
  var cv=$("convert");cv.textContent=a.files.length>1?t("convert_n",a.files.length):t("convert");cv.disabled=!!a.not_ready;
  if(V()=="an")renderHead();if(fresh)top();
  var op=$("onePer");if(op)op.onchange=function(){S.onePer=op.checked;send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer})};
+ /* supports de l'auteur : nouvelle analyse, tes choix restent (le plugin les reporte, « kept ») */
+ var ks=$("keepSup");if(ks)ks.onchange=function(){ks.disabled=true;send({command:"replan",token:S.token,template:S.choice,one_per_plate:S.onePer,supports:ks.checked})};
  each("select[data-f]",function(sel){sel.onchange=function(){a.files[+sel.getAttribute("data-f")].slots[+sel.getAttribute("data-s")].base=+sel.value;renderAnalysis(a)}});
  each("input.pick",function(inp){inp.onchange=function(){var sl=a.files[+inp.getAttribute("data-cf")].slots[+inp.getAttribute("data-cs")],v=inp.value.toUpperCase(),was=sl.pick;delete sl.pick;if(v!=String(slotCol(a,sl)).slice(0,7).toUpperCase())sl.pick=v;else if(!was)return;renderAnalysis(a)}});
  each("button.addc",function(b){b.onclick=function(){var f=a.files[+b.getAttribute("data-af")];if(f.slots.length>=(a.max_filaments||16))return;
@@ -3682,25 +5470,28 @@ function renderOut(){var o=S.out||{mode:"beside",dir:"",msg:""};each('input[name
  var w=o.mode=="folder"&&o.dir?o.dir:o.mode=="downloads"?t("out_downloads"):t("out_beside");$("fHome").innerHTML=esc(t("out_title"))+' <b>'+esc(w)+'</b>'}
 function sendOut(mode){send({command:"outdir",mode:mode,dir:$("outDir").value.trim().replace(/^"|"$/g,"")})}
 /* ---- settings window ---- */
-function openSet(){$("dlg").classList.remove("hidden");var r=document.querySelector('#tplChoices input:checked')||$("capture");if(r)r.focus()}
+function openSet(){S.memForgot=false;renderMem();$("dlg").classList.remove("hidden");var r=document.querySelector('#tplChoices input:checked')||$("capture");if(r)r.focus()}
 function closeSet(){$("dlg").classList.add("hidden")}
 $("openSet").onclick=openSet;$("editSet").onclick=openSet;$("dlgClose").onclick=closeSet;$("dlgX").onclick=closeSet;
 $("dlg").onclick=function(e){if(e.target===$("dlg"))closeSet()};
 document.addEventListener("keydown",function(e){if(e.key=="Escape"&&!$("dlg").classList.contains("hidden"))closeSet()});
 function renderPmode(){each('input[name=pmode]',function(r){r.checked=r.value==S.pmode})}
-function relabel(){statics();renderTpl();renderOpened();renderRecent();renderOut();renderPmode();
+/* memoire des choix : profils changes a la main, repris la fois suivante pour la meme couleur */
+function renderMem(){var n=S.choices||0;$("memMsg").textContent=S.memForgot&&!n?t("mem_forgot"):(n?t("mem_count",n):"");$("forget").disabled=!n}
+function relabel(){statics();renderTpl();renderOpened();renderRecent();renderOut();renderPmode();renderMem();
  if(S.an)renderAnalysis(S.an);if(S.res)renderResult(S.res);if(V()=="busy")skeleton();renderHead()}
 orca.onMessage(function(m){if(!m||!m.command)return;if(m.token&&S.dead[m.token])return;
  if(m.command=="state"){$("ver").textContent="v"+m.version;S.tpl=m.saved;S.cur=m.current;if(!S.tpl)S.choice="current";else if(m.choice)S.choice=m.choice;
   if(m.lang_choice)S.langChoice=m.lang_choice;var nl=(m.lang&&L[m.lang])?m.lang:lang;lang=nl;
-  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;if(m.out)S.out=m.out;if(m.panel)S.pmode=m.panel;relabel()}
+  S.opened=m.opened;if(m.cap!=null)$("capMsg").textContent=m.cap;if(m.out)S.out=m.out;if(m.panel)S.pmode=m.panel;if(m.choices!=null)S.choices=m.choices;relabel()}
  else if(m.command=="recent"){S.rec=m;renderRecent()}
+ else if(m.command=="choices"){S.choices=m.n;renderMem()}
  else if(m.command=="analysis"){
   if(m.relabel){if(S.an&&S.an.token==m.token){keepBases(S.an,m);renderAnalysis(m,false)}return}
   if(S.skip>0){S.skip--;return}
   S.runTok=null;
-  if(S.an&&S.an.token==m.token)carryExtras(S.an,m);   /* nouveau plan du meme fichier */
-  S.busy=false;S.copied=false;S.res=null;status();renderAnalysis(m,true);view("an");burpDots(U.mini,modelCols(m));
+  if(S.an&&S.an.token==m.token&&!m.kept)carryExtras(S.an,m);   /* nouveau plan du meme fichier (kept : tes choix y sont deja) */
+  S.busy=false;S.copied=false;S.res=null;status();renderAnalysis(m,!m.kept);view("an");burpDots(U.mini,modelCols(m));
   if(U.on){u1Set(U.mini,"idle full");eatBurp(m)}else u1Flash(U.mini,"burp",1800)}
  else if(m.command=="plan"){if(S.an&&m.token==S.an.token&&!S.conv&&applyPlan(S.an,m.files)){lastPlan=S.an.token+"|"+JSON.stringify(planOf(S.an));renderAnalysis(S.an)}}
  else if(m.command=="built"){send({command:"write",token:m.token})}
@@ -3717,6 +5508,7 @@ $("browse").onclick=function(){$("file").click()};
 each('input[name=out]',function(r){r.onchange=function(){if(r.value!="folder"||$("outDir").value.trim())sendOut(r.value);else $("outDir").focus()}});
 $("outOk").onclick=function(){if($("outDir").value.trim())sendOut("folder")};
 each('input[name=pmode]',function(r){r.onchange=function(){S.pmode=r.value;send({command:"panel_mode",mode:r.value})}});
+$("forget").onclick=function(){S.memForgot=true;send({command:"forget_choices"})};
 $("pshow").onclick=function(){send({command:"panel_show"});$("pshowMsg").textContent=t("pn_shown")};
 $("outDir").onkeydown=function(e){if(e.key=="Enter")$("outOk").click()};
 $("kofi").onclick=function(){var b=$("kofi");copy("https://ko-fi.com/dragg");b.textContent=t("copied");setTimeout(function(){b.textContent=t("copy_link")},1500)};
@@ -3821,6 +5613,10 @@ body[data-v=drag] .zone{border-color:var(--teal);color:var(--fg);background:var(
 .map .full{color:var(--muted);font-size:12px;text-align:center;margin-top:-2px}
 .map em{margin-left:auto;padding-left:6px;font-style:normal;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;text-align:right}
 .map .free .nm{color:var(--muted)}
+.map .m{color:var(--muted);font-size:12px;line-height:1.35;margin:-2px 2px 2px}
+.map .sup{display:flex;gap:8px;align-items:flex-start;margin-top:6px;font-size:13px;line-height:1.35;cursor:pointer}
+.map .sup input{width:16px;height:16px;margin:1px 0 0;flex:none;accent-color:var(--teal)}
+.map .sup small{display:block;color:var(--muted);font-size:12px}
 .map .w{display:flex;gap:7px;align-items:flex-start;color:#F3C98A;font-size:12px;line-height:1.35;margin:-2px 2px 2px}.map .w .mk{margin-top:3px}
 .num{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 5px;border-radius:5px;background:#E9EAEC;color:#16171A;font-weight:700;font-size:13px;flex:none}
 .num.gr{background:#3A3D43;color:var(--fg)}
@@ -3909,7 +5705,7 @@ function u1For(v,quiet){
 function fil(a,i){for(var j=0;j<a.filaments.length;j++)if(a.filaments[j].index==i)return a.filaments[j];return{color:"#808080",name:"?",base:"?"}}
 /* Couleurs et profils, memes regles que l'onglet : pick = couleur choisie ; pad = case libre de la U1 ; extra = couleur en plus.
    Chaque changement part au plugin (« plan »), qui le donne a l'onglet ; ce que l'onglet change revient ici. */
-function fromAnalysis(a){return a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(s){return{src:s.src||[],base:s.base,pick:null,pad:!!s.pad,extra:false}})}})}
+function fromAnalysis(a){return a.files.map(function(f){return{plates:f.plates,slots:f.slots.map(function(s){return{src:s.src||[],base:s.base,pick:s.pick||null,pad:!!s.pad,extra:!!s.extra}})}})}
 function presetCol(p){return p&&p.group!="slot"&&p.color?String(p.color).slice(0,7):null}
 /* plan de l'onglet -> lignes du panneau (null s'il ne va pas avec cette analyse) */
 function fromPlan(a,files){if(!a||!files||files.length!=a.files.length)return null;var ok=true;
@@ -3926,10 +5722,10 @@ function planOf(){var a=P.an;return P.files.map(function(f){return{plates:f.plat
 /* couleur en plus : la premiere case de tes reglages pas encore dans le fichier */
 function nextBase(a,f){var used={};f.slots.forEach(function(s){used[s.base]=1});for(var i=0;i<a.profiles.length;i++)if(a.profiles[i].group=="slot"&&!used[i])return i;return f.slots.length?f.slots[f.slots.length-1].base:0}
 /* liste des profils : tes reglages, tes prereglages (tous, comme dans Orca), ceux d'une autre imprimante */
-function profOpts(sel){var a=P.an,groups={slot:[],user:[],other:[]};
+function profOpts(sel){var a=P.an,groups={slot:[],user:[],system:[],other:[]};
  a.profiles.forEach(function(p,i){var g=groups[p.group||"slot"]||groups.slot;g.push({p:p,i:i,on:i==sel});if(p.group=="slot"&&p.user)groups.user.push({p:p,i:i})});
  groups.user.sort(function(x,y){return String(x.p.name).toLowerCase()<String(y.p.name).toLowerCase()?-1:1});
- return [["slot","grp_slots"],["user","grp_user"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'
+ return [["slot","grp_slots"],["user","grp_user"],["system","grp_system"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'
   +groups[g[0]].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(o.p.name||o.p.type||"?")+'</option>'}).join("")+'</optgroup>':''}).join("")}
 function range(ns){var seq=ns.every(function(n,i){return!i||n==ns[i-1]+1});return seq&&ns.length>1?ns[0]+"–"+ns[ns.length-1]:ns.join(", ")}
 function rowsHtml(){var a=P.an,maxF=a.max_filaments||16,many=P.files.length>1,h="";
@@ -3939,7 +5735,7 @@ function rowsHtml(){var a=P.an,maxF=a.max_filaments||16,many=P.files.length>1,h=
    /* cases libres gardees telles quelles : une seule ligne « tes bobines », a ouvrir pour les changer */
    if(s.pad&&!s.pick&&s.base==si&&p.group=="slot"&&!P.padsOpen[fi]){pads.push(n);return}
    var m=free?null:fil(a,s.src[0]),mc=m?String(m.color||"#808080").slice(0,7):"",col=String(slotCol(a,s)).slice(0,7);
-   var warn=m&&m.base&&m.base!="?"&&p.base&&p.base!="?"&&p.base!=m.base;
+   var warn=m&&m.base&&m.base!="?"&&p.base&&p.base!="?"&&p.base!=m.base,mem=!free&&memOf(af,s);
    h+='<div class="r'+(free?' free':'')+'"><span class="num'+(free?' gr':'')+'">'+n+'</span>'
     +(s.pick&&!free?dot(mc)+'<i class="ar">→</i>':'')
     +'<input type="color" class="pick" '+at+si+'" value="'+esc(col)+'" title="'+esc(t("pick_color"))+'" aria-label="'+esc(t("pick_color"))+' '+n+'">'
@@ -3947,12 +5743,16 @@ function rowsHtml(){var a=P.an,maxF=a.max_filaments||16,many=P.files.length>1,h=
     +(s.pick?'<button class="rst" '+at+si+'" title="'+esc(t(free?"color_reset_prof":"color_reset"))+'" aria-label="'+esc(t(free?"color_reset_prof":"color_reset"))+'">↺</button>':'')
     +'<select '+at+si+'" aria-label="'+esc(t("th_profile"))+' '+n+'">'+profOpts(s.base)+'</select>'
     +(s.extra?'<button class="rmc" '+at+si+'" title="'+esc(t("remove_color"))+'" aria-label="'+esc(t("remove_color"))+'">×</button>':'')+'</div>'
-    +(warn?'<div class="w"><i class="mk"></i><span>'+esc(t("warn_material",m.base,p.base))+'</span></div>':'')});
+    +(warn?'<div class="w"><i class="mk"></i><span>'+esc(t("warn_material",m.base,p.base))+'</span></div>':'')
+    +(mem?'<div class="m">'+esc(t("mem_used"))+'</div>':'')});
   if(pads.length)h+='<button class="r free padg" data-f="'+fi+'" title="'+esc(t("pn_pads_edit"))+'"><span class="num gr">'+esc(range(pads))+'</span><span class="nm">'
    +esc(pads.length>1?t("pn_pads"):t("pad_name"))+'</span><em>'+esc(pads.length>1?t("pn_keep_n"):t("pn_keep_1"))+'</em><i class="chev">›</i></button>';
   var full=f.slots.length>=maxF;
   h+='<button class="addc" data-f="'+fi+'"'+(full?' disabled':'')+'>'+esc(t("add_color"))+'</button>'+(full?'<div class="full">'+esc(t("max_colors",maxF))+'</div>':'')});
+ var sup=a.supports;if(sup)h+='<label class="sup"><input type="checkbox" id="keepSup"'+(sup.keep?' checked':'')+'><span>'+esc(t("sup_keep"))+'<small>'+esc(cap1(sup.desc.join(", "))+". "+t("sup_hint"))+'</small></span></label>';
  return h}
+/* profil repris de la memoire des choix (meme couleur, meme matiere que la derniere fois) */
+function memOf(af,s){var r=null;(af.slots||[]).forEach(function(x){if(x.src&&x.src.length&&s.src.length&&x.src[0]==s.src[0])r=x});return!!(r&&r.mem!=null&&r.mem==s.base)}
 function notesHtml(){var a=P.an,h="",maxf=0,ex=0;
  P.files.forEach(function(f){maxf=Math.max(maxf,f.slots.filter(function(s){return!s.pad&&!s.extra}).length);ex+=f.slots.filter(function(s){return s.extra}).length});
  if(maxf>4)h+=note("",t("need_ace",maxf));
@@ -4010,7 +5810,9 @@ $("cancel").onclick=function(){if(P.upId){send({command:"upload_drop",id:P.upId}
 $("convert").onclick=function(){var a=P.an;if(!a||a.not_ready||P.v!="an")return;P.text=t("p_converting");view("conv");send({command:"convert",token:a.token,files:planOf()})};
 function slotAt(el){var f=P.files[+el.getAttribute("data-f")];return f&&f.slots[+el.getAttribute("data-s")]}
 function edited(){render(true);send({command:"plan",token:P.an.token,files:planOf()})}
-$("map").addEventListener("change",function(e){var el=e.target,s=slotAt(el);if(!s||P.v!="an")return;
+$("map").addEventListener("change",function(e){var el=e.target;
+ if(el.id=="keepSup"){if(P.v=="an"&&P.an){el.disabled=true;send({command:"replan",token:P.an.token,supports:el.checked})}return}
+ var s=slotAt(el);if(!s||P.v!="an")return;
  if(el.tagName=="SELECT"){s.base=+el.value;edited()}
  else if(el.classList.contains("pick")){var v=String(el.value).toUpperCase(),was=s.pick;s.pick=null;
   if(v!=String(slotCol(P.an,s)).slice(0,7).toUpperCase())s.pick=v;else if(!was)return;edited()}});
@@ -4268,6 +6070,8 @@ class Converter:
                     raise ConvertError(tr("err_panel"))
             elif cmd == "replan":
                 self.start_replan(msg)
+            elif cmd == "forget_choices":
+                self.forget_choices()
             elif cmd == "convert":
                 self.start_convert(msg)
             elif cmd == "write":
@@ -4313,6 +6117,7 @@ class Converter:
         self.post({"command": "state", "version": VERSION, "saved": saved, "current": cur, "opened": opened,
                    "choice": choice, "cap": tr(self.cap_key) if self.cap_key else "",
                    "lang": current_language(), "lang_choice": self.language_choice(), "panel": panel_mode(),
+                   "choices": len(load_choices()),
                    "out": {"mode": mode, "dir": folder, "msg": out_msg, "error": self.out_key == "err_out_dir"}})
 
     def list_recent(self):
@@ -4409,6 +6214,8 @@ class Converter:
         template = self.template_for(msg.get("template"))
         ready = self.ready_message(msg.get("template"))
         one = bool(msg.get("one_per_plate"))
+        choices = load_choices()
+        keep = load_options().get("supports") == "model"
         with self.lock:
             self.counter += 1
             token = "a%d" % self.counter
@@ -4416,7 +6223,7 @@ class Converter:
                 del self.jobs[k]
                 self.built.pop(k, None)
             self.jobs[token] = {"path": path, "name": name, "origin": origin, "template": msg.get("template"),
-                                "presets": {"user": template.presets, "slots": template.slot_presets}}
+                                "one": one, "presets": {"user": template.presets, "slots": template.slot_presets}}
         if origin == "panel" and self.panel is not None:
             self.panel.follow(token)
         self.post({"command": "progress", "text": tr("p_analysing", name), "token": token, "_origin": origin})
@@ -4430,13 +6237,15 @@ class Converter:
             ok = False
             try:
                 src = Source3MF(data, name, path)
-                res = analyze(src, template, one)
+                res = analyze(src, template, one, choices=choices, supports=keep)
                 with self.lock:
                     job = self.jobs.get(token)
                     if job is None:         # annulee, ou remplacee par un autre 3MF
                         return
                     job["src"] = src
                     job["files"] = res["files"]
+                    job["presets"] = {"user": template.presets, "slots": template.slot_presets}
+                    job["profiles"] = [(p["name"], p["group"]) for p in res["profiles"]]
                 res.update({"command": "analysis", "token": token, "file": name, "one_per_plate": one,
                             "dest_hint": self.dest_hint(path), "not_ready": ready, "_origin": origin})
                 self.post(res)
@@ -4505,18 +6314,41 @@ class Converter:
         return job
 
     def start_replan(self, msg):
+        """Nouvelle analyse du meme 3MF : autres reglages, un fichier par plaque, supports de l'auteur
+        (gardes ou non ; ce choix est retenu pour les fois suivantes)."""
         job = self._job(msg.get("token"))
-        template = self.template_for(msg.get("template"))
-        job["presets"] = {"user": template.presets, "slots": template.slot_presets}
-        one = bool(msg.get("one_per_plate"))
-        res = analyze(job["src"], template, one)
+        choice = msg.get("template") if "template" in msg else job.get("template")
+        template = self.template_for(choice)
+        one = bool(msg.get("one_per_plate")) if "one_per_plate" in msg else bool(job.get("one"))
+        options = load_options()
+        if "supports" in msg:
+            keep = bool(msg.get("supports"))
+            options["supports"] = "model" if keep else "mine"
+            try:
+                save_options(options)
+            except Exception as e:
+                log_error("options : %s" % e)
+        else:
+            keep = options.get("supports") == "model"
+        # supports gardes ou non : tes choix (profils, couleurs, couleurs en plus) restent
+        old = None
+        if "supports" in msg and one == bool(job.get("one")) and choice == job.get("template") and job.get("profiles"):
+            old = job.get("plan") or [{"plates": f["plates"], "slots": [{"src": s["src"], "base": s["base"]} for s in f["slots"]]}
+                                      for f in job.get("files") or []]
+        res = analyze(job["src"], template, one, choices=load_choices(), supports=keep)
+        if old:
+            carry_choices(old, job["profiles"], res["profiles"], res["files"])
+            res["kept"] = True
         with self.lock:
-            job["template"] = msg.get("template")
+            job["template"] = choice
+            job["one"] = one
             job["files"] = res["files"]
+            job["presets"] = {"user": template.presets, "slots": template.slot_presets}
+            job["profiles"] = [(p["name"], p["group"]) for p in res["profiles"]]
             job.pop("plan", None)
         res.update({"command": "analysis", "token": msg.get("token"), "file": job["name"], "one_per_plate": one,
                     "dest_hint": self.dest_hint(job["path"]),
-                    "not_ready": self.ready_message(msg.get("template"))})
+                    "not_ready": self.ready_message(choice)})
         self.post(res)
 
     # ---- conversion
@@ -4538,8 +6370,11 @@ class Converter:
         template.attach(job.get("presets"))
         # plan envoye par la page, sinon le dernier de l'onglet, sinon les profils proposes d'office
         files = msg.get("files") or job.get("plan") or [
-            {"plates": f["plates"], "slots": [{"src": s["src"], "base": s["base"]} for s in f["slots"]]}
+            {"plates": f["plates"], "slots": [{"src": s["src"], "base": s["base"]} for s in f["slots"]],
+             "supports": job["src"].keep_supports}
             for f in job.get("files") or []]
+        hydrate_presets(template, files)
+        self.remember(job, template, files)
         tag = {"token": token, "_origin": origin}
         self.post(dict(tag, command="progress", text=tr("p_converting")))
 
@@ -4557,6 +6392,20 @@ class Converter:
                 log_error(traceback.format_exc())
                 self.post(dict(tag, command="error", text=tr("err_convert", e)))
         threading.Thread(target=worker, daemon=True).start()
+
+    def remember(self, job, template, files):
+        """Memoire des choix : profils changes a la main pour les couleurs du modele (fil de l'interface)."""
+        try:
+            choices = load_choices()
+            if learn_choices(choices, job["src"], template, files, job.get("files")):
+                save_choices(choices)
+                self.post({"command": "choices", "n": len(choices)})
+        except Exception as e:
+            log_error("choix : %s" % e)
+
+    def forget_choices(self):
+        save_choices({})
+        self.send_state()
 
     def write_outputs(self, token):
         with self.lock:
@@ -4858,6 +6707,8 @@ class Panel:
                 self.cancel()
             elif cmd == "plan":
                 conv.set_plan(msg, origin="panel")
+            elif cmd == "replan":
+                conv.start_replan({"token": msg.get("token"), "supports": bool(msg.get("supports"))})
             elif cmd == "panel_mode":
                 conv.choose_panel_mode(msg.get("mode"))
             elif cmd == "convert":

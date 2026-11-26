@@ -145,7 +145,8 @@ n_state, n_an, n_res = count("state"), count("analysis"), count("result")
 st["language"] = "de_DE"
 tab.on_message({"command": "lang", "lang": "auto"})
 state = w.wait("state", n_state + 1)
-ok(state["lang"] == "en" and state["lang_choice"] == "auto", "auto avec Orca en allemand : anglais")
+ok(state["lang"] == "de" and state["lang_choice"] == "auto" and state["saved"]["when"].startswith("gespeichert am "),
+   "auto avec Orca en allemand : allemand (%s)" % state["saved"]["when"])
 st["language"] = "fr_FR"
 tab.on_message({"command": "lang", "lang": "auto"})
 state = w.wait("state", n_state + 2)

@@ -10,3 +10,5 @@ Les deux fichiers viennent du dépôt public [josuanbn/bl2u1](https://github.com
 Ils servent seulement aux tests. **Ne pas les publier** (dépôt GitHub, Orca Cloud…) sans vérifier les licences : les modèles appartiennent à leurs auteurs.
 
 **Sur GitHub, ces deux fichiers ne sont pas dans le dépôt.** Pour lancer les tests, télécharge `filament_types.3mf` et `u1_template.3mf` depuis [josuanbn/bl2u1](https://github.com/josuanbn/bl2u1), mets-les dans `tests/samples/` et renomme-les `sample_dragon.3mf` et `sample_pokeballs.3mf`.
+
+Deux fichiers de plus, facultatifs, servent à `test_formats.py` s'ils sont là : `sample_prusa_drakos.3mf` (un vrai projet PrusaSlicer 2.7.4 multicolore) et `sample_cad_color.3mf` (un 3MF de logiciel de CAO avec une couleur). Eux non plus ne sont pas publiés.
