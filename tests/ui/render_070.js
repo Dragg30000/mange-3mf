@@ -86,6 +86,10 @@ fs.mkdirSync(outDir, { recursive: true });
        && s.h3c.kv.indexOf(fmt(T.kind_multi, 9, 9)) >= 0, 'H3C : buses 1 a 4, puis « buses 5 a 9 »');
   want(s.mini.bus.length === 1 && s.mini.kv.indexOf(T.kind_single) >= 0 && s.mini.cols === 2, 'MINI : une bobine, une buse');
   want(s.mmu3.kv.indexOf(fmt(T.kind_box, 5)) >= 0 && s.mmu3.cols === 6, 'MK4S MMU3 : 5 bobines');
+  want(s.ad5x.kv.indexOf(fmt(T.kind_box, 4)) >= 0 && s.ad5x.bus.length === 1, 'Flashforge AD5X : 4 bobines (IFS), une buse');
+  want(s.c5p.heads.join() === 'T1,T2,T3,T4' && s.c5p.ex[0] === T.via_more && s.c5p.kv.indexOf(fmt(T.kind_tools, 4)) >= 0,
+       'Flashforge Creator 5 Pro : 4 tetes, le 5e filament « en plus » (pas multiACE)');
+  want(s.j1.heads.join() === 'T1,T2' && !s.j1.ex.length && s.j1.kv.indexOf(fmt(T.kind_tools, 2)) >= 0, 'Snapmaker J1 (IDEX) : 2 tetes');
   want(Object.values(s).every(r => r.wide), 'aucune carte ne deborde');
   await recv(state);
 

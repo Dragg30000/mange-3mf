@@ -3,7 +3,7 @@
 <p align="center">
   <a href="../../releases/latest"><img alt="Latest version" src="https://img.shields.io/github/v/release/Dragg30000/mange-3mf?label=version&color=22b3a5"></a>
   <img alt="OrcaSlicer 2.5" src="https://img.shields.io/badge/OrcaSlicer-2.5-22b3a5">
-  <img alt="Printers: Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo and more" src="https://img.shields.io/badge/printers-U1%20%7C%20Bambu%20Lab%20%7C%20Prusa%20%7C%20Anycubic%20%7C%20Elegoo%20%7C%20%E2%80%A6-1E5BD8">
+  <img alt="Printers: Snapmaker U1, Bambu Lab, Prusa, Flashforge, Creality, Anycubic and more" src="https://img.shields.io/badge/printers-U1%20%7C%20Bambu%20Lab%20%7C%20Prusa%20%7C%20Flashforge%20%7C%20Creality%20%7C%20Anycubic%20%7C%20%E2%80%A6-1E5BD8">
   <img alt="5 languages" src="https://img.shields.io/badge/lang-EN%20%7C%20FR%20%7C%20DE%20%7C%20ES%20%7C%20IT-6A1B9A">
   <a href="LICENSE"><img alt="License GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-8b919b"></a>
   <a href="https://ko-fi.com/dragg"><img alt="Buy Dragg a coffee on Ko-fi" src="https://img.shields.io/badge/Ko--fi-buy%20Dragg%20a%20coffee-FF5E5B?logo=ko-fi&logoColor=white"></a>
@@ -24,18 +24,18 @@
 Open a 3MF made with another slicer or for another printer (Bambu Studio for MakerWorld, PrusaSlicer for Printables, Snapmaker Orca…) in OrcaSlicer 2.5: the parts arrive, your colors and settings don't.
 
 - On a tool changer like the Snapmaker U1, Orca swaps the author's filaments for its defaults: 4 slots, often 4 × "Generic ABS" of the same color, and a 7-color project loses the painting of colors 5 to 7.
-- On a Bambu Lab, Prusa, Anycubic or Elegoo, the author's printer, process and filaments come with the model, and you set everything again by hand.
+- On a Bambu Lab, Prusa, Flashforge, Anycubic or Elegoo, the author's printer, process and filaments come with the model, and you set everything again by hand.
 - The nozzle and the plate change, and parts can jump to another plate or off the bed.
 
 ## ✨ What Mange-3MF does
 
 It adds a **Mange-3MF** tab to OrcaSlicer, and the U1, our mascot, waits for you beside the plate in Prepare. Open or drop a 3MF and you get a real OrcaSlicer project for your printer:
 
-- 🖨️ **Every printer in Orca**: tool changers (Snapmaker U1, Prusa XL, CORE One INDX), one nozzle with a color box (Bambu Lab AMS, Prusa MMU3, Anycubic ACE Pro, Elegoo, Creality, Qidi…), several nozzles (Bambu Lab H2D, H2C, X2D), or a single spool. Your settings are saved per printer: switch between them in one click.
+- 🖨️ **Every printer in Orca**: tool changers and IDEX (Snapmaker U1, Prusa XL, CORE One INDX, Flashforge Creator 5, Snapmaker J1, UltiMaker S5…), one nozzle with a color box (Bambu Lab AMS, Prusa MMU3, Flashforge AD5X IFS, Creality CFS, Anycubic ACE Pro, Qidi Box, Elegoo…), several nozzles (Bambu Lab H2D, H2C, X2D), or a single spool. Your settings are saved per printer: switch between them in one click.
 - 🎨 **Exactly the model's colors**: one file, one filament per color. 7 colors give 7 filaments, nothing split or merged. Each color goes to the head or the box slot whose spool looks most like it.
 - 🖌️ **Everything kept**: painting, per-object and per-part colors, modifiers, layer ranges, per-layer color changes, per-feature filaments, plates and their names.
 - ⚙️ **Your settings**: printer, nozzles, process and plate, saved once from your Orca and shown like on the printer: one card per head, or your spools and the nozzle they feed. Nothing comes from the author's settings.
-- 🧮 **Purge like Orca**: on a one-nozzle printer, the purge between colors is computed from the model's colors, the way Orca does it when you change a color.
+- 🧮 **Purge like Orca**: on printers with a color box or several nozzles, the purge between colors is computed from the model's colors, the way Orca does it when you change a color.
 - 🧵 **Your filament presets**: each color gets the closest of your profiles in the same material, or any of your Orca filament presets, which Orca recognizes when it opens the project. One profile can serve several colors: each filament keeps the model's color.
 - 🧪 **Orca's system presets too**: besides your own profiles, each color's list offers the system presets Orca shows for your printer, grouped by brand. When none of your profiles has the model's material (PETG…), the best one is picked for you, with a warning to check it.
 - 1️⃣ **All in one color**: a single spool? One tick puts every part and the painting on your filament.
@@ -84,7 +84,7 @@ On a tool changer, Orca keeps at least one filament per head, and it can paint 1
 
 ## 🧪 Status
 
-Beta **0.7.0**: every printer in Orca, settings saved per printer, purge like Orca, All in one color. 640 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)), with the real printer profiles of 33 printers from Orca (Bambu Lab, Prusa, Anycubic, Elegoo, Creality, Qidi, Snapmaker), plus the tab and the Prepare panel rendered in Chrome. Earlier versions have run in a real Orca 2.5.1 for the U1; for other printers, feedback is welcome. The Bambu Lab H3C and P3C are ready for the day Orca has their profiles (not yet in Orca 2.5.1). Resin (SLA) projects and already-sliced files (`.gcode.3mf`, `.bgcode`) are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
+Beta **0.7.1**: every printer in Orca (0.7.1 checks Flashforge and many more brands with their real Orca profiles), settings saved per printer, purge like Orca, All in one color. 691 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)), with the real printer profiles of 73 printers from Orca (Bambu Lab, Prusa, Flashforge, Creality, Qidi, Anycubic, Elegoo, Snapmaker, UltiMaker, Raise3D, Voron, RatRig, Sovol…), plus the tab and the Prepare panel rendered in Chrome. Earlier versions have run in a real Orca 2.5.1 for the U1; for other printers, feedback is welcome. The Bambu Lab H3C and P3C are ready for the day Orca has their profiles (not yet in Orca 2.5.1). Resin (SLA) projects and already-sliced files (`.gcode.3mf`, `.bgcode`) are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
 
 ## 🌍 Translations
 

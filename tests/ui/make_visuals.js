@@ -115,7 +115,7 @@ footer b{font-weight:700;color:#22b3a5}
   <div class="side after"><h2>Converted by Mange-3MF</h2><p>7 colors, 7 filaments, your own settings</p><div class="spools">${col}</div></div>
 </div>
 <div class="crumbs"><i style="left:6px;top:12px;width:16px;height:14px"></i><i style="left:40px;top:58px;width:11px;height:10px"></i><i style="left:20px;top:250px;width:13px;height:12px"></i><i style="left:48px;top:300px;width:8px;height:8px"></i></div>
-<footer><span>Free plugin for OrcaSlicer 2.5: Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo… in 5 languages.</span><b>v${VERSION}</b></footer>
+<footer><span>Free plugin for OrcaSlicer 2.5: Snapmaker U1, Bambu Lab, Prusa, Flashforge, Creality, Anycubic… in 5 languages.</span><b>v${VERSION}</b></footer>
 </div></body></html>`;
 }
 
@@ -197,9 +197,9 @@ function printersPage() {
   const card = (label, sub, img) => `<div class="pc"><p class="lab">${label}<span>${sub}</span></p><div class="shot"><img src="assets/${img}"></div></div>`;
   return shot('Every printer in Orca',
     'Tool changers, one nozzle with a color box, several nozzles, a single spool. Colors go where the spool looks most like them, and the purge is computed like Orca does.',
-    `<div class="grid">${card('Tool changer', 'Snapmaker U1, Prusa XL, CORE One INDX', '11_carte_u1.png')}
-${card('One nozzle + color box', 'Bambu Lab AMS, Prusa MMU3, Anycubic ACE Pro…', '11_carte_p1s.png')}
-${card('Several nozzles', 'Bambu Lab H2D, H2C, X2D', '11_carte_h2d.png')}
+    `<div class="grid">${card('Tool changer or IDEX', 'Snapmaker U1, Prusa XL, Flashforge Creator 5…', '11_carte_u1.png')}
+${card('One nozzle + color box', 'Bambu Lab AMS, Prusa MMU3, Flashforge IFS…', '11_carte_p1s.png')}
+${card('Several nozzles', 'Bambu Lab H2D, H2C, X2D, Raise3D Pro3', '11_carte_h2d.png')}
 ${card('A single spool', 'All in one color', '11_carte_mini.png')}</div>`,
     `.right{left:700px;right:70px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:34px 30px}
@@ -229,7 +229,7 @@ h1{font-size:${big ? 124 : 112}px;line-height:.9;font-weight:800;font-stretch:92
 </style></head><body><div class="canvas"><div class="in">
 <div class="top">${logo(big ? 170 : 150)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your printer.</p></div></div>
 <div class="row"><div class="gray">${gray}</div><span class="arrow">→</span>${col}</div>
-${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5:<br>Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo… in 5 languages</p>' : ''}
+${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5:<br>Snapmaker U1, Bambu Lab, Prusa, Flashforge, Creality, Anycubic… in 5 languages</p>' : ''}
 </div></div></body></html>`;
 }
 

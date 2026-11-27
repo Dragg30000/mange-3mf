@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/Dragg30000/mange-3mf/releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/Dragg30000/mange-3mf?label=version&color=22b3a5"></a>
   <img alt="OrcaSlicer 2.5" src="https://img.shields.io/badge/OrcaSlicer-2.5-22b3a5">
-  <img alt="Imprimantes : Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo…" src="https://img.shields.io/badge/imprimantes-U1%20%7C%20Bambu%20Lab%20%7C%20Prusa%20%7C%20Anycubic%20%7C%20Elegoo%20%7C%20%E2%80%A6-1E5BD8">
+  <img alt="Imprimantes : Snapmaker U1, Bambu Lab, Prusa, Flashforge, Creality, Anycubic…" src="https://img.shields.io/badge/imprimantes-U1%20%7C%20Bambu%20Lab%20%7C%20Prusa%20%7C%20Flashforge%20%7C%20Creality%20%7C%20Anycubic%20%7C%20%E2%80%A6-1E5BD8">
   <img alt="5 langues" src="https://img.shields.io/badge/langue-FR%20%7C%20EN%20%7C%20DE%20%7C%20ES%20%7C%20IT-6A1B9A">
   <a href="LICENSE"><img alt="Licence GPL-3.0" src="https://img.shields.io/badge/licence-GPL--3.0-8b919b"></a>
   <a href="https://ko-fi.com/dragg"><img alt="Offre un café à Dragg sur Ko-fi" src="https://img.shields.io/badge/Ko--fi-offre%20un%20caf%C3%A9%20%C3%A0%20Dragg-FF5E5B?logo=ko-fi&logoColor=white"></a>
@@ -13,14 +13,14 @@
 
 > 🇬🇧 English: [user guide](GUIDE.md) · [overview](README.md)
 
-**Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ton imprimante** : Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo, Creality, Qidi… toutes les imprimantes à filament d'Orca.
+**Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ton imprimante** : Snapmaker U1, Bambu Lab, Prusa, Flashforge, Creality, Qidi, Anycubic, Elegoo… toutes les imprimantes à filament d'Orca.
 Projets MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, OrcaSlicer et ses variantes, 3MF de logiciels de CAO : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
 - Version : **0.7.0** (27/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), toutes ses imprimantes à filament : changeurs d'outils, une buse avec une boîte à couleurs, plusieurs buses, une seule bobine ([§ 5](#5-toutes-les-imprimantes))
 - Langues : français, anglais, allemand, espagnol, italien (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
-- Plugin communautaire, non officiel, sans lien avec Snapmaker, Bambu Lab, Prusa, Anycubic, Elegoo ou OrcaSlicer. **À utiliser à tes risques et périls** : vérifie toujours le projet converti avant d'imprimer.
+- Plugin communautaire, non officiel, sans lien avec Snapmaker, Bambu Lab, Prusa, Flashforge, Creality, Anycubic, Elegoo ou OrcaSlicer. **À utiliser à tes risques et périls** : vérifie toujours le projet converti avant d'imprimer.
 - Code, versions et bugs : [github.com/Dragg30000/mange-3mf](https://github.com/Dragg30000/mange-3mf)
 - Le plugin te plaît ? [Offre un café à Dragg sur Ko-fi](https://ko-fi.com/dragg) ☕
 
@@ -50,7 +50,7 @@ Quand on ouvre dans OrcaSlicer un 3MF fait avec un autre logiciel ou pour une au
 - l'imprimante, la buse et la plaque changent aussi (par exemple U1 en buse 0.2, profil 0.10, Cool Plate, d'où l'erreur « ABS sur Cool Plate ») ;
 - des pièces peuvent changer de plaque ou sortir du plateau.
 
-Sur une Bambu Lab, une Prusa, une Anycubic ou une Elegoo, l'imprimante, le profil et les filaments de l'auteur arrivent avec le modèle : il faut tout remettre à la main, couleur par couleur.
+Sur une Bambu Lab, une Prusa, une Flashforge, une Anycubic ou une Elegoo, l'imprimante, le profil et les filaments de l'auteur arrivent avec le modèle : il faut tout remettre à la main, couleur par couleur.
 
 Pourquoi : Orca ne reconnaît comme « ses » projets que les 3MF signés Bambu Studio ou OrcaSlicer (Snapmaker Orca signe « Snapmaker_Orca »), et les réglages de l'auteur (imprimante Bambu, profils Snapmaker) ne correspondent pas à ton imprimante. Il prend alors ses propres valeurs par défaut.
 
@@ -58,7 +58,7 @@ Pourquoi : Orca ne reconnaît comme « ses » projets que les 3MF signés Bambu 
 
 Mange-3MF ajoute à OrcaSlicer un **onglet « Mange-3MF »**, et un **panneau à côté du plateau** (Préparer et Aperçu) où la U1, la mascotte, réclame les 3MF pas réglés pour ton imprimante ([§ 4.6](#46-la-u1-à-côté-du-plateau)). Il lit le 3MF d'origine **sans passer par l'ouverture d'Orca** et fabrique un vrai projet OrcaSlicer :
 
-- **toutes les imprimantes d'Orca** : changeur d'outils (U1, Prusa XL, CORE One INDX), une buse et une boîte à couleurs (Bambu Lab AMS, Prusa MMU3, Anycubic ACE Pro, Elegoo…), plusieurs buses (Bambu Lab H2D…), une seule bobine ; tes réglages sont mémorisés par imprimante ([§ 5](#5-toutes-les-imprimantes)) ;
+- **toutes les imprimantes d'Orca** : changeur d'outils et IDEX (U1, Prusa XL, CORE One INDX, Flashforge Creator 5, Snapmaker J1…), une buse et une boîte à couleurs (Bambu Lab AMS, Prusa MMU3, Flashforge AD5X avec l'IFS, Creality CFS, Anycubic ACE Pro, Qidi Box, Elegoo…), plusieurs buses (Bambu Lab H2D…), une seule bobine ; tes réglages sont mémorisés par imprimante ([§ 5](#5-toutes-les-imprimantes)) ;
 - **exactement les couleurs du modèle** : un seul fichier avec toutes les plaques et **un filament par couleur** (7 couleurs donnent 7 filaments). Rien n'est découpé en plusieurs fichiers, aucune couleur n'est fusionnée ;
 - **couleurs** : filament de chaque objet et de chaque pièce, peinture (renumérotée filament par filament), modificateurs, plages de couches, changements de couleur ou d'outil par couche, filaments par fonction (parois, remplissage, supports…) ;
 - **plaques** : mêmes plaques, mêmes noms, mêmes pièces dessus, replacées sur ton plateau (même position si le plateau est le même, sinon même position par rapport au centre, ou centrées si ça déborde) ;
@@ -202,12 +202,12 @@ Le projet converti est fait pour **l'imprimante de tes réglages**, quelle qu'el
 
 | Famille | Exemples | Ce que fait le plugin |
 |---|---|---|
-| **Changeur d'outils** (une tête par filament) | Snapmaker U1, Prusa XL 5T, Prusa CORE One INDX 4T et 8T | Une carte par tête ; les couleurs vont aux têtes dont la bobine leur ressemble le plus ; Orca garde au moins une case par tête. |
-| **Une buse et une boîte à couleurs** | Bambu Lab A1, P1S, P2S, X1, H2S (AMS) ; Prusa MK4, MK4S, CORE One avec MMU3 ; Anycubic Kobra 3 V2, S1, X (ACE Pro) ; Elegoo Centauri Carbon ; Creality K1C, K2 ; Qidi Q2… | Tes bobines (dans l'ordre de tes réglages, celui de ta boîte) reliées à ta buse ; les couleurs vont dans les emplacements dont la bobine leur ressemble le plus ; la purge entre couleurs est calculée comme Orca. |
-| **Plusieurs buses** | Bambu Lab H2D, H2C, X2D | Chaque emplacement garde la buse prévue dans tes réglages ; purge calculée pour chaque buse. |
-| **Une seule bobine** | Prusa MINI, MK4S ou CORE One sans boîte, ou tes réglages avec un seul filament | Case **« Tout en une couleur »** ([§ 4.8](#48-une-seule-bobine--tout-en-une-couleur)). |
+| **Changeur d'outils** (une tête par filament) | Snapmaker U1, Prusa XL 5T, Prusa CORE One INDX 4T et 8T, Flashforge Creator 5 et 5 Pro, WonderMaker ZR Ultra ; IDEX et doubles têtes : Snapmaker J1, Artisan, A350 Dual, UltiMaker S5, RatRig V-Core 4 IDEX, Z-Bolt Dual… | Une carte par tête ; les couleurs vont aux têtes dont la bobine leur ressemble le plus ; Orca garde au moins une case par tête. |
+| **Une buse et une boîte à couleurs** | Bambu Lab A1, P1S, P2S, X1, H2S (AMS) ; Prusa MK4, MK4S, CORE One avec MMU3 ; Anycubic Kobra 3 V2, S1, X (ACE Pro) ; Elegoo Centauri Carbon ; Flashforge AD5X (IFS) ; Creality K1C, K2, Hi (CFS) ; Qidi Q2, X-Plus 4 (Qidi Box) ; Voron et autres Klipper avec ERCF ou Box Turtle ; Co Print ChromaSet… | Tes bobines (dans l'ordre de tes réglages, celui de ta boîte) reliées à ta buse ; les couleurs vont dans les emplacements dont la bobine leur ressemble le plus ; la purge entre couleurs est calculée comme Orca. |
+| **Plusieurs buses** | Bambu Lab H2D, H2C, X2D ; Raise3D Pro3 | Chaque emplacement garde la buse prévue dans tes réglages ; purge calculée pour chaque buse. |
+| **Une seule bobine** | Prusa MINI, MK4S ou CORE One sans boîte, Flashforge Adventurer 5M, ou tes réglages avec un seul filament | Case **« Tout en une couleur »** ([§ 4.8](#48-une-seule-bobine--tout-en-une-couleur)). |
 
-La **Bambu Lab H3C** (9 têtes) et la **P3C** ne sont pas encore dans Orca 2.5.1 : le plugin est prêt pour le jour où Orca aura leurs profils (testé avec des profils imités). Le fichier converti est signé du nom de ton imprimante : `Mon modèle - P1S-by-Dragg.3mf`.
+La **Bambu Lab H3C** (9 têtes) et la **P3C** ne sont pas encore dans Orca 2.5.1 : le plugin est prêt pour le jour où Orca aura leurs profils (testé avec des profils imités). Le fichier converti est signé du nom de ton imprimante : `Mon modèle - P1S-by-Dragg.3mf`. Depuis la 0.7.1, Flashforge et une quarantaine d'autres imprimantes (Creality avec la CFS, Qidi avec la Box, IDEX, Voron, UltiMaker, Raise3D, Sovol…) sont vérifiées avec leurs vrais profils d'Orca, 73 en tout.
 
 ### Plus de couleurs que ton imprimante n'en tient
 
@@ -237,7 +237,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.7.0** : testée hors d'OrcaSlicer, avec les vrais profils de 33 imprimantes d'Orca (Bambu Lab, Prusa, Anycubic, Elegoo, Creality, Qidi, Snapmaker) (vrai 3MF MakerWorld, vrai projet PrusaSlicer, projets Bambu Studio, PrusaSlicer, Snapmaker Orca et CAO fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet et panneau rendus dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils), puis le panneau de Préparer. La conversion à plus de 4 filaments, et pour les imprimantes autres que la U1, restent à essayer sur une vraie imprimante : les retours sont bienvenus. Bambu Lab H3C et P3C : prêtes quand Orca aura leurs profils.
+- **Version 0.7.1** : testée hors d'OrcaSlicer, avec les vrais profils de 73 imprimantes d'Orca (Bambu Lab, Prusa, Flashforge, Creality, Qidi, Anycubic, Elegoo, Snapmaker, UltiMaker, Raise3D, Voron, RatRig, Sovol…) (vrai 3MF MakerWorld, vrai projet PrusaSlicer, projets Bambu Studio, PrusaSlicer, Snapmaker Orca et CAO fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet et panneau rendus dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils), puis le panneau de Préparer. La conversion à plus de 4 filaments, et pour les imprimantes autres que la U1, restent à essayer sur une vraie imprimante : les retours sont bienvenus. Bambu Lab H3C et P3C : prêtes quand Orca aura leurs profils.
 - Projets **PrusaSlicer** : les réglages par objet peu courants (peau floue…) ne sont pas repris, une alerte les nomme ; les projets pour imprimante résine (SLA) sont refusés. La conversion PrusaSlicer reste à essayer dans un vrai Orca.
 - Fichiers **déjà tranchés** (`.gcode.3mf`, `.bgcode`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si ni tes profils ni ceux d'Orca pour ton imprimante n'ont la matière du modèle, le plugin te prévient mais ne crée pas de profil.

@@ -1,5 +1,15 @@
 # Historique des versions — Mange-3MF
 
+## 0.7.1 — 28/11/2026
+
+- **Flashforge, et bien d'autres marques vérifiées** (demandé par Dragg : « flashforge aussi stp et trouve d'autres ») : les 71 marques d'Orca 2.5.1 passées en revue ; les imprimantes à plusieurs couleurs sont essayées avec leurs vrais profils d'Orca (73 imprimantes, 33 en 0.7.0) :
+  - **Flashforge** : AD5X avec l'IFS (une buse, 4 bobines), Creator 5 et 5 Pro (changeur de 4 têtes, comme la U1 mais sans multiACE), Adventurer 5M et 5M Pro, Guider4 Pro, Adventurer A5 ; leurs préréglages système (« @FF AD5X », « @FF C5P »…) sont reconnus par leur liste d'imprimantes ;
+  - **IDEX et doubles têtes** : Snapmaker J1, Artisan, A350 Dual, UltiMaker S5, RatRig V-Core 4 IDEX, Z-Bolt Dual, Vivedino Xplorer IDEX ; et **4 têtes** : Vivedino Xplorer IQEX, WonderMaker ZR Ultra. Une carte par tête, et l'alerte quand le modèle a plus de couleurs que de têtes ;
+  - **boîtes à couleurs** : Creality Hi, K1 avec la CFS, K2 Pro ; Qidi X-Plus 4, Q2C ; Voron 2.4, Trident ; Co Print ChromaSet ; LH Stinger MMU ; Phrozen Arco ; Anker M5C ; Sovol SV08 ; Bambu Lab A2L ;
+  - **plusieurs buses** : Raise3D Pro3, Bambu Lab H2D Pro.
+- **Noms courts** : la marque reste quand le reste du nom commence par un chiffre (« Voron 2.4 350 », « UltiMaker 2+ », au lieu de « 2.4 350 », « 2+ ») ; marques d'Orca ajoutées (Voron, Phrozen, WonderMaker, Co Print, FLSun, FELIX, TwoTrees…). Le fichier converti est signé « AD5X-by-Dragg », « Creator 5 Pro-by-Dragg »…
+- Tests : 691 vérifications, dont `test_printers.py` (155). Dans Chrome, `check_070.py` montre aussi les cartes de la Flashforge AD5X, de la Creator 5 Pro et de la Snapmaker J1.
+
 ## 0.7.0 — 27/11/2026
 
 - **Toutes les imprimantes d'Orca** (demandé par Dragg : « pas uniquement U1 ? Bambu, Elegoo, Anycubic ? », puis « la H3C et la P3C de Bambu Lab, et toutes les Prusa ») : le projet converti est fait pour l'imprimante de tes réglages, quelle qu'elle soit. Quatre familles, lues dans ses réglages d'Orca (nombre de buses, `single_extruder_multi_material`) :

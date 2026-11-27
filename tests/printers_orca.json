@@ -1,4 +1,28 @@
 {
+ "Anker M5C 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "printable_area": [
+   "0x0",
+   "220x0",
+   "220x220",
+   "0x220"
+  ],
+  "printable_height": "250",
+  "printer_model": "Anker M5C",
+  "printer_settings_id": "Anker M5C 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
  "Anycubic Kobra 3 V2 0.4 nozzle": {
   "enable_long_retraction_when_cut": "0",
   "extruder_offset": [
@@ -63,6 +87,38 @@
   ],
   "single_extruder_multi_material": "1"
  },
+ "Anycubic Kobra S1 Max 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "107",
+  "printable_area": [
+   "0x0",
+   "350x0",
+   "350x350",
+   "0x350"
+  ],
+  "printable_height": "350",
+  "printer_model": "Anycubic Kobra S1 Max",
+  "printer_settings_id": "Anycubic Kobra S1 Max 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "0"
+  ],
+  "retraction_length": [
+   "0.4"
+  ],
+  "single_extruder_multi_material": "1"
+ },
  "Anycubic Kobra X 0.4 nozzle": {
   "enable_long_retraction_when_cut": "0",
   "extruder_offset": [
@@ -92,6 +148,31 @@
   ],
   "retraction_length": [
    "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Artillery Sidewinder X4 Plus 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x310",
+   "0x310"
+  ],
+  "printable_height": "400",
+  "printer_model": "Artillery Sidewinder X4 Plus",
+  "printer_settings_id": "Artillery Sidewinder X4 Plus 0.4 nozzle",
+  "printer_structure": "undefine",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "1.3"
   ],
   "single_extruder_multi_material": "1"
  },
@@ -175,6 +256,51 @@
   ],
   "printer_model": "Bambu Lab A1 mini",
   "printer_settings_id": "Bambu Lab A1 mini 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab A2L 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "92"
+  ],
+  "printable_area": [
+   "0x0",
+   "330x0",
+   "330x320",
+   "0x320"
+  ],
+  "printable_height": "325",
+  "printer_extruder_id": [
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard"
+  ],
+  "printer_model": "Bambu Lab A2L",
+  "printer_settings_id": "Bambu Lab A2L 0.4 nozzle",
   "printer_structure": "i3",
   "printer_technology": "FFF",
   "retraction_distances_when_cut": [
@@ -339,6 +465,81 @@
   "retraction_length": [
    "0.8",
    "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab H2D Pro 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard",
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": [
+   "2"
+  ],
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "130",
+   "133",
+   "145",
+   "148",
+   "148"
+  ],
+  "printable_area": [
+   "0x0",
+   "350x0",
+   "350x320",
+   "0x320"
+  ],
+  "printable_height": "325",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "2",
+   "2",
+   "2"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive TPU High Flow"
+  ],
+  "printer_model": "Bambu Lab H2D Pro",
+  "printer_settings_id": "Bambu Lab H2D Pro 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "10",
+   "10",
+   "10",
+   "10",
+   "10"
+  ],
+  "retraction_length": [
    "0.8",
    "0.8",
    "0.8",
@@ -642,6 +843,54 @@
   ],
   "single_extruder_multi_material": "1"
  },
+ "Co Print ChromaSet 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "156"
+  ],
+  "printable_area": [
+   "0x0",
+   "225x0",
+   "225x225",
+   "0x225"
+  ],
+  "printable_height": "250",
+  "printer_model": "Co Print ChromaSet",
+  "printer_settings_id": "Co Print ChromaSet 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.5"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Creality Hi 0.4 nozzle": {
+  "extruder_offset": "0x0",
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "183",
+  "printable_area": [
+   "0x0",
+   "260x0",
+   "260x260",
+   "0x260"
+  ],
+  "printable_height": "300",
+  "printer_model": "Creality Hi",
+  "printer_settings_id": "Creality Hi 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
  "Creality K1C 0.4 nozzle": {
   "extruder_offset": "0x0",
   "nozzle_diameter": [
@@ -664,6 +913,21 @@
   ],
   "single_extruder_multi_material": "1"
  },
+ "Creality K1_CFS-C 0.4 nozzle": {
+  "extruder_offset": "0x0",
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "200",
+  "printable_area": "0x0,220x0,220x220,0x220",
+  "printable_height": "250",
+  "printer_model": "Creality K1_CFS-C",
+  "printer_settings_id": "Creality K1_CFS-C 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": "0.8",
+  "single_extruder_multi_material": "1"
+ },
  "Creality K2 Plus 0.4 nozzle": {
   "extruder_offset": [
    "0x0"
@@ -683,6 +947,31 @@
   "printer_model": "Creality K2 Plus",
   "printer_settings_id": "Creality K2 Plus 0.4 nozzle",
   "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Creality K2 Pro 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": "0x0",
+  "long_retractions_when_cut": "0",
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "183",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x300",
+   "0x300"
+  ],
+  "printable_height": "300",
+  "printer_model": "Creality K2 Pro",
+  "printer_settings_id": "Creality K2 Pro 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": "18",
   "retraction_length": [
    "0.8"
   ],
@@ -735,6 +1024,393 @@
   "printer_technology": "FFF",
   "retraction_length": [
    "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Elegoo Neptune 2D 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "90",
+  "printable_area": [
+   "0x0",
+   "235x0",
+   "235x235",
+   "0x235"
+  ],
+  "printable_height": "250",
+  "printer_model": "Elegoo Neptune 2D",
+  "printer_settings_id": "Elegoo Neptune 2D 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "5",
+   "5"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Flashforge AD5X 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "0x0",
+   "220x0",
+   "220x220",
+   "0x220"
+  ],
+  "printable_height": "220",
+  "printer_model": "Flashforge AD5X",
+  "printer_settings_id": "Flashforge AD5X 0.4 nozzle",
+  "printer_structure": "undefine",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "2"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Flashforge Adventurer 3 Series 0.4 Nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "stainless_steel",
+  "printable_area": [
+   "-75x-75",
+   "75x-75",
+   "75x75",
+   "-75x75"
+  ],
+  "printable_height": "150",
+  "printer_model": "Flashforge Adventurer 3 Series",
+  "printer_settings_id": "Flashforge Adventurer 3 Series 0.4 Nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "5"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Flashforge Adventurer 5M 0.4 Nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "stainless_steel",
+  "printable_area": [
+   "-110x-110",
+   "110x-110",
+   "110x110",
+   "-110x110"
+  ],
+  "printable_height": "220",
+  "printer_model": "Flashforge Adventurer 5M",
+  "printer_settings_id": "Flashforge Adventurer 5M 0.4 Nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Flashforge Adventurer 5M Pro 0.4 Nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "stainless_steel",
+  "printable_area": [
+   "-110x-110",
+   "110x-110",
+   "110x110",
+   "-110x110"
+  ],
+  "printable_height": "220",
+  "printer_model": "Flashforge Adventurer 5M Pro",
+  "printer_settings_id": "Flashforge Adventurer 5M Pro 0.4 Nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Flashforge Adventurer A5 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "-110x-110",
+   "110x-110",
+   "110x110",
+   "-110x110"
+  ],
+  "printable_height": "220",
+  "printer_model": "Flashforge Adventurer A5",
+  "printer_settings_id": "Flashforge Adventurer A5 0.4 nozzle",
+  "printer_structure": "undefine",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Flashforge Creator 5 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "nozzle_volume": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "256",
+  "printer_model": "Flashforge Creator 5",
+  "printer_settings_id": "Flashforge Creator 5 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Flashforge Creator 5 Pro 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "nozzle_volume": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "256",
+  "printer_model": "Flashforge Creator 5 Pro",
+  "printer_settings_id": "Flashforge Creator 5 Pro 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Flashforge Guider4 Pro 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x300",
+   "0x300"
+  ],
+  "printable_height": "300",
+  "printer_model": "Flashforge Guider4 Pro",
+  "printer_settings_id": "Flashforge Guider4 Pro 0.4 nozzle",
+  "printer_structure": "undefine",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "1.1"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "LH Stinger MMU 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": [
+   "brass"
+  ],
+  "printable_area": [
+   "18x38",
+   "218x38",
+   "218x238",
+   "18x238"
+  ],
+  "printable_height": "180",
+  "printer_model": "LH Stinger MMU",
+  "printer_settings_id": "LH Stinger MMU 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.3"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Peopoly Magneto X 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x400",
+   "0x400"
+  ],
+  "printable_height": "300",
+  "printer_model": "Peopoly Magneto X",
+  "printer_settings_id": "Peopoly Magneto X 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Phrozen Arco 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "71.6",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x300",
+   "0x300"
+  ],
+  "printable_height": "300",
+  "printer_model": "Phrozen Arco",
+  "printer_settings_id": "Phrozen Arco 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "2"
   ],
   "single_extruder_multi_material": "1"
  },
@@ -1222,6 +1898,218 @@
   ],
   "single_extruder_multi_material": "1"
  },
+ "Qidi Q2C 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": [
+   "stainless_steel"
+  ],
+  "nozzle_volume": [
+   "125"
+  ],
+  "printable_area": [
+   "0x0",
+   "270x0",
+   "270x270",
+   "0x270"
+  ],
+  "printable_height": "256",
+  "printer_model": "Qidi Q2C",
+  "printer_settings_id": "Qidi Q2C 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Qidi X-Plus 4 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "305x0",
+   "305x305",
+   "0x305"
+  ],
+  "printable_height": "280",
+  "printer_model": "Qidi X-Plus 4",
+  "printer_settings_id": "Qidi X-Plus 4 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Raise3D Pro3 0.4 nozzle (Dual)": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "printable_area": [
+   "0x0",
+   "255x0",
+   "255x300",
+   "0x300"
+  ],
+  "printable_height": "300",
+  "printer_model": "Raise3D Pro3",
+  "printer_settings_id": "Raise3D Pro3 0.4 nozzle (Dual)",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.5",
+   "0.5"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "RatRig V-Core 4 IDEX 400 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "0x0",
+   "400x0",
+   "400x400",
+   "0x400"
+  ],
+  "printable_height": "400",
+  "printer_model": "RatRig V-Core 4 IDEX 400",
+  "printer_settings_id": "RatRig V-Core 4 IDEX 400 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "RatRig V-Core 4 IDEX 400 COPY MODE 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "100x0",
+   "300x0",
+   "300x400",
+   "100x400"
+  ],
+  "printable_height": "400",
+  "printer_model": "RatRig V-Core 4 IDEX 400 COPY MODE",
+  "printer_settings_id": "RatRig V-Core 4 IDEX 400 COPY MODE 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Snapmaker A350 Dual (0.4 nozzle)": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "0x0",
+   "320x0",
+   "320x350",
+   "0x350"
+  ],
+  "printable_height": "285",
+  "printer_model": "Snapmaker A350 Dual",
+  "printer_settings_id": "Snapmaker A350 Dual (0.4 nozzle)",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Snapmaker Artisan (0.4 nozzle)": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "0x0",
+   "400x0",
+   "400x400",
+   "0x400"
+  ],
+  "printable_height": "400",
+  "printer_model": "Snapmaker Artisan",
+  "printer_settings_id": "Snapmaker Artisan (0.4 nozzle)",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Snapmaker J1 (0.4 nozzle)": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "0",
+  "printable_area": [
+   "0x0",
+   "324x0",
+   "324x200",
+   "0x200"
+  ],
+  "printable_height": "200",
+  "printer_model": "Snapmaker J1",
+  "printer_settings_id": "Snapmaker J1 (0.4 nozzle)",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
  "Snapmaker U1 (0.4 nozzle)": {
   "default_nozzle_volume_type": [
    "Standard",
@@ -1321,6 +2209,389 @@
    "1.5",
    "1.5",
    "1.5"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Sovol SV02 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "undefine",
+   "undefine"
+  ],
+  "printable_area": [
+   "0x0",
+   "280x0",
+   "280x240",
+   "0x240"
+  ],
+  "printable_height": "300",
+  "printer_model": "Sovol SV02",
+  "printer_settings_id": "Sovol SV02 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "6",
+   "6"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Sovol SV08 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "printable_area": [
+   "0x0",
+   "350x0",
+   "350x350",
+   "0x350"
+  ],
+  "printable_height": "345",
+  "printer_model": "Sovol SV08",
+  "printer_settings_id": "Sovol SV08 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.5"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "UltiMaker 2+ 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "0x0",
+   "223x0",
+   "223x223",
+   "0x223"
+  ],
+  "printable_height": "205",
+  "printer_model": "UltiMaker 2+",
+  "printer_settings_id": "UltiMaker 2+ 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "6"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "UltiMaker S5 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0",
+   "0x22"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Direct Drive"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "brass",
+   "brass"
+  ],
+  "printable_area": [
+   "0x0",
+   "330x0",
+   "330x240",
+   "0x240"
+  ],
+  "printable_height": "300",
+  "printer_model": "UltiMaker S5",
+  "printer_settings_id": "UltiMaker S5 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "4.5",
+   "4.5"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Voron 0.1 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "0x0",
+   "120x0",
+   "120x120",
+   "0x120"
+  ],
+  "printable_height": "120",
+  "printer_model": "Voron 0.1",
+  "printer_settings_id": "Voron 0.1 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Voron 2.4 350 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "0x0",
+   "350x0",
+   "350x350",
+   "0x350"
+  ],
+  "printable_height": "325",
+  "printer_model": "Voron 2.4 350",
+  "printer_settings_id": "Voron 2.4 350 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Voron Trident 300 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "undefine",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x300",
+   "0x300"
+  ],
+  "printable_height": "250",
+  "printer_model": "Voron Trident 300",
+  "printer_settings_id": "Voron Trident 300 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "WonderMaker ZR Ultra 0.4 nozzle": {
+  "enable_long_retraction_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "107",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x270",
+   "0x270"
+  ],
+  "printable_height": "290",
+  "printer_model": "WonderMaker ZR Ultra",
+  "printer_settings_id": "WonderMaker ZR Ultra 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Xplorer IDEX 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "High Flow",
+   "High Flow"
+  ],
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "nozzle_volume": [
+   "0",
+   "0"
+  ],
+  "printable_area": [
+   "10x0",
+   "410x0",
+   "410x400",
+   "10x400"
+  ],
+  "printable_height": "401",
+  "printer_extruder_id": [
+   "1",
+   "2"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive High Flow",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Xplorer IDEX",
+  "printer_settings_id": "Xplorer IDEX 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "1.35",
+   "1.35"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Xplorer IQEX 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow"
+  ],
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Direct Drive",
+   "Direct Drive",
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "nozzle_volume": [
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "printable_area": [
+   "10x0",
+   "410x0",
+   "410x342.5",
+   "10x342.5"
+  ],
+  "printable_height": "401",
+  "printer_extruder_id": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Xplorer IQEX",
+  "printer_settings_id": "Xplorer IQEX 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "1.35",
+   "1.35",
+   "1.35",
+   "1.35"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Z-Bolt S300 Dual 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x300",
+   "0x300"
+  ],
+  "printable_height": "350",
+  "printer_model": "Z-Bolt S300 Dual",
+  "printer_settings_id": "Z-Bolt S300 Dual 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8",
+   "0.8"
   ],
   "single_extruder_multi_material": "0"
  }

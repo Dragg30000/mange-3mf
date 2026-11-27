@@ -3,9 +3,9 @@
 #
 # [tool.orcaslicer.plugin]
 # name = "Mange-3MF (Snapmaker U1)"
-# description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, PrusaSlicer / Printables, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for your printer (Snapmaker U1, Bambu Lab, Anycubic, Elegoo, Prusa...): exactly the model's colors, painting and plates kept, with your own settings. In English, French, German, Spanish or Italian."
+# description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, PrusaSlicer / Printables, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for your printer (Snapmaker U1, Bambu Lab, Prusa, Flashforge, Creality, Anycubic, Elegoo, Qidi...): exactly the model's colors, painting and plates kept, with your own settings. In English, French, German, Spanish or Italian."
 # author = "Dragg avec son ami Claude"
-# version = "0.7.0"
+# version = "0.7.1"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour ton imprimante.
 
@@ -57,7 +57,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.7.0"
+VERSION = "0.7.1"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -3176,8 +3176,10 @@ def hydrate_presets(template, files):
 # --------------------------------------------------------------------------- imprimantes
 # Le plugin convertit pour l'imprimante de tes reglages, quelle qu'elle soit. Quatre familles, lues dans
 # ses reglages d'Orca (nombre de buses, « single_extruder_multi_material ») et tes filaments :
-#   « tools »  changeur d'outils, une tete par filament : Snapmaker U1, Prusa XL, CORE One INDX... ;
-#   « box »    une buse et une boite a couleurs : Bambu Lab (AMS), Anycubic (ACE Pro), Elegoo... ;
+#   « tools »  changeur d'outils ou IDEX, une tete par filament : Snapmaker U1, Prusa XL, CORE One INDX,
+#              Flashforge Creator 5, Snapmaker J1, UltiMaker S5... ;
+#   « box »    une buse et une boite a couleurs : Bambu Lab (AMS), Anycubic (ACE Pro), Flashforge AD5X (IFS),
+#              Creality (CFS), Qidi (Box), Elegoo... ;
 #   « multi »  plusieurs buses et une boite : Bambu Lab H2D, H2C, X2D (et H3C, P3C quand Orca les aura) ;
 #   « single » une buse, une seule bobine dans tes reglages.
 
@@ -3186,7 +3188,9 @@ _VENDORS = ("bambu lab", "prusa research", "two trees", "ginger additive", "orca
             "kingroon", "tronxy", "biqu", "ultimaker", "raise3d", "geeetech", "voxelab", "ankermake", "anker",
             "lulzbot", "infimech", "wanhao", "comgrow", "mingda", "positron", "vzbot", "chuanying", "dremel",
             "afinia", "folgertech", "peopoly", "rolohaun", "z-bolt", "lotmaxx", "kywoo", "longer", "eryone",
-            "volumic", "magicmaker", "cubicon", "blocks")
+            "volumic", "magicmaker", "cubicon", "blocks", "voron", "phrozen", "wondermaker", "co print", "colido",
+            "lh", "felix", "flsun", "flyingbear", "goofoo", "ginger", "ideaformer", "m3d", "meltingplot", "openeye",
+            "seckit", "seemecnc", "tiertime", "twotrees", "wemake3d", "re3d", "deltamaker", "benfab")
 _NOZZLE_SUFFIX = re.compile(r"\s*\(?\s*\d+(?:\.\d+)?\s*(?:mm\s*)?nozzle\s*\)?\s*$", re.I)
 
 
@@ -3208,12 +3212,14 @@ def same_printer(a, b):
 
 
 def printer_short(model):
-    """Nom d'une imprimante sans sa marque : « Bambu Lab P1S » -> « P1S », « Snapmaker U1 » -> « U1 »."""
+    """Nom d'une imprimante sans sa marque : « Bambu Lab P1S » -> « P1S », « Snapmaker U1 » -> « U1 ».
+    La marque reste quand le reste commence par un chiffre : « Voron 2.4 350 », « UltiMaker 2+ »."""
     model = (model or "").strip()
     low = model.lower()
     for v in sorted(_VENDORS, key=len, reverse=True):
-        if low.startswith(v + " ") and model[len(v):].strip():
-            return model[len(v):].strip()
+        rest = model[len(v):].strip()
+        if low.startswith(v + " ") and rest[:1].isalpha():
+            return rest
     return model
 
 

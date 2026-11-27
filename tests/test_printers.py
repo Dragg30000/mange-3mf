@@ -1,4 +1,4 @@
-"""Mange-3MF 0.7.0 : toutes les imprimantes. Les reglages de test sont faits des vrais profils d'imprimante
+"""Mange-3MF 0.7.0 / 0.7.1 : toutes les imprimantes (0.7.1 : Flashforge et d'autres marques verifiees). Les reglages de test sont faits des vrais profils d'imprimante
 d'OrcaSlicer (tests/printers_orca.json : modele, buses, plateau, volume de buse...), avec les filaments et le
 traitement de l'exemple U1. Les Bambu Lab H3C et P3C ne sont pas encore dans Orca : elles sont imitees."""
 import importlib, json, os, shutil, sys, tempfile, zipfile
@@ -43,6 +43,38 @@ want = {
     "Bambu Lab H2D 0.4 nozzle": ("H2D", "multi", 2),
     "Bambu Lab H2C 0.4 nozzle": ("H2C", "multi", 2),
     "Bambu Lab X2D 0.4 nozzle": ("X2D", "multi", 2),
+    # 0.7.1 : Flashforge et d'autres marques, toujours avec leurs vrais profils d'Orca
+    "Bambu Lab H2D Pro 0.4 nozzle": ("H2D Pro", "multi", 2),
+    "Flashforge Creator 5 0.4 nozzle": ("Creator 5", "tools", 4),
+    "Flashforge Creator 5 Pro 0.4 nozzle": ("Creator 5 Pro", "tools", 4),
+    "Flashforge AD5X 0.4 nozzle": ("AD5X", "box", 1),
+    "Flashforge Adventurer 5M Pro 0.4 Nozzle": ("Adventurer 5M Pro", "box", 1),
+    "Flashforge Guider4 Pro 0.4 nozzle": ("Guider4 Pro", "box", 1),
+    "Flashforge Adventurer 3 Series 0.4 Nozzle": ("Adventurer 3 Series", "multi", 2),   # deux buses dans son profil d'Orca
+    "Snapmaker J1 (0.4 nozzle)": ("J1", "tools", 2),
+    "Snapmaker Artisan (0.4 nozzle)": ("Artisan", "tools", 2),
+    "Snapmaker A350 Dual (0.4 nozzle)": ("A350 Dual", "tools", 2),
+    "UltiMaker S5 0.4 nozzle": ("S5", "tools", 2),
+    "UltiMaker 2+ 0.4 nozzle": ("UltiMaker 2+", "box", 1),
+    "RatRig V-Core 4 IDEX 400 0.4 nozzle": ("V-Core 4 IDEX 400", "tools", 2),
+    "RatRig V-Core 4 IDEX 400 COPY MODE 0.4 nozzle": ("V-Core 4 IDEX 400 COPY MODE", "tools", 2),
+    "Z-Bolt S300 Dual 0.4 nozzle": ("S300 Dual", "tools", 2),
+    "Xplorer IDEX 0.4 nozzle": ("Xplorer IDEX", "tools", 2),
+    "Xplorer IQEX 0.4 nozzle": ("Xplorer IQEX", "tools", 4),
+    "WonderMaker ZR Ultra 0.4 nozzle": ("ZR Ultra", "tools", 4),
+    "Raise3D Pro3 0.4 nozzle (Dual)": ("Pro3", "multi", 2),
+    "Elegoo Neptune 2D 0.4 nozzle": ("Neptune 2D", "multi", 2),
+    "Sovol SV02 0.4 nozzle": ("SV02", "multi", 2),
+    "Creality Hi 0.4 nozzle": ("Hi", "box", 1),
+    "Creality K1_CFS-C 0.4 nozzle": ("K1_CFS-C", "box", 1),
+    "Qidi X-Plus 4 0.4 nozzle": ("X-Plus 4", "box", 1),
+    "Voron 2.4 350 0.4 nozzle": ("Voron 2.4 350", "box", 1),
+    "Voron Trident 300 0.4 nozzle": ("Trident 300", "box", 1),
+    "Voron 0.1 0.4 nozzle": ("Voron 0.1", "box", 1),
+    "Co Print ChromaSet 0.4 nozzle": ("ChromaSet", "box", 1),
+    "LH Stinger MMU 0.4 nozzle": ("Stinger MMU", "box", 1),
+    "Phrozen Arco 0.4 nozzle": ("Arco", "box", 1),
+    "Anker M5C 0.4 nozzle": ("M5C", "box", 1),
 }
 for name in PRINTERS:
     t = template_for(name)
@@ -79,6 +111,56 @@ for model, n, semm, kind in (("Bambu Lab H3C", 9, "1", "multi"), ("Bambu Lab P3C
        "%s (%d buses, %s) : %s, %d filaments, purge %d valeurs, %s" % (model, n, kind, t.kind, nf, len(cfg["flush_volumes_matrix"]), res[0]["name"]))
     if kind == "tools":
         ok(nf == 9, "changeur de 9 outils : une case par tete (%d)" % nf)
+
+print("== 0.7.1 : Flashforge et d'autres marques, convertis avec leurs vrais profils d'Orca")
+for name, n_heads, nf_want in (("Flashforge AD5X 0.4 nozzle", 1, 4), ("Flashforge Creator 5 Pro 0.4 nozzle", 4, 4),
+                               ("Snapmaker J1 (0.4 nozzle)", 2, 3), ("UltiMaker S5 0.4 nozzle", 2, 3),
+                               ("Raise3D Pro3 0.4 nozzle (Dual)", 2, 4), ("Creality Hi 0.4 nozzle", 1, 4),
+                               ("WonderMaker ZR Ultra 0.4 nozzle", 4, 4)):
+    t = template_for(name)
+    src = poke()
+    ana = m.analyze(src, t)
+    res = m.convert(src, t, plan_of(ana))
+    cfg = project_cfg(res[0]["data"])
+    nf, nn = len(cfg["filament_colour"]), len(cfg["nozzle_diameter"])
+    fl = [float(x) for x in cfg["flush_volumes_matrix"]]
+    diag = all(fl[z * nf * nf + i * nf + i] == 0 for z in range(nn) for i in range(nf))
+    off = all(fl[z * nf * nf + i * nf + j] > 0 for z in range(nn) for i in range(nf) for j in range(nf) if i != j)
+    ok(nf == nf_want and nn == t.nozzle_count and len(fl) == nn * nf * nf and ana["printer"]["heads"] == n_heads
+       and res[0]["name"] == "pokeballs - %s-by-Dragg.3mf" % t.short and (t.kind == "tools" or (diag and off)),
+       "%s (%s) : %d filaments, %d buse(s), purge %d valeurs, %s" % (name, t.kind, nf, nn, len(fl), res[0]["name"]))
+t = template_for("Snapmaker J1 (0.4 nozzle)")
+ok(t.capacity == 2 and t.head_count == 2 and not t.printer_info()["u1"],
+   "Snapmaker J1 (IDEX) : 2 tetes, 2 couleurs a la fois, pas de multiACE (c'est pour la U1)")
+ok(m.printer_short("UltiMaker 2+") == "UltiMaker 2+" and m.printer_short("Voron 2.4 350") == "Voron 2.4 350"
+   and m.printer_short("Voron Trident 300") == "Trident 300" and m.printer_short("Anycubic 4Max Pro") == "Anycubic 4Max Pro"
+   and m.printer_short("Flashforge AD5X") == "AD5X" and m.printer_short("Co Print ChromaSet") == "ChromaSet",
+   "noms courts : la marque reste quand le reste commence par un chiffre (UltiMaker 2+, Voron 2.4 350)")
+
+print("== Prereglages systeme d'une autre marque (Orca reglee sur une autre imprimante) : par leur liste d'imprimantes")
+from fake_orca import FakePreset, preset_from, orca_serialize
+
+
+class _Coll:
+    def __init__(self, presets): self.p = presets
+    def size(self): return len(self.p)
+    def preset(self, i): return self.p[i]
+
+
+def _sys(name, typ, printers):
+    raw = preset_from(U1CFG, 0, name, changes={"filament_type": [typ], "filament_vendor": ["Flashforge"]},
+                      inherits="Generic %s @System" % typ)
+    raw["compatible_printers"] = orca_serialize(printers, True) if printers else ""
+    return FakePreset(name, raw, user=False, system=True, compatible=False)
+
+
+coll = _Coll([_sys("Flashforge PETG Basic @FF C5P", "PETG", ["Flashforge Creator 5 Pro 0.4 nozzle", "Flashforge Creator 5 Pro 0.6 nozzle"]),
+              _sys("Flashforge PETG Basic @FF AD5X", "PETG", ["Flashforge AD5X 0.4 nozzle"]),
+              _sys("Generic PETG @System", "PETG", [])])
+for name, want_names in (("Flashforge Creator 5 Pro 0.4 nozzle", ["Flashforge PETG Basic @FF C5P", "Generic PETG @System"]),
+                         ("Flashforge AD5X 0.4 nozzle", ["Flashforge PETG Basic @FF AD5X", "Generic PETG @System"])):
+    got = [p.name for p in m._system_presets(coll, template_for(name), False)]
+    ok(got == want_names, "%s : %s" % (name, got))
 
 print("== P1S (une buse + AMS) : les couleurs vont dans les emplacements de leur bobine")
 t = template_for("Bambu Lab P1S 0.4 nozzle")

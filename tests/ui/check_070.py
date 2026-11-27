@@ -23,6 +23,10 @@ RIGS = [  # (nom, imprimante d'Orca ou imitation, couleurs, buse de chaque filam
     ("h3c", "Bambu Lab H3C", ("#F5F5F5", "#FF7A00", "#1E5BD8", "#111111", "#2E7D32", "#D32F2F", "#FFE11A", "#8E24AA", "#00ACC1"),
      [str(i + 1) for i in range(9)]),
     ("mini", "Prusa MINI 0.4 nozzle", ("#2E7D32",), None),
+    # 0.7.1 : Flashforge (AD5X avec l'IFS, Creator 5 Pro a 4 tetes) et un IDEX (Snapmaker J1)
+    ("ad5x", "Flashforge AD5X 0.4 nozzle", ("#F5F5F5", "#FFE11A", "#D32F2F", "#111111"), None),
+    ("c5p", "Flashforge Creator 5 Pro 0.4 nozzle", ("#F5F5F5", "#111111", "#D32F2F", "#FFE11A", "#1E5BD8"), None),
+    ("j1", "Snapmaker J1 (0.4 nozzle)", ("#F5F5F5", "#111111"), None),
 ]
 
 
