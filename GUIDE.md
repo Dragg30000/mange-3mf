@@ -7,7 +7,7 @@
 **Eats any 3MF and spits out an OrcaSlicer project ready for your Snapmaker U1.**
 MakerWorld / Bambu Studio projects, Printables / PrusaSlicer, Snapmaker Orca, OrcaSlicer and its forks, plain 3MFs from CAD tools: exactly the model's colors (one filament per color), the painting and the plates are kept, and **your** settings are used.
 
-- Version: **0.6.0** (2026-11-26) — see [CHANGELOG.md](CHANGELOG.md) (in French)
+- Version: **0.6.1** (2026-11-27) — see [CHANGELOG.md](CHANGELOG.md) (in French)
 - For: OrcaSlicer 2.5 (Python plugins), Snapmaker U1 (4-head profile)
 - Languages: English, French, German, Spanish, Italian (Orca's language by default, selectable in the tab)
 - Author: Dragg with his friend Claude — GPL-3.0 license ([LICENSE](LICENSE))
@@ -54,7 +54,7 @@ Mange-3MF adds a **Mange-3MF tab** to OrcaSlicer, and a **panel beside the plate
 - **filament profiles**: each color gets one of your profiles in the same material, the one with the closest color, with its High flow and Standard values. You can pick another one in the tab: one from your saved settings or **any of your Orca filament presets**. The values written are the current ones of the Orca preset with the same name, so Orca recognizes your presets when it opens the project;
 - **colors**: the model's, or the one you pick for a filament;
 - **PrusaSlicer projects** (Printables): parts, negative parts, modifiers, painting, per-layer color changes, layer ranges and the common per-object settings (walls, infill…) come along; **plain 3MFs** from CAD tools (Fusion, Onshape…) keep their colors (one color = one filament);
-- **a material you don't have**: if the model wants PETG and none of your profiles is PETG, Orca's profile for your U1 is suggested, with a warning to check it;
+- **Orca's system presets**: besides your own profiles, each color's list offers the ones Orca shows for your U1, grouped by brand; if the model wants PETG and none of your profiles is PETG, the best one is picked for you, with a warning to check it;
 - **remembered choices**: a profile you change by hand for a color comes back next time for the same color and material;
 - **the author's supports**: your call, one tick keeps them (type, support filament), otherwise your settings apply;
 - **filament order**: the colors closest to your current spools take their slots (1 to 4), the others follow.
@@ -122,7 +122,7 @@ During the analysis the U1 chews and the page tells you how far it is. Then the 
 - the unused slots, when the model has fewer than 4 colors (Orca keeps at least one slot per head);
 - the **One file per plate** box (under "Before converting"), if you prefer one file per plate, each with only its plate's colors;
 - the **Keep the author's supports** box (when the project has supports): the author's support type and support / interface filaments (renumbered). Unticked, your support settings apply. Your profile and color choices stay when you tick or untick it, and the choice is kept for the next files;
-- **Orca profiles**: when none of your profiles has a color's material (PETG, TPU…), the list also offers Orca's profiles made for your U1 in that material (group **Orca profiles**); the best one is picked by default and "Before converting" says so. Check its temperatures before printing;
+- **Orca's system presets**: after **In your settings** and **Your presets**, the list offers the ones Orca shows for your U1 (those ticked in its filament selection window), one group per brand: **System presets · Generic**, **· Polymaker**… Your own profile is still picked by default; when none of your profiles has a color's material (PETG, TPU…), the best system preset of that material is picked (even if it isn't ticked in Orca) and "Before converting" says so. A system preset you pick is read in full from Orca at conversion; check its temperatures before printing;
 - **"your choice from last time"** under a color: the profile you picked by hand for that color (same material, same or very close color) in an earlier conversion. Going back to the suggested profile forgets it; **Settings** › **Forget my profile choices** clears them all.
 
 ![Analysis of a 7-color project](docs/captures/en/2_analyse.png)
@@ -186,7 +186,7 @@ Mixed colors (Snapmaker Orca Full Spectrum, Orca mixed filaments) become solid c
 
 ## 7. Known limits
 
-- **Version 0.6.0**: tested outside OrcaSlicer (a real MakerWorld 3MF, a real PrusaSlicer project, Bambu Studio, PrusaSlicer, Snapmaker Orca and CAD projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab and the panel rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice), then the Prepare panel. Conversion with more than 4 filaments is still to be tried.
+- **Version 0.6.1**: tested outside OrcaSlicer (a real MakerWorld 3MF, a real PrusaSlicer project, Bambu Studio, PrusaSlicer, Snapmaker Orca and CAD projects built for the tests, Orca 2.5.1-style settings and presets with nozzle variants, a fake OrcaSlicer, the tab and the panel rendered in Chrome in English and French). Version 0.4.0 has run in a real Orca 2.5.1 (tab, analysis, clean profile names); so has 0.5.0 (new interface, analysis, profile choice), then the Prepare panel. Conversion with more than 4 filaments is still to be tried.
 - **PrusaSlicer** projects: uncommon per-object settings (fuzzy skin…) are not carried over, a warning names them; resin (SLA) projects are refused. The PrusaSlicer conversion is still to be tried in a real Orca.
 - **Already sliced** files (`.gcode.3mf`, `.bgcode`): refused, they don't contain the model.
 - **Materials**: if neither your profiles nor Orca's profiles for your U1 have the model's material, the plugin warns you but doesn't create a profile.

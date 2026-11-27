@@ -1,5 +1,13 @@
 # Historique des versions — Mange-3MF (Snapmaker U1)
 
+## 0.6.1 — 27/11/2026
+
+- **Préréglages système d'Orca dans la liste de chaque couleur**, en plus des tiens (demandé par Tommy : « peut-on avoir les filaments de base aussi de Orca système ? ») : après « Dans tes réglages » et « Tes préréglages », la liste propose tous les préréglages système qu'Orca te montre pour ta U1 (ceux cochés dans sa fenêtre de choix des filaments), un groupe par marque comme dans Orca : « Préréglages système · Generic », « · Polymaker », « · SUNLU »… Dans l'onglet et dans le panneau de Préparer.
+- Le choix d'office reste un de tes profils. Un préréglage système n'est choisi d'office que si aucun de tes profils n'a la matière du modèle (PETG…), comme en 0.6.0, et alors le mieux adapté à la U1 (même s'il n'est pas coché dans Orca).
+- Un préréglage système choisi est lu en entier dans Orca à la conversion, et la mémoire des choix le reprend la fois suivante pour la même couleur.
+- Orca réglée sur une autre imprimante que tes réglages mémorisés : les préréglages faits pour toutes les imprimantes sont proposés aussi.
+- Le groupe « Profils d'Orca » s'appelle maintenant « Préréglages système », comme dans Orca.
+
 ## 0.6.0 — 26/11/2026
 
 - **Projets PrusaSlicer (Printables)** : ils sont maintenant convertis comme les autres. Le projet est relu comme un projet Orca : un sous-objet par volume (pièces, pièces négatives, modificateurs, bloqueurs et forceurs de supports), peinture des couleurs, des supports et de la couture, couleur de chaque extrudeur, instances en plus, changements de couleur et pauses par hauteur, plages de couches, hauteurs de couches variables, réglages par objet courants (parois, couches du dessus et du dessous, remplissage, supports, bordure, purge dans le remplissage ou l'objet). Les réglages par objet qui n'existent pas dans Orca sont nommés dans une alerte. Les projets pour imprimante résine (SLA) sont refusés, comme les fichiers déjà tranchés (`.gcode.3mf`, `.bgcode`). Dans la liste des Téléchargements, un projet PrusaSlicer est « à convertir ».

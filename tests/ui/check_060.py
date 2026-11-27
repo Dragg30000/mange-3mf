@@ -43,15 +43,17 @@ def prepare(lang):
     orca, st, cur = fake_orca.install(storage, cfg, dock=True)
     st["language"] = {"fr": "fr_FR", "en": "en_US"}[lang]
 
-    def system(name, typ, printers):
-        raw = fake_orca.preset_from(cfg, 0, name, changes={"filament_type": [typ]}, inherits="Generic %s @System" % typ)
+    def system(name, typ, printers, vendor):
+        raw = fake_orca.preset_from(cfg, 0, name, changes={"filament_type": [typ], "filament_vendor": [vendor]},
+                                    inherits="Generic %s @System" % typ)
         raw["compatible_printers"] = fake_orca.orca_serialize(printers, True)
         return fake_orca.FakePreset(name, raw, user=False, system=True)
     st["presets"] = [fake_orca.FakePreset(n, fake_orca.preset_from(cfg, 0, n, changes=ch)) for n, ch in (
         ("JAYO PLA Rose", {"default_filament_colour": ["#FF3EC8"]}), ("SUNLU PLA Violet", {"default_filament_colour": ["#7B1FA2"]}))]
-    st["presets"] += [system("Generic PETG @U1 0.4 nozzle", "PETG", ["Snapmaker U1 (0.4 nozzle)"]),
-                      system("Snapmaker PETG @U1", "PETG", ["Snapmaker U1 (0.4 nozzle)"]),
-                      system("Generic PETG HF @U1 0.4 nozzle", "PETG", ["Snapmaker U1 (0.4 nozzle)"])]
+    u1 = ["Snapmaker U1 (0.4 nozzle)"]
+    st["presets"] += [system("Generic PETG @U1 0.4 nozzle", "PETG", u1, "Generic"), system("Snapmaker PETG @U1", "PETG", u1, "Snapmaker"),
+                      system("Generic PETG HF @U1 0.4 nozzle", "PETG", u1, "Generic"),
+                      system("Snapmaker PLA SnapSpeed @U1", "PLA", u1, "Snapmaker"), system("Polymaker PolyTerra PLA @U1", "PLA", u1, "Polymaker")]
     sys.modules.pop("mange_3mf_any", None)
     m = importlib.import_module("mange_3mf_any")
     # memoire : le bleu du modele avait pris « SUNLU PLA Violet » la derniere fois

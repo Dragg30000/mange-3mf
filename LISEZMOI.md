@@ -16,7 +16,7 @@
 **Mange n'importe quel 3MF et le recrache en projet OrcaSlicer prêt pour ta Snapmaker U1.**
 Projets MakerWorld / Bambu Studio, Printables / PrusaSlicer, Snapmaker Orca, OrcaSlicer et ses variantes, 3MF de logiciels de CAO : exactement les couleurs du modèle (un filament par couleur), la peinture et les plaques sont gardées, et ce sont **tes** réglages qui sont utilisés.
 
-- Version : **0.6.0** (26/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
+- Version : **0.6.1** (27/11/2026) — voir [CHANGELOG.md](CHANGELOG.md)
 - Pour : OrcaSlicer 2.5 (plugins Python), Snapmaker U1 (profil à 4 têtes)
 - Langues : français, anglais, allemand, espagnol, italien (la langue d'Orca par défaut, au choix dans l'onglet)
 - Auteur : Dragg avec son ami Claude — licence GPL-3.0 ([LICENSE](LICENSE))
@@ -63,7 +63,7 @@ Mange-3MF ajoute à OrcaSlicer un **onglet « Mange-3MF »**, et un **panneau à
 - **profils de filament** : chaque couleur prend un de tes profils, de la même matière, celui dont la couleur est la plus proche, avec ses réglages High flow et Standard. Tu peux en choisir un autre dans l'onglet : ceux de tes réglages mémorisés ou **n'importe lequel de tes préréglages de filament** d'Orca. Les valeurs écrites sont celles, à jour, du préréglage d'Orca du même nom : à l'ouverture, Orca reconnaît tes préréglages ;
 - **couleurs** : celles du modèle, ou celle que tu choisis pour un filament ;
 - **projets PrusaSlicer** (Printables) : pièces, pièces négatives, modificateurs, peinture, changements de couleur par couche, plages de couches et réglages par objet courants (parois, remplissage…) sont repris ; les **3MF bruts** des logiciels de CAO (Fusion, Onshape…) gardent leurs couleurs (une couleur = un filament) ;
-- **matière qui te manque** : si le modèle veut du PETG et qu'aucun de tes profils n'en est, le profil d'Orca pour ta U1 est proposé, avec une alerte pour le vérifier ;
+- **préréglages système d'Orca** : en plus de tes profils, la liste de chaque couleur propose ceux qu'Orca te montre pour ta U1, rangés par marque ; si le modèle veut du PETG et qu'aucun de tes profils n'en est, le meilleur est choisi d'office, avec une alerte pour le vérifier ;
 - **mémoire des choix** : un profil changé à la main pour une couleur revient la fois suivante pour la même couleur et la même matière ;
 - **supports de l'auteur** : au choix, une case garde ses supports (type, filament de support), sinon ce sont tes réglages ;
 - **ordre des filaments** : les couleurs qui ressemblent le plus à tes bobines actuelles prennent leurs cases (1 à 4), les autres suivent.
@@ -131,7 +131,7 @@ Pendant l'analyse, la U1 mâche et la page dit où elle en est. Puis l'analyse r
 - les cases qui ne servent pas, quand le modèle a moins de 4 couleurs (Orca garde au moins une case par tête) ;
 - la case **« Un fichier par plaque »** (sous « Avant de convertir ») si tu préfères un fichier par plaque, chacun avec les seules couleurs de sa plaque ;
 - la case **« Garder les supports de l'auteur »** (si le projet a des supports) : son type de supports, ses filaments de support et d'interface (renumérotés). Décochée, ce sont tes réglages de supports. Tes choix de profils et de couleurs restent quand tu la coches ou la décoches, et le choix est gardé pour les fichiers suivants ;
-- les **profils d'Orca** : si aucun de tes profils n'a la matière d'une couleur (PETG, TPU…), la liste propose aussi les profils d'Orca prévus pour ta U1 dans cette matière (groupe **« Profils d'Orca »**), le meilleur est choisi d'office et « Avant de convertir » le signale. Vérifie ses températures avant d'imprimer ;
+- les **préréglages système d'Orca** : après **« Dans tes réglages »** et **« Tes préréglages »**, la liste propose ceux qu'Orca te montre pour ta U1 (ceux cochés dans sa fenêtre de choix des filaments), un groupe par marque : **« Préréglages système · Generic »**, **« · Polymaker »**… Le choix d'office reste un de tes profils ; si aucun de tes profils n'a la matière d'une couleur (PETG, TPU…), le meilleur préréglage système de cette matière est choisi d'office (même s'il n'est pas coché dans Orca) et « Avant de convertir » le signale. Un préréglage système choisi est lu en entier dans Orca à la conversion ; vérifie ses températures avant d'imprimer ;
 - **« ton choix de la dernière fois »** sous une couleur : le profil que tu avais choisi à la main pour cette couleur (même matière, couleur identique ou presque) lors d'une conversion précédente. Remettre le profil proposé d'office l'oublie ; **Réglages** › **« Oublier mes choix de profils »** les efface tous.
 
 ![Analyse d'un projet à 7 couleurs](docs/captures/2_analyse.png)
@@ -195,7 +195,7 @@ Les couleurs mélangées (Full Spectrum de Snapmaker Orca, filaments mixtes d'Or
 
 ## 7. Limites connues
 
-- **Version 0.6.0** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, vrai projet PrusaSlicer, projets Bambu Studio, PrusaSlicer, Snapmaker Orca et CAO fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet et panneau rendus dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils), puis le panneau de Préparer. La conversion à plus de 4 filaments reste à essayer.
+- **Version 0.6.1** : testée hors d'OrcaSlicer (vrai 3MF MakerWorld, vrai projet PrusaSlicer, projets Bambu Studio, PrusaSlicer, Snapmaker Orca et CAO fabriqués pour les tests, réglages et préréglages façon Orca 2.5.1 avec variantes de buse, faux OrcaSlicer, onglet et panneau rendus dans Chrome en français et en anglais). La 0.4.0 a tourné dans un vrai Orca 2.5.1 (onglet, analyse, noms de profils propres) ; la 0.5.0 aussi (nouvelle interface, analyse, choix des profils), puis le panneau de Préparer. La conversion à plus de 4 filaments reste à essayer.
 - Projets **PrusaSlicer** : les réglages par objet peu courants (peau floue…) ne sont pas repris, une alerte les nomme ; les projets pour imprimante résine (SLA) sont refusés. La conversion PrusaSlicer reste à essayer dans un vrai Orca.
 - Fichiers **déjà tranchés** (`.gcode.3mf`, `.bgcode`) : refusés, ils ne contiennent pas le modèle.
 - **Matières** : si ni tes profils ni ceux d'Orca pour ta U1 n'ont la matière du modèle, le plugin te prévient mais ne crée pas de profil.

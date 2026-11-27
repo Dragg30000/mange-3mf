@@ -5,7 +5,7 @@
 # name = "Mange-3MF (Snapmaker U1)"
 # description = "Tab that converts any 3MF (MakerWorld / Bambu Studio, PrusaSlicer / Printables, Snapmaker Orca, other Orca forks) into an OrcaSlicer project for the Snapmaker U1: exactly the model's colors, painting and plates kept, with your own settings. In English, French, German, Spanish or Italian."
 # author = "Dragg avec son ami Claude"
-# version = "0.6.0"
+# version = "0.6.1"
 # ///
 """Mange-3MF - convertit un 3MF d'un autre logiciel en projet OrcaSlicer pour la Snapmaker U1.
 
@@ -53,7 +53,7 @@ try:
 except ImportError:  # tests hors d'OrcaSlicer
     orca = None
 
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 PLUGIN_NAME = "Mange-3MF"
 
 # --------------------------------------------------------------------------- fichiers du 3MF
@@ -486,7 +486,7 @@ TEXTS = {
         "col_pink": "rose",
         "col_lightpink": "rose clair",
         # 0.6.0
-        "grp_system": "Profils d'Orca",
+        "grp_system": "Préréglages système",
         "w_system": "Aucun de tes profils n'est du {0} : je propose « {1} », un profil d'Orca pour ta U1. "
                     "Vérifie-le avant d'imprimer.",
         "w_no_profile": "Aucun profil {0} pour ta U1, ni chez toi ni dans Orca : choisis-en un proche et "
@@ -779,7 +779,7 @@ TEXTS = {
         "col_pink": "pink",
         "col_lightpink": "light pink",
         # 0.6.0
-        "grp_system": "Orca profiles",
+        "grp_system": "System presets",
         "w_system": "None of your profiles is {0}: I suggest “{1}”, an Orca profile for your U1. Check it "
                     "before printing.",
         "w_no_profile": "No {0} profile for your U1, neither yours nor in Orca: pick a close one and check "
@@ -1073,7 +1073,7 @@ TEXTS = {
         "col_purple": "Lila",
         "col_pink": "Rosa",
         "col_lightpink": "Hellrosa",
-        "grp_system": "Profile von Orca",
+        "grp_system": "Systemvoreinstellungen",
         "w_system": "Keines deiner Profile ist {0}: Ich schlage „{1}“ vor, ein Profil von Orca für deine U1. "
                     "Prüfe es vor dem Drucken.",
         "w_no_profile": "Kein {0}-Profil für deine U1, weder bei dir noch in Orca: Wähle ein ähnliches und "
@@ -1367,7 +1367,7 @@ TEXTS = {
         "col_purple": "morado",
         "col_pink": "rosa",
         "col_lightpink": "rosa claro",
-        "grp_system": "Perfiles de Orca",
+        "grp_system": "Preajustes del sistema",
         "w_system": "Ninguno de tus perfiles es {0}: propongo “{1}”, un perfil de Orca para tu U1. Revísalo "
                     "antes de imprimir.",
         "w_no_profile": "No hay ningún perfil {0} para tu U1, ni tuyo ni en Orca: elige uno parecido y "
@@ -1660,7 +1660,7 @@ TEXTS = {
         "col_purple": "viola",
         "col_pink": "rosa",
         "col_lightpink": "rosa chiaro",
-        "grp_system": "Profili di Orca",
+        "grp_system": "Preset di sistema",
         "w_system": "Nessuno dei tuoi profili è {0}: propongo “{1}”, un profilo di Orca per la tua U1. "
                     "Controllalo prima di stampare.",
         "w_no_profile": "Nessun profilo {0} per la tua U1, né tuo né in Orca: scegline uno simile e "
@@ -2824,9 +2824,10 @@ class FilamentPreset:
 
     @classmethod
     def light_read(cls, preset):
-        """Prereglage systeme lu en bref : nom, matiere, couleur. Relu en entier a la conversion s'il sert."""
+        """Prereglage systeme lu en bref : nom, matiere, couleur, marque. Relu en entier a la conversion s'il
+        sert."""
         raw = {}
-        for key in ("filament_type", "default_filament_colour"):
+        for key in ("filament_type", "default_filament_colour", "filament_vendor"):
             try:
                 value = preset.config_value(key)
             except Exception:
@@ -2837,6 +2838,12 @@ class FilamentPreset:
         fp.system = fp.light = True
         fp.visible = bool(getattr(preset, "is_visible", True))
         return fp
+
+    @property
+    def vendor(self):
+        """Marque du filament (Generic, Polymaker...), pour ranger les prereglages systeme comme Orca."""
+        v = self.values("filament_vendor", True)
+        return (v[0] if v else "").strip()
 
     def values(self, key, strings=False):
         """Valeurs d'un reglage (une par variante de buse). strings : le reglage est un texte qui
@@ -2941,6 +2948,8 @@ def _system_presets(coll, template, same_printer):
                 if listed:
                     if not printers & set(listed):
                         continue
+                elif (p.config_value("compatible_printers_condition") or "").strip() in ("", '""'):
+                    pass                    # pour toutes les imprimantes (bibliotheque de filaments d'Orca)
                 else:
                     m = _NOZZLE_IN_NAME.search(p.name)
                     if "@U1" not in p.name or (m and nozzle and abs(float(m.group(1)) - nozzle) > 1e-6):
@@ -2981,6 +2990,8 @@ class Template:
         self.presets = []           # prereglages de l'utilisateur proposes en plus des cases
         self.slot_presets = {}      # case -> prereglage d'Orca du meme nom (valeurs a jour)
         self.system = []            # prereglages systeme d'Orca pour cette imprimante (lus en bref)
+        self.missing = set()        # matieres du modele qu'aucun de tes profils n'a
+        self.system_rank = {}       # prereglage systeme -> rang parmi ceux proposes pour une matiere manquante
 
     def attach(self, presets):
         """Prereglages lus dans Orca (read_filament_presets)."""
@@ -2991,18 +3002,28 @@ class Template:
         return self
 
     def add_system(self, missing, per_type=6):
-        """Ajoute a la liste les profils systeme d'Orca des matieres du modele qu'aucun de tes profils n'a
-        (missing : familles de matiere). Retourne ceux ajoutes, le meilleur d'abord pour chaque matiere."""
-        have = {p.name for p in self.presets}
-        added = []
-        for want in sorted(m for m in missing if m and m != "?"):
+        """Ajoute a la liste, apres tes profils, les prereglages systeme d'Orca : ceux qu'Orca montre pour ton
+        imprimante (coches dans sa fenetre de choix des filaments), ranges par marque, et, pour une matiere du
+        modele qu'aucun de tes profils n'a (missing), les meilleurs meme caches. Seuls ces derniers peuvent
+        etre choisis d'office. Retourne ceux proposes pour les matieres manquantes, le meilleur d'abord."""
+        have = {p.name for p in self.presets} | {self.profile(i)[0] for i in range(self.slot_count)}
+        self.missing = {m for m in missing if m and m != "?"}
+        picked = []
+        for want in sorted(self.missing):
             cands = [p for p in self.system if base_type(p.type) == want and p.name not in have]
             cands.sort(key=lambda p: ((p.type or "").strip().upper() != want, not p.visible, "@u1" not in p.name.lower(),
                                       "generic" not in p.name.lower(), len(p.name), p.name.lower()))
-            added += cands[:per_type]
-        if added:
-            self.presets = list(self.presets) + added
-        return added
+            picked += cands[:per_type]
+        self.system_rank = {p.name: i for i, p in enumerate(picked)}
+        shown, seen = [], set()
+        for p in [p for p in self.system if p.visible] + picked:
+            if p.name not in have and p.name not in seen:
+                seen.add(p.name)
+                shown.append(p)
+        shown.sort(key=lambda p: (p.vendor.lower() != "generic", p.vendor.lower() or "~", p.name.lower()))
+        if shown:
+            self.presets = list(self.presets) + shown
+        return picked
 
     def profile_index(self, name, want=None):
         """Numero dans la liste proposee du profil nomme name (une case de tes reglages d'abord), de la
@@ -3099,7 +3120,8 @@ class Template:
             out.append({"n": None, "color": c, "fill": c or self.slot_colors[self.closest_slot(p)],
                         "cname": color_name(c) if c else "", "type": p.type or "?",
                         "base": base_type(p.type), "name": p.name,
-                        "group": "other" if p.other else ("system" if p.system else "user")})
+                        "group": "other" if p.other else ("system" if p.system else "user"),
+                        "vendor": p.vendor if p.system else ""})
         return out
 
     @property
@@ -3698,12 +3720,17 @@ def default_profile(entry, s, template):
     if s < k and (want == "?" or types[s] in (want, "?")):
         return s
     cands = [(t, types[t], template.slot_colors[t]) for t in range(k)]
-    cands += [(k + i, base_type(p.type), p.color) for i, p in enumerate(template.presets) if not p.other]
+    # un prereglage systeme d'Orca n'est choisi d'office que pour une matiere qu'aucun de tes profils n'a
+    cands += [(k + i, base_type(p.type), p.color) for i, p in enumerate(template.presets)
+              if not p.other and (not p.system or base_type(p.type) in template.missing)]
     color = entry["color"] if entry else None
 
     def cost(c):
         idx, typ, col = c
         mismatch = not (want == "?" or typ in (want, "?"))
+        p = template.presets[idx - k] if idx >= k else None
+        if p is not None and p.system:          # le meilleur pour la matiere, sa couleur ne compte pas
+            return (mismatch, 1000.0, True, 10 ** 6 + template.system_rank.get(p.name, 10 ** 5))
         if color and col:
             d = color_distance(color, col)
         else:
@@ -4535,7 +4562,7 @@ def analyze(src, template, one_per_plate=False, with_thumbs=True, choices=None, 
     _check_source(src)
     src.set_supports(supports)
     missing = missing_materials(src, template)
-    added = template.add_system(missing) if missing else []
+    added = template.add_system(missing)
     plan = make_plan(src, template, one_per_plate, choices)
     filaments = []
     used = set()
@@ -5371,7 +5398,12 @@ function profOpts(sel){var groups={slot:[],user:[],system:[],other:[]};
  /* tes preregl. : tous, comme dans Orca ; ceux deja dans tes reglages y sont aussi (meme profil, meme numero) */
  S.an.profiles.forEach(function(p,i){var g=groups[p.group||"slot"]||groups.slot;g.push({p:p,i:i,on:i==sel});if(p.group=="slot"&&p.user)groups.user.push({p:{name:p.name,type:p.type},i:i})});
  groups.user.sort(function(a,b){return String(a.p.name).toLowerCase()<String(b.p.name).toLowerCase()?-1:1});
- return [["slot","grp_slots"],["user","grp_user"],["system","grp_system"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'+groups[g[0]].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(profLabel(o.p))+'</option>'}).join("")+'</optgroup>':''}).join("")}
+ return groupList(groups).map(function(g){return '<optgroup label="'+esc(g[0])+'">'+g[1].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(profLabel(o.p))+'</option>'}).join("")+'</optgroup>'}).join("")}
+/* groupes de la liste des profils : les prereglages systeme d'Orca, un groupe par marque (comme dans Orca) */
+function groupList(groups){var out=[];[["slot","grp_slots"],["user","grp_user"],["system","grp_system"],["other","grp_other"]].forEach(function(g){var l=groups[g[0]];if(!l.length)return;
+  if(g[0]!="system"){out.push([t(g[1]),l]);return}
+  var by={},order=[];l.forEach(function(o){var v=o.p.vendor||"";if(!by[v]){by[v]=[];order.push(v)}by[v].push(o)});
+  order.forEach(function(v){out.push([t("grp_system")+(v?" · "+v:""),by[v]])})});return out}
 function fil(i){var a=S.an;for(var j=0;j<a.filaments.length;j++)if(a.filaments[j].index==i)return a.filaments[j];return{color:"#808080",name:"?",type:"?",plates:[]}}
 function renderAnalysis(a,fresh){S.an=a;S.token=a.token;if(a.one_per_plate!=null)S.onePer=!!a.one_per_plate;var h="";
  a.files.forEach(function(f,fi){
@@ -5725,8 +5757,13 @@ function nextBase(a,f){var used={};f.slots.forEach(function(s){used[s.base]=1});
 function profOpts(sel){var a=P.an,groups={slot:[],user:[],system:[],other:[]};
  a.profiles.forEach(function(p,i){var g=groups[p.group||"slot"]||groups.slot;g.push({p:p,i:i,on:i==sel});if(p.group=="slot"&&p.user)groups.user.push({p:p,i:i})});
  groups.user.sort(function(x,y){return String(x.p.name).toLowerCase()<String(y.p.name).toLowerCase()?-1:1});
- return [["slot","grp_slots"],["user","grp_user"],["system","grp_system"],["other","grp_other"]].map(function(g){return groups[g[0]].length?'<optgroup label="'+esc(t(g[1]))+'">'
-  +groups[g[0]].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(o.p.name||o.p.type||"?")+'</option>'}).join("")+'</optgroup>':''}).join("")}
+ return groupList(groups).map(function(g){return '<optgroup label="'+esc(g[0])+'">'
+  +g[1].map(function(o){return '<option value="'+o.i+'"'+(o.on?' selected':'')+'>'+esc(o.p.name||o.p.type||"?")+'</option>'}).join("")+'</optgroup>'}).join("")}
+/* groupes de la liste des profils : les prereglages systeme d'Orca, un groupe par marque (comme dans Orca) */
+function groupList(groups){var out=[];[["slot","grp_slots"],["user","grp_user"],["system","grp_system"],["other","grp_other"]].forEach(function(g){var l=groups[g[0]];if(!l.length)return;
+  if(g[0]!="system"){out.push([t(g[1]),l]);return}
+  var by={},order=[];l.forEach(function(o){var v=o.p.vendor||"";if(!by[v]){by[v]=[];order.push(v)}by[v].push(o)});
+  order.forEach(function(v){out.push([t("grp_system")+(v?" · "+v:""),by[v]])})});return out}
 function range(ns){var seq=ns.every(function(n,i){return!i||n==ns[i-1]+1});return seq&&ns.length>1?ns[0]+"–"+ns[ns.length-1]:ns.join(", ")}
 function rowsHtml(){var a=P.an,maxF=a.max_filaments||16,many=P.files.length>1,h="";
  P.files.forEach(function(f,fi){var af=a.files[fi]||{},pads=[],at='data-f="'+fi+'" data-s="';

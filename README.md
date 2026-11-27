@@ -36,7 +36,7 @@ It adds a **Mange-3MF** tab to OrcaSlicer, and the U1 waits for you beside the p
 - ⚙️ **Your settings**: printer, High flow / Standard nozzles, process and plate, saved once from your Orca and shown like on the printer, one card per head. Nothing comes from the author's settings.
 - 🧵 **Your filament presets**: each color gets the closest of your profiles in the same material, or any of your Orca filament presets, which Orca recognizes when it opens the project: no more "…(project.3mf)" copies. One profile can serve several colors: each filament keeps the model's color.
 - 🧩 **PrusaSlicer and Printables projects too**: parts, modifiers, painting, per-layer color changes and layer ranges come along. Plain 3MFs from CAD tools keep their colors.
-- 🧪 **An Orca profile when you lack a material**: the model wants PETG and none of your profiles is PETG? Orca's own U1 profile is suggested, with a warning to check it.
+- 🧪 **Orca's system presets too**: besides your own profiles, each color's list offers the system presets Orca shows for your U1, grouped by brand. When none of your profiles has the model's material (PETG…), the best one is picked for you, with a warning to check it.
 - 🧠 **Your choices remembered**: pick another profile for a color once, it comes back next time for the same color and material.
 - 🛟 **The author's supports, your call**: one tick keeps the author's supports (type, support filament); otherwise your settings decide.
 - ➕ **Extra colors**: add filaments the model doesn't use, ready to paint or recolor a part in Orca.
@@ -80,7 +80,7 @@ Orca keeps at least 4 filaments on the U1 (one per head) and can paint 16 filame
 
 ## 🧪 Status
 
-Beta **0.6.0** (PrusaSlicer and Printables projects, Orca profiles for a missing material, remembered choices, the author's supports, 5 languages). 531 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)), plus the tab and the Prepare panel rendered in Chrome. The tab, the analysis, the 0.5.0 interface and the Prepare panel have run in OrcaSlicer 2.5.1. Resin (SLA) projects and already-sliced files (`.gcode.3mf`, `.bgcode`) are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
+Beta **0.6.1** (Orca's system presets in the profile lists, grouped by brand; 0.6.0: PrusaSlicer and Printables projects, remembered choices, the author's supports, 5 languages). 536 automated checks outside Orca (`python tests/run_all.py`; two sample 3MFs are needed and are not published, see [tests/samples/PROVENANCE.md](tests/samples/PROVENANCE.md)), plus the tab and the Prepare panel rendered in Chrome. The tab, the analysis, the 0.5.0 interface and the Prepare panel have run in OrcaSlicer 2.5.1. Resin (SLA) projects and already-sliced files (`.gcode.3mf`, `.bgcode`) are refused. Full history in [CHANGELOG.md](CHANGELOG.md) (French).
 
 ## 🌍 Translations
 

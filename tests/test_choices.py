@@ -36,11 +36,13 @@ orca, st, cur = fake_orca.install(storage, tcfg)
 st["printer"] = tcfg["printer_settings_id"]
 
 
-def system(name, slot, typ, printers, compatible=True, temp="240"):
-    raw = preset_from(tcfg, slot, name, changes={"filament_type": [typ], "nozzle_temperature": [temp, temp]},
-                      inherits="Generic %s @System" % typ)
+def system(name, slot, typ, printers, compatible=True, temp="240", vendor="Generic", visible=True):
+    raw = preset_from(tcfg, slot, name, changes={"filament_type": [typ], "nozzle_temperature": [temp, temp],
+                                                 "filament_vendor": [vendor]}, inherits="Generic %s @System" % typ)
     raw["compatible_printers"] = orca_serialize(printers, True) if printers else ""
-    return FakePreset(name, raw, user=False, system=True, compatible=compatible)
+    p = FakePreset(name, raw, user=False, system=True, compatible=compatible)
+    p.is_visible = visible                  # coche ou non dans la fenetre de choix des filaments d'Orca
+    return p
 
 
 st["presets"] = [
@@ -49,6 +51,8 @@ st["presets"] = [
     system("Bambu PETG Basic @BBL X1C", 0, "PETG", ["Bambu Lab X1 Carbon 0.4 nozzle"], compatible=False),
     system("Generic PETG @U1 0.4 nozzle", 0, "PETG", ["Snapmaker U1 (0.4 nozzle)"], temp="245"),
     system("Generic PLA @U1 0.4 nozzle", 0, "PLA", ["Snapmaker U1 (0.4 nozzle)"]),
+    system("Polymaker PETG @U1", 0, "PETG", ["Snapmaker U1 (0.4 nozzle)"], vendor="Polymaker", visible=False),
+    system("Polymaker PLA @U1", 0, "PLA", ["Snapmaker U1 (0.4 nozzle)"], vendor="Polymaker", visible=False),
     FakePreset("- Default Filament -", {}, user=False, default=True),
 ]
 sys.modules.pop("mange_3mf_any", None)
@@ -91,15 +95,18 @@ tab.on_message({"command": "capture"})
 state = w.wait("state", 2)
 ok(state["choices"] == 0, "rien en memoire au depart")
 
-print("== profils d'Orca pour une matiere qui te manque (PETG)")
+print("== prereglages systeme d'Orca : en plus des tiens, et pour une matiere qui te manque (PETG)")
 an = analyze()
-groups = [(p["name"], p["group"]) for p in an["profiles"]]
-system_ = [n for n, g in groups if g == "system"]
-ok(system_[:2] == ["Generic PETG @U1 0.4 nozzle", "Generic PETG @System"] and "Bambu PETG Basic @BBL X1C" not in system_
-   and "Generic PLA @U1 0.4 nozzle" not in system_,
-   "profils systeme de la U1 pour le PETG seulement, celui de la U1 d'abord : %s" % system_)
+system_ = [(p["name"], p["vendor"]) for p in an["profiles"] if p["group"] == "system"]
+ok(system_ == [("Generic PETG @System", "Generic"), ("Generic PETG @U1 0.4 nozzle", "Generic"), ("Generic PLA @U1 0.4 nozzle", "Generic"),
+               ("Polymaker PETG @U1", "Polymaker")],
+   "ceux qu'Orca montre pour la U1, par marque, + les caches de la matiere qui manque : %s" % system_)
+ok([p["group"] for p in an["profiles"]].index("system") > max(i for i, p in enumerate(an["profiles"]) if p["group"] in ("slot", "user")),
+   "  apres tes profils")
 red = slot_of(an, 3)
 ok(an["profiles"][red["base"]]["name"] == "Generic PETG @U1 0.4 nozzle", "le rouge en PETG prend « Generic PETG @U1 0.4 nozzle »")
+ok(all(an["profiles"][s["base"]]["group"] != "system" for s in an["files"][0]["slots"] if s["src"] and s["src"] != [3]),
+   "  les couleurs en PLA gardent tes profils (choix d'office)")
 ok(any("Generic PETG @U1 0.4 nozzle" in w_ and "PETG" in w_ for w_ in an["warnings"]), "alerte : %s" % [x for x in an["warnings"] if "PETG" in x])
 outs = convert(an)
 cfg = outs[0].config
@@ -110,6 +117,12 @@ ok("245" in [temps[j] for j, fi in enumerate(cfg.get("filament_self_index", []))
    "  ses valeurs lues en entier a la conversion (245 °C)")
 ok(cfg["inherits_group"][1 + i] == "" and cfg["inherits_group"][1] == "Generic PLA @U1",
    "  profil systeme : pas de parent ecrit (%s)" % cfg["inherits_group"])
+
+st["printer"] = "Une autre imprimante"          # Orca reglee sur une autre machine que les reglages memorises
+other = m.read_filament_presets(m.load_saved_template())["system"]
+st["printer"] = tcfg["printer_settings_id"]
+ok(sorted(p.name for p in other if p.visible) == ["Generic PETG @System", "Generic PETG @U1 0.4 nozzle", "Generic PLA @U1 0.4 nozzle"],
+   "Orca sur une autre imprimante : ceux de la U1 et ceux pour toutes les imprimantes (%s)" % sorted(p.name for p in other))
 
 print("== memoire des choix")
 an = analyze()
@@ -138,6 +151,15 @@ convert(an, files)
 ok(w.wait("choices", n_ch + 1)["n"] == 0, "revenir au profil propose d'office : oublie")
 files[0]["slots"][0]["base"] = (files[0]["slots"][0]["base"] + 1) % 4
 convert(an, files)
+an = analyze()
+sysPLA = next(i for i, p in enumerate(an["profiles"]) if p["name"] == "Generic PLA @U1 0.4 nozzle")
+files = plan(an)
+next(s for s in files[0]["slots"] if s["src"] == blue["src"])["base"] = sysPLA
+cfg = convert(an, files)[0].config
+j = cfg["filament_settings_id"].index("Generic PLA @U1 0.4 nozzle")
+ok(cfg["filament_type"][j] == "PLA" and "240" in cfg["nozzle_temperature"], "prereglage systeme choisi pour le bleu (PLA) : dans le projet")
+an = analyze()
+ok(slot_of(an, 4)["base"] == sysPLA and slot_of(an, 4)["mem"] == sysPLA, "  et repris la fois suivante (memoire des choix)")
 n_st = count("state")
 tab.on_message({"command": "forget_choices"})
 ok(w.wait("state", n_st + 1)["choices"] == 0 and json.load(open(os.path.join(storage, "choix.json")))["items"] == {},

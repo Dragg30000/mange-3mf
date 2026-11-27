@@ -13,7 +13,7 @@ TESTS = [
     ("test_plugin.py", "plugin dans un faux OrcaSlicer : onglet, messages, écriture, notifications, langue"),
     ("test_panel.py", "la U1 dans le panneau de Préparer : Miam, glisser, conversion, même travail que l'onglet"),
     ("test_formats.py", "projets PrusaSlicer (Printables), 3MF bruts en couleurs (CAO)"),
-    ("test_choices.py", "mémoire des choix, profils d'Orca pour une matière manquante, supports de l'auteur"),
+    ("test_choices.py", "mémoire des choix, préréglages système d'Orca, supports de l'auteur"),
 ]
 
 SAMPLES = os.path.join(HERE, "samples")
