@@ -60,8 +60,8 @@ for name, (app, tag), printer, label, todo in lst:
     path = os.path.join(OUT, name)
     open(path, "wb").write(project(app, tag, printer))
     info = m.sniff_3mf(path)
-    ok(m.source_label(info) == label and m.needs_conversion(info) == todo,
-       "%s : « %s », %s" % (name, m.source_label(info), "à convertir" if m.needs_conversion(info) else "déjà pour la U1"))
+    ok(m.source_label(info) == label and m.needs_conversion(info, "Snapmaker U1") == todo,
+       "%s : « %s », %s" % (name, m.source_label(info), "à convertir" if m.needs_conversion(info, "Snapmaker U1") else "déjà pour la U1"))
 
 print("== projet converti avec des reglages d'un ancien OrcaSlicer : etiquette ajoutee")
 src = m.Source3MF(open(sample("sample_dragon.3mf"), "rb").read(), "dragon.3mf")
@@ -73,6 +73,6 @@ path = os.path.join(OUT, res[0]["name"])
 ok(res[0]["name"] == "dragon - U1-by-Dragg.3mf", "nom : %s" % res[0]["name"])
 open(path, "wb").write(res[0]["data"])
 info = m.sniff_3mf(path)
-ok(not m.needs_conversion(info) and m.source_label(info) == "OrcaSlicer", "le fichier converti n'est plus « à convertir »")
+ok(not m.needs_conversion(info, "Snapmaker U1") and m.source_label(info) == "OrcaSlicer", "le fichier converti n'est plus « à convertir »")
 
 done()

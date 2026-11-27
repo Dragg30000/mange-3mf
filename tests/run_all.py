@@ -14,6 +14,7 @@ TESTS = [
     ("test_panel.py", "la U1 dans le panneau de Préparer : Miam, glisser, conversion, même travail que l'onglet"),
     ("test_formats.py", "projets PrusaSlicer (Printables), 3MF bruts en couleurs (CAO)"),
     ("test_choices.py", "mémoire des choix, préréglages système d'Orca, supports de l'auteur"),
+    ("test_printers.py", "toutes les imprimantes (vrais profils d'Orca) : familles, emplacements, purge, réglages par imprimante"),
 ]
 
 SAMPLES = os.path.join(HERE, "samples")

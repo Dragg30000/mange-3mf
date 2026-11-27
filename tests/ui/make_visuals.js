@@ -1,6 +1,6 @@
 // Visuels de Mange-3MF pour Orca Cloud et GitHub (docs/visuals) : pages HTML rendues par Chrome, a partir
 // des captures de docs/captures (refaites par make_captures.py).
-// Usage : node tests/ui/make_visuals.js [chemin_chrome]   (npm install dans tests/ui)
+// Usage : node tests/ui/make_visuals.js [chemin_chrome] [noms,...]   (npm install dans tests/ui ; noms : ne refaire que ces visuels, ex. github_social_preview)
 const { chromium } = require('playwright-core');
 const fs = require('fs'), os = require('os'), path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -12,7 +12,9 @@ fs.mkdirSync(path.join(HERE, 'assets'));
 fs.copyFileSync(require.resolve('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2'),
                 path.join(HERE, 'assets', 'bricolage.woff2'));
 for (const f of ['1_reglages_et_fichiers.png', '2_analyse.png', '3_resultat.png', '5_reglages.png', '6_panneau.png',
-                 '7a_prusa.png', '7b_profils.png', '7c_supports.png'])   // 7* : check_060.py
+                 '7a_prusa.png', '7b_profils.png', '7c_supports.png',                       // 7* : check_060.py
+                 '9_reglages_imprimantes.png', '11_carte_u1.png', '11_carte_p1s.png', '11_carte_h2d.png',
+                 '11_carte_xl.png', '11_carte_mini.png'])                                   // 9, 11 : check_070.py
   fs.copyFileSync(path.join(ROOT, 'docs', 'captures', 'en', f), path.join(HERE, 'assets', f));
 fs.copyFileSync(path.join(ROOT, 'docs', 'captures', '1_reglages_et_fichiers.png'), path.join(HERE, 'assets', 'fr_1_reglages_et_fichiers.png'));
 
@@ -107,13 +109,13 @@ figcaption{margin-top:8px;font-size:24px;font-weight:600;color:#7f8a9a}
 footer{position:absolute;left:120px;right:120px;bottom:70px;display:flex;justify-content:space-between;align-items:baseline;font-size:30px;color:#8f9aab}
 footer b{font-weight:700;color:#22b3a5}
 </style></head><body><div class="canvas">
-<header>${logo(210)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></header>
+<header>${logo(210)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your printer.</p></div></header>
 <div class="duel">
   <div class="side before"><h2>Opened as is in Orca</h2><p>4 × Generic ABS, colors 5 to 7 lost</p><div class="spools">${gray}</div></div>
   <div class="side after"><h2>Converted by Mange-3MF</h2><p>7 colors, 7 filaments, your own settings</p><div class="spools">${col}</div></div>
 </div>
 <div class="crumbs"><i style="left:6px;top:12px;width:16px;height:14px"></i><i style="left:40px;top:58px;width:11px;height:10px"></i><i style="left:20px;top:250px;width:13px;height:12px"></i><i style="left:48px;top:300px;width:8px;height:8px"></i></div>
-<footer><span>Free plugin for OrcaSlicer 2.5 and the Snapmaker U1, in 5 languages.</span><b>v${VERSION}</b></footer>
+<footer><span>Free plugin for OrcaSlicer 2.5: Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo… in 5 languages.</span><b>v${VERSION}</b></footer>
 </div></body></html>`;
 }
 
@@ -140,7 +142,7 @@ function crop(file, x, y, w, h, width) {   // morceau d'une capture, affiche a l
 <img src="assets/${file}" style="position:absolute;left:${-x * s}px;top:${-y * s}px;width:${imgW[file] * s}px;max-width:none"></div>`;
 }
 const imgW = { '1_reglages_et_fichiers.png': 1920, 'fr_1_reglages_et_fichiers.png': 1920, '2_analyse.png': 1920, '3_resultat.png': 1920, '5_reglages.png': 1920,
-               '6_panneau.png': 2236 };
+               '6_panneau.png': 2236, '9_reglages_imprimantes.png': 1920 };
 
 function colorsPage() {
   return shot('Exactly the model’s colors',
@@ -148,9 +150,9 @@ function colorsPage() {
     frame(`<img src="assets/2_analyse.png">`));
 }
 function settingsPage() {
-  return shot('Your settings, saved in one click',
-    'Printer, nozzles, process and plate come from your Orca, not from the model’s author.',
-    frame(crop('5_reglages.png', 150, 47, 1620, 1107, 1120)));   // la fenetre Reglages entiere
+  return shot('Your settings, one set per printer',
+    'Printer, nozzles, process and plate come from your Orca, not from the model’s author. Save each printer once, switch in one click.',
+    frame(crop('9_reglages_imprimantes.png', 150, 30, 1620, 1290, 1000)));   // la fenetre Reglages : deux imprimantes
 }
 function readyPage() {
   const right = frame(`<img src="assets/3_resultat.png">`) +
@@ -168,7 +170,7 @@ function preparePage() {   // les trois panneaux de 6_panneau.png (docks de 684 
   const right = `<div class="docks">${steps.map((t, i) => `<div class="step"><p class="lab"><b>${i + 1}</b>${t}</p>
 <div class="dock">${crop('6_panneau.png', 48 + i * 728, 112, 684, 1452, 350)}</div></div>`).join('')}</div>`;
   return shot('She waits in Prepare',
-    'Open a 3MF that isn’t set up for the U1: she offers to eat it, lets you pick colors and profiles, and builds the project right there.',
+    'Open a 3MF that isn’t set up for your printer: the U1 offers to eat it, lets you pick colors and profiles, and builds the project right there.',
     right, `.docks{display:flex;gap:35px}
 .step{width:350px}
 .lab{display:flex;align-items:center;gap:11px;margin:0 0 16px 2px;font-size:22px;font-weight:650;color:#dfe5ee;white-space:nowrap}
@@ -186,6 +188,23 @@ function newPage() {
     card('The author’s supports, your call', '7c_supports.png', 620),
     `.right{gap:34px}
 .card .lab{margin:0 0 12px 2px;font-size:25px;font-weight:650;color:#dfe5ee}
+.shot{border-radius:14px;overflow:hidden;border:1px solid #2c3747;background:#1c1d20;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+.shot img{display:block;width:100%}`);
+}
+
+// ---- 7. toutes les imprimantes (cartes faites par check_070.py)
+function printersPage() {
+  const card = (label, sub, img) => `<div class="pc"><p class="lab">${label}<span>${sub}</span></p><div class="shot"><img src="assets/${img}"></div></div>`;
+  return shot('Every printer in Orca',
+    'Tool changers, one nozzle with a color box, several nozzles, a single spool. Colors go where the spool looks most like them, and the purge is computed like Orca does.',
+    `<div class="grid">${card('Tool changer', 'Snapmaker U1, Prusa XL, CORE One INDX', '11_carte_u1.png')}
+${card('One nozzle + color box', 'Bambu Lab AMS, Prusa MMU3, Anycubic ACE Pro…', '11_carte_p1s.png')}
+${card('Several nozzles', 'Bambu Lab H2D, H2C, X2D', '11_carte_h2d.png')}
+${card('A single spool', 'All in one color', '11_carte_mini.png')}</div>`,
+    `.right{left:700px;right:70px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:34px 30px}
+.pc .lab{margin:0 0 12px 2px;font-size:27px;font-weight:700;color:#eef1f5}
+.pc .lab span{display:block;margin-top:2px;font-size:20px;font-weight:500;color:#8f9aab}
 .shot{border-radius:14px;overflow:hidden;border:1px solid #2c3747;background:#1c1d20;box-shadow:0 30px 70px rgba(0,0,0,.45)}
 .shot img{display:block;width:100%}`);
 }
@@ -208,9 +227,9 @@ h1{font-size:${big ? 124 : 112}px;line-height:.9;font-weight:800;font-stretch:92
 .gray{opacity:.75;display:flex;gap:${big ? 14 : 12}px}
 .foot{font-size:${big ? 27 : 24}px;color:#8f9aab}
 </style></head><body><div class="canvas"><div class="in">
-<div class="top">${logo(big ? 170 : 150)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your Snapmaker U1.</p></div></div>
+<div class="top">${logo(big ? 170 : 150)}<div><h1>Mange-3MF</h1><p class="tag">Eats any 3MF. Spits out a project for your printer.</p></div></div>
 <div class="row"><div class="gray">${gray}</div><span class="arrow">→</span>${col}</div>
-${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in 5 languages</p>' : ''}
+${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5:<br>Snapmaker U1, Bambu Lab, Prusa, Anycubic, Elegoo… in 5 languages</p>' : ''}
 </div></div></body></html>`;
 }
 
@@ -224,10 +243,13 @@ ${big ? '<p class="foot">Free plugin for OrcaSlicer 2.5, in 5 languages</p>' : '
     ['04_ready', readyPage(), 1920, 1080, 'jpeg'],
     ['05_prepare', preparePage(), 1920, 1080, 'jpeg'],
     ['06_new', newPage(), 1920, 1080, 'jpeg'],
+    ['07_printers', printersPage(), 1920, 1080, 'jpeg'],
     ['github_banner', banner(1760, 520), 1760, 520, 'png'],
     ['github_social_preview', banner(1280, 640), 1280, 640, 'png'],
   ];
+  const only = (process.argv[3] || '').split(',').filter(Boolean);   // ex. : github_social_preview
   for (const [name, html, w, h, type, clip] of jobs) {
+    if (only.length && !only.includes(name)) continue;
     const file = path.join(HERE, '_' + name + '.html');
     fs.writeFileSync(file, html);
     const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });

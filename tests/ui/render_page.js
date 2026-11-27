@@ -329,7 +329,7 @@ const fail = (msg, x) => { console.error(msg, x === undefined ? '' : JSON.string
   if ((await page.locator('input[name=tc]').count()) >= 2) {
     await page.check('input[name=tc][value=current]');
     if (!(await page.evaluate(() => document.querySelector('.choice.on input').value === 'current'))) fail('choix des reglages actuels perdu');
-    await page.check('input[name=tc][value=saved]');
+    await page.check('input[name=tc][value^="saved:"]');   /* 0.7.0 : une carte par imprimante memorisee */
   }
   await page.keyboard.press('Escape');
   if (!(await page.evaluate(() => document.getElementById('dlg').classList.contains('hidden')))) fail('fenetre des reglages pas fermee par Echap');

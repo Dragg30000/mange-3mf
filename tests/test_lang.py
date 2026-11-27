@@ -95,19 +95,19 @@ ok(m.current_language() == "fr", "langue du systeme des tests : fr (LANGUAGE=fr_
 print("== retraduction")
 m.set_language("fr")
 w = m.tr("w_plate", 2, m.tr("unnamed"), m.tr("w_too_big", 300.4, 199.6))
-ok(w == "Plaque 2 « sans nom » : trop grande pour le plateau de la U1 (300 x 200 mm).", "francais : %s" % w)
+ok(w == "Plaque 2 « sans nom » : trop grande pour ton plateau (300 x 200 mm).", "francais : %s" % w)
 m.set_language("en")
-ok(m.relocalize(w) == "Plate 2 “unnamed”: too large for the U1 bed (300 x 200 mm).", "anglais : %s" % m.relocalize(w))
+ok(m.relocalize(w) == "Plate 2 “unnamed”: too large for your bed (300 x 200 mm).", "anglais : %s" % m.relocalize(w))
 data = {"a": [w, m.color_name("#E53935"), 3, None], "b": {"c": m.tr("dest_in", m.tr("downloads"))}}
 loc = m.relocalize(data)
-ok(loc == {"a": ["Plate 2 “unnamed”: too large for the U1 bed (300 x 200 mm).", "red", 3, None], "b": {"c": "in Downloads"}},
+ok(loc == {"a": ["Plate 2 “unnamed”: too large for your bed (300 x 200 mm).", "red", 3, None], "b": {"c": "in Downloads"}},
    "dict et listes retraduits : %s" % loc)
 ok(all(type(x) is str for x in (loc["a"][0], loc["a"][1], loc["b"]["c"])), "  chaines ordinaires (JSON)")
 m.set_language("zh")
 ok(m.current_language() == "en", "langue inconnue -> anglais")
-for lang, want in (("de", "Platte 2 „ohne Namen“: zu groß für das Druckbett der U1 (300 x 200 mm)."),
-                   ("es", "Placa 2 “sin nombre”: demasiado grande para la cama de la U1 (300 x 200 mm)."),
-                   ("it", "Piatto 2 “senza nome”: troppo grande per il piano della U1 (300 x 200 mm).")):
+for lang, want in (("de", "Platte 2 „ohne Namen“: zu groß für dein Druckbett (300 x 200 mm)."),
+                   ("es", "Placa 2 “sin nombre”: demasiado grande para tu cama (300 x 200 mm)."),
+                   ("it", "Piatto 2 “senza nome”: troppo grande per il tuo piano (300 x 200 mm).")):
     m.set_language(lang)
     ok(m.relocalize(w) == want, "%s : %s" % (lang, m.relocalize(w)))
 ok(m.tr("no_such_key") == "no_such_key", "texte absent : sa cle")

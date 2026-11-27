@@ -1,0 +1,1327 @@
+{
+ "Anycubic Kobra 3 V2 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "107",
+  "printable_area": [
+   "0x0",
+   "255x0",
+   "255x255",
+   "0x255"
+  ],
+  "printable_height": "260",
+  "printer_model": "Anycubic Kobra 3 V2",
+  "printer_settings_id": "Anycubic Kobra 3 V2 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "0"
+  ],
+  "retraction_length": [
+   "1"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Anycubic Kobra S1 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "71.6",
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x250",
+   "0x250"
+  ],
+  "printable_height": "250",
+  "printer_model": "Anycubic Kobra S1",
+  "printer_settings_id": "Anycubic Kobra S1 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Anycubic Kobra X 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "0",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "79",
+  "printable_area": [
+   "0x0",
+   "260x0",
+   "260x260",
+   "0x260"
+  ],
+  "printable_height": "260",
+  "printer_model": "Anycubic Kobra X",
+  "printer_settings_id": "Anycubic Kobra X 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "0"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab A1 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "92"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "256",
+  "printer_extruder_id": [
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard"
+  ],
+  "printer_model": "Bambu Lab A1",
+  "printer_settings_id": "Bambu Lab A1 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab A1 mini 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "92"
+  ],
+  "printable_area": [
+   "0x0",
+   "180x0",
+   "180x180",
+   "0x180"
+  ],
+  "printable_height": "180",
+  "printer_extruder_id": [
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard"
+  ],
+  "printer_model": "Bambu Lab A1 mini",
+  "printer_settings_id": "Bambu Lab A1 mini 0.4 nozzle",
+  "printer_structure": "i3",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18"
+  ],
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab H2C 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard",
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": [
+   "2"
+  ],
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "1",
+   "1",
+   "1",
+   "1",
+   "1"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "130",
+   "133",
+   "133",
+   "145",
+   "148"
+  ],
+  "printable_area": [
+   "0x0",
+   "330x0",
+   "330x320",
+   "0x320"
+  ],
+  "printable_height": "325",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "1",
+   "2",
+   "2"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive E3D High Flow",
+   "Direct Drive Standard",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Bambu Lab H2C",
+  "printer_settings_id": "Bambu Lab H2C 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "14",
+   "14",
+   "14",
+   "14",
+   "14"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab H2D 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard",
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": [
+   "2"
+  ],
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "130",
+   "133",
+   "133",
+   "145",
+   "148",
+   "148",
+   "148"
+  ],
+  "printable_area": [
+   "0x0",
+   "350x0",
+   "350x320",
+   "0x320"
+  ],
+  "printable_height": "325",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "1",
+   "2",
+   "2",
+   "2",
+   "2"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive E3D High Flow",
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive TPU High Flow",
+   "Direct Drive E3D High Flow"
+  ],
+  "printer_model": "Bambu Lab H2D",
+  "printer_settings_id": "Bambu Lab H2D 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "10",
+   "10",
+   "10",
+   "10",
+   "10",
+   "10",
+   "10"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab H2S 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "145",
+   "148",
+   "148"
+  ],
+  "printable_area": [
+   "0x0",
+   "340x0",
+   "340x320",
+   "0x320"
+  ],
+  "printable_height": "340",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive E3D High Flow"
+  ],
+  "printer_model": "Bambu Lab H2S",
+  "printer_settings_id": "Bambu Lab H2S 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab P1S 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x2"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "107",
+   "107"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "250",
+  "printer_extruder_id": [
+   "1",
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Bambu Lab P1S",
+  "printer_settings_id": "Bambu Lab P1S 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab P2S 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0X0"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "110",
+   "110",
+   "110"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "256",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive E3D High Flow"
+  ],
+  "printer_model": "Bambu Lab P2S",
+  "printer_settings_id": "Bambu Lab P2S 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab X1 Carbon 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x2"
+  ],
+  "extruder_type": [
+   "Direct Drive"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "107",
+   "107"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "250",
+  "printer_extruder_id": [
+   "1",
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Bambu Lab X1 Carbon",
+  "printer_settings_id": "Bambu Lab X1 Carbon 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Bambu Lab X2D 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "Standard",
+   "Standard"
+  ],
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0",
+   "0x0"
+  ],
+  "extruder_type": [
+   "Direct Drive",
+   "Bowden"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_volume": [
+   "92",
+   "92",
+   "92",
+   "92",
+   "92",
+   "92"
+  ],
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256 "
+  ],
+  "printable_height": "261",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "1",
+   "2",
+   "2",
+   "2"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive E3D High Flow",
+   "Bowden Standard",
+   "Bowden High Flow",
+   "Bowden E3D High Flow"
+  ],
+  "printer_model": "Bambu Lab X2D",
+  "printer_settings_id": "Bambu Lab X2D 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18",
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "2",
+   "2",
+   "2"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Creality K1C 0.4 nozzle": {
+  "extruder_offset": "0x0",
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "nozzle_volume": "200",
+  "printable_area": [
+   "0x0",
+   "220x0",
+   "220x220",
+   "0x220"
+  ],
+  "printable_height": "250",
+  "printer_model": "Creality K1C",
+  "printer_settings_id": "Creality K1C 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Creality K2 Plus 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "183",
+  "printable_area": [
+   "0x0",
+   "350x0",
+   "350x350",
+   "0x350"
+  ],
+  "printable_height": "350",
+  "printer_model": "Creality K2 Plus",
+  "printer_settings_id": "Creality K2 Plus 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Elegoo Centauri Carbon 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "107",
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "256",
+  "printer_model": "Elegoo Centauri Carbon",
+  "printer_settings_id": "Elegoo Centauri Carbon 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Elegoo Centauri Carbon 2 0.4 nozzle": {
+  "extruder_offset": [
+   "0x1.5"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "nozzle_volume": "107",
+  "printable_area": [
+   "0x0",
+   "256x0",
+   "256x256",
+   "0x256"
+  ],
+  "printable_height": "256",
+  "printer_model": "Elegoo Centauri Carbon 2",
+  "printer_settings_id": "Elegoo Centauri Carbon 2 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa CORE One 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x220",
+   "0x220"
+  ],
+  "printable_height": "270",
+  "printer_model": "Prusa CORE One",
+  "printer_settings_id": "Prusa CORE One 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": "0.7",
+  "single_extruder_multi_material": "0"
+ },
+ "Prusa CORE One INDX 4T HF 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow"
+  ],
+  "extruder_offset": [
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "printable_area": [
+   "0x0",
+   "248x0",
+   "248x205",
+   "0x205"
+  ],
+  "printable_height": "270",
+  "printer_extruder_id": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Prusa CORE One INDX 4T",
+  "printer_settings_id": "Prusa CORE One INDX 4T HF 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Prusa CORE One INDX 8T HF 0.4 nozzle": {
+  "default_nozzle_volume_type": [
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow",
+   "High Flow"
+  ],
+  "extruder_offset": [
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "printable_area": [
+   "0x0",
+   "248x0",
+   "248x205",
+   "0x205"
+  ],
+  "printable_height": "270",
+  "printer_extruder_id": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Prusa CORE One INDX 8T",
+  "printer_settings_id": "Prusa CORE One INDX 8T HF 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8",
+   "0.8"
+  ],
+  "single_extruder_multi_material": "0"
+ },
+ "Prusa CORE One L 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "printable_area": [
+   "0x0",
+   "300x0",
+   "300x300",
+   "0x300"
+  ],
+  "printable_height": "331",
+  "printer_model": "Prusa CORE One L",
+  "printer_settings_id": "Prusa CORE One L 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": "0.7",
+  "single_extruder_multi_material": "0"
+ },
+ "Prusa CORE One MMU3 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x220",
+   "0x220"
+  ],
+  "printable_height": "270",
+  "printer_extruder_id": [
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard"
+  ],
+  "printer_model": "Prusa CORE One MMU3",
+  "printer_settings_id": "Prusa CORE One MMU3 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.7"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MINI 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "180x0",
+   "180x180",
+   "0x180"
+  ],
+  "printable_height": "180",
+  "printer_model": "Prusa MINI",
+  "printer_settings_id": "Prusa MINI 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "3.2"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MINIIS 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "printable_area": [
+   "0x0",
+   "180x0",
+   "180x180",
+   "0x180"
+  ],
+  "printable_height": "180",
+  "printer_model": "Prusa MINI IS",
+  "printer_settings_id": "Prusa MINIIS 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "2.5"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MK3.5 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "brass",
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x210",
+   "0x210"
+  ],
+  "printable_height": "210",
+  "printer_model": "Prusa MK3.5",
+  "printer_settings_id": "Prusa MK3.5 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MK3S 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x210",
+   "0x210"
+  ],
+  "printable_height": "210",
+  "printer_model": "Prusa MK3S",
+  "printer_settings_id": "Prusa MK3S 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MK4 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x210",
+   "0x210"
+  ],
+  "printable_height": "220",
+  "printer_model": "Prusa MK4",
+  "printer_settings_id": "Prusa MK4 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MK4 MMU3 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": [
+   "undefine"
+  ],
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x210",
+   "0x210"
+  ],
+  "printable_height": "220",
+  "printer_extruder_id": [
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard"
+  ],
+  "printer_model": "Prusa MK4 MMU3",
+  "printer_settings_id": "Prusa MK4 MMU3 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.7"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa MK4S 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x210",
+   "0x210"
+  ],
+  "printable_height": "220",
+  "printer_model": "Prusa MK4S",
+  "printer_settings_id": "Prusa MK4S 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": "0.7",
+  "single_extruder_multi_material": "0"
+ },
+ "Prusa MK4S MMU3 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": [
+   "undefine"
+  ],
+  "printable_area": [
+   "0x0",
+   "250x0",
+   "250x210",
+   "0x210"
+  ],
+  "printable_height": "220",
+  "printer_extruder_id": [
+   "1"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard"
+  ],
+  "printer_model": "Prusa MK4S MMU3",
+  "printer_settings_id": "Prusa MK4S MMU3 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.7"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa XL 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "360x0",
+   "360x360",
+   "0x360"
+  ],
+  "printable_height": "360",
+  "printer_model": "Prusa XL",
+  "printer_settings_id": "Prusa XL 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": "0.8",
+  "single_extruder_multi_material": "1"
+ },
+ "Prusa XL 5T 0.4 nozzle": {
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": "hardened_steel",
+  "printable_area": [
+   "0x0",
+   "360x0",
+   "360x360",
+   "0x360"
+  ],
+  "printable_height": "360",
+  "printer_model": "Prusa XL 5T",
+  "printer_settings_id": "Prusa XL 5T 0.4 nozzle",
+  "printer_technology": "FFF",
+  "retraction_length": "0.8",
+  "single_extruder_multi_material": "0"
+ },
+ "Qidi Q2 0.4 nozzle": {
+  "enable_long_retraction_when_cut": "2",
+  "extruder_offset": [
+   "0x0"
+  ],
+  "nozzle_diameter": [
+   "0.4"
+  ],
+  "nozzle_type": [
+   "stainless_steel"
+  ],
+  "nozzle_volume": [
+   "125"
+  ],
+  "printable_area": [
+   "0x0",
+   "270x0",
+   "270x270",
+   "0x270"
+  ],
+  "printable_height": "256",
+  "printer_model": "Qidi Q2",
+  "printer_settings_id": "Qidi Q2 0.4 nozzle",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_length": [
+   "0.8"
+  ],
+  "single_extruder_multi_material": "1"
+ },
+ "Snapmaker U1 (0.4 nozzle)": {
+  "default_nozzle_volume_type": [
+   "Standard",
+   "Standard",
+   "Standard",
+   "Standard"
+  ],
+  "extruder_offset": [
+   "0x0",
+   "0x0",
+   "0x0",
+   "0x0"
+  ],
+  "long_retractions_when_cut": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "nozzle_diameter": [
+   "0.4",
+   "0.4",
+   "0.4",
+   "0.4"
+  ],
+  "nozzle_type": [
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel",
+   "hardened_steel"
+  ],
+  "nozzle_volume": [
+   "143",
+   "143",
+   "143",
+   "143",
+   "143",
+   "143",
+   "143",
+   "143"
+  ],
+  "printable_area": [
+   "0.5x1",
+   "270.5x1",
+   "270.5x271",
+   "0.5x271"
+  ],
+  "printable_height": "270.05",
+  "printer_extruder_id": [
+   "1",
+   "1",
+   "2",
+   "2",
+   "3",
+   "3",
+   "4",
+   "4"
+  ],
+  "printer_extruder_variant": [
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive Standard",
+   "Direct Drive High Flow",
+   "Direct Drive Standard",
+   "Direct Drive High Flow"
+  ],
+  "printer_model": "Snapmaker U1",
+  "printer_settings_id": "Snapmaker U1 (0.4 nozzle)",
+  "printer_structure": "corexy",
+  "printer_technology": "FFF",
+  "retraction_distances_when_cut": [
+   "18",
+   "18",
+   "18",
+   "18",
+   "18",
+   "18",
+   "18",
+   "18"
+  ],
+  "retraction_length": [
+   "1.5",
+   "1.5",
+   "1.5",
+   "1.5",
+   "1.5",
+   "1.5",
+   "1.5",
+   "1.5"
+  ],
+  "single_extruder_multi_material": "0"
+ }
+}

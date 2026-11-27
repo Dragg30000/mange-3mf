@@ -69,7 +69,7 @@ const fail = (msg, x) => { console.error('ECHEC :', msg, x === undefined ? '' : 
   await clear(); await recv(offer);
   const card = await page.evaluate(() => ({ name: document.querySelector('#card b').textContent, info: document.querySelector('#card small').textContent }));
   const f = offer.file;
-  if (await v() !== 'offer' || await txt('say') !== T.pn_offer || await txt('say2') !== T.pn_offer2 || card.name !== f.name
+  if (await v() !== 'offer' || await txt('say') !== T.pn_offer || await txt('say2') !== (hello.printer ? T.pn_offer2.replace('{0}', hello.printer) : T.pn_offer2g) || card.name !== f.name
       || card.info !== f.label + ', ' + f.printer || !(await shown('eat')) || !(await shown('later'))
       || await txt('eat') !== T.pn_eat || await txt('later') !== T.pn_later || await txt('hint') !== T.pn_offer_hint || !/hungry/.test(await u1()))
     fail('Miam incorrect', { v: await v(), card });
@@ -292,7 +292,7 @@ const fail = (msg, x) => { console.error('ECHEC :', msg, x === undefined ? '' : 
 
   // 17. reglage « notification seulement » : le texte du repos ne promet plus de surveiller Orca
   await recv({ command: 'rest' }); await recv(Object.assign({}, hello, { mode: 'notif' }));
-  if (await txt('say2') !== T.pn_rest2b) fail('texte du repos en mode notification', await txt('say2'));
+  if (await txt('say2') !== (hello.printer ? T.pn_rest2b.replace('{0}', hello.printer) : T.pn_rest2c)) fail('texte du repos en mode notification', await txt('say2'));
   await recv(hello);
 
   // 17b. « rien » choisi dans le panneau : il le dit au plugin, explique comment revenir, puis se ferme
